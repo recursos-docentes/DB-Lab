@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador Interactivo de Diagramas Entidad-Relación</title>
+    <!-- Tailwind CSS para el diseño visual profesional -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para las figuras E-R */
+        .er-entity {
+            border: 3px solid #2563eb;
+            background-color: #eff6ff;
+            transition: all 0.3s ease;
+        }
+        .er-relation {
+            border: 3px solid #db2777;
+            background-color: #fdf2f8;
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+        .er-relation-inner {
+            transform: rotate(-45deg);
+        }
+        .er-attribute {
+            border: 2px solid #059669;
+            background-color: #ecfdf5;
+            border-radius: 50% / 50%;
+            transition: all 0.3s ease;
+        }
+        .er-attribute-key {
+            border: 3px double #059669 !important;
+            text-decoration: underline;
+        }
+        .input-blank {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #94a3b8;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .input-blank:focus {
+            border-color: #3b82f6;
+            background-color: #ffffff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .correct-blank {
+            border-color: #10b981 !important;
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+        }
+        .incorrect-blank {
+            border-color: #ef4444 !important;
+            background-color: #fee2e2 !important;
+            color: #991b1b !important;
+        }
+        /* Modo Accesibilidad / Alto Contraste */
+        .accessible-mode .er-entity {
+            border-color: #000000 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border-width: 4px !important;
+        }
+        .accessible-mode .er-relation {
+            border-color: #000000 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border-width: 4px !important;
+        }
+        .accessible-mode .er-attribute {
+            border-color: #000000 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border-width: 3px !important;
+        }
+        .accessible-mode .input-blank {
+            border-color: #000000 !important;
+            border-style: solid !important;
+            background-color: #ffffd0 !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-md p-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">E-R Fácil: Diseñador Conceptual</h1>
+                    <p class="text-xs text-blue-100 font-medium">Introducción a las Bases de Datos — Adaptado para Dificultades de Aprendizaje</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btn-accessibility" onclick="toggleAccessibility()" class="px-3 py-1.5 bg-indigo-900/40 hover:bg-indigo-900/80 rounded-lg text-sm font-semibold border border-white/20 transition flex items-center gap-2">
+                    <span>👁️ Vista Accesible / Contraste</span>
+                </button>
+                <div class="bg-indigo-900/50 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-indigo-500/30">
+                    <span>Progreso:</span>
+                    <span id="progress-indicator" class="text-yellow-300">1 / 3</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Panel: Instructions, Case Study, Word Bank -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Selector de Ejercicios -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <label for="exercise-select" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Seleccionar Caso de Estudio:</label>
+                <select id="exercise-select" onchange="loadExercise(this.value)" class="w-full p-2.5 bg-slate-100 border border-slate-300 rounded-lg font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="0">Caso 1: Taller Mecánico (CamScanner)</option>
+                    <option value="1">Caso 2: Biblioteca Escolar (Préstamos)</option>
+                    <option value="2">Caso 3: Tienda Online (Pedidos)</option>
+                </select>
+            </div>
+
+            <!-- Descripción del Problema -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-3">
+                <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span class="text-xl">📝</span> Enunciado del Problema
+                </h2>
+                <div id="problem-description" class="text-sm leading-relaxed text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100 max-h-60 overflow-y-auto">
+                    <!-- Dinámico -->
+                </div>
+                <!-- Pistas para ayuda -->
+                <button onclick="showHint()" class="text-left text-xs text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1.5 mt-1 transition">
+                    💡 ¿Necesitas una pista? Haz clic aquí.
+                </button>
+                <div id="hint-box" class="hidden text-xs bg-yellow-50 text-yellow-800 border border-yellow-200 p-3 rounded-lg transition-all">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- Banco de Palabras Interactivo (Súper útil para dificultades motoras/cognitivas) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider text-slate-500">
+                        📦 Banco de Palabras
+                    </h3>
+                    <span class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full font-bold">¡Haz clic para copiar!</span>
+                </div>
+                <p class="text-xs text-slate-500">Haz clic en cualquier botón de abajo y luego haz clic en el cuadro de texto vacío del diagrama para colocar la palabra automáticamente.</p>
+                <div id="word-bank" class="flex flex-wrap gap-2 pt-2">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- Botones de Control -->
+            <div class="flex flex-col gap-2 mt-2">
+                <button onclick="checkAnswers()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transform active:scale-95 transition-all text-base flex justify-center items-center gap-2">
+                    <span>✅ Corregir Ejercicio</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="resetExercise()" class="py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition text-sm flex justify-center items-center gap-2">
+                        <span>🔄 Reiniciar</span>
+                    </button>
+                    <button onclick="nextExercise()" class="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition text-sm flex justify-center items-center gap-2">
+                        <span>Siguiente ➡️</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Panel: Visual E-R Canvas -->
+        <section class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col min-h-[600px] relative overflow-hidden">
+            
+            <!-- Indicador Visual de Leyenda de Figuras -->
+            <div class="flex flex-wrap gap-4 text-xs font-semibold text-slate-500 border-b border-slate-100 pb-3 mb-4 justify-between">
+                <div class="flex gap-4">
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-blue-100 border border-blue-600 rounded"></span> Entidad</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-pink-50 border border-pink-600 rotate-45 transform"></span> Relación</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-50 border border-emerald-600 rounded-full"></span> Atributo</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-50 border-double border-4 border-emerald-600 rounded-full"></span> Atributo Clave</span>
+                </div>
+                <div class="text-indigo-600 font-bold" id="selected-word-indicator"></div>
+            </div>
+
+            <!-- El Canvas E-R Interactivo -->
+            <div id="er-canvas" class="flex-1 relative w-full h-full bg-slate-50 rounded-xl border border-slate-100 overflow-auto min-h-[500px]">
+                <!-- SVG Dinámico para las Líneas Conectoras del Diagrama -->
+                <svg id="diagram-lines" class="absolute inset-0 pointer-events-none w-full h-full z-0 opacity-70"></svg>
+                
+                <!-- Los Nodos HTML se inyectarán de forma dinámica aquí en base al ejercicio -->
+                <div id="nodes-container" class="absolute inset-0 z-10 w-full h-full"></div>
+            </div>
+
+            <!-- Score / Feedback del Ejercicio actual -->
+            <div id="feedback-alert" class="hidden mt-4 p-4 rounded-xl text-center font-bold text-sm transition-all duration-300">
+                <!-- Mensaje de éxito o revisión -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer / Report Generation -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>© 2026 Introducción a las Bases de Datos - UTU La Paz. Creado para apoyar a todos los estudiantes.</p>
+            <div class="flex gap-3">
+                <button onclick="downloadReport()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold transition flex items-center gap-1">
+                    📊 Descargar Reporte del Alumno
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS de la Aplicación -->
+    <script>
+        // Datos de los Ejercicios
+        const exercises = [
+            {
+                title: "Caso 1: Taller Mecánico",
+                description: `<strong>Contexto Real:</strong> Un taller mecánico desea mantener una base de datos con la información referente a las reparaciones de los autos y sus dueños.<br><br>
+                <strong>Requerimientos para el diseño:</strong><br>
+                • De cada <strong>Cliente</strong> se guarda la ci, nombre y apellido1.<br>
+                • De los <strong>Autos</strong> se guarda la matrícula, marca, modelo y tipo de combustible.<br>
+                • De cada <strong>Reparación</strong> se guarda un código único y una descripción.<br>
+                • Un cliente puede tener muchos autos, mientras que un auto solo es de un cliente.<br>
+                • Un auto puede recibir muchas reparaciones y una reparación puede aplicarse a muchos autos.<br>
+                • Al realizar una reparación de un auto se registra también la fecha de entrada y una observación.`,
+                hint: "Identifica primero los rectángulos como los objetos principales (Cliente, Auto, Reparación). Los rombos son las acciones (Tiene, Recibe). Los óvalos son características. El atributo clave lleva doble borde o subrayado.",
+                wordBank: ["Cliente", "Auto", "Reparación", "Tiene", "Recibe", "ci", "nombre", "apellido1", "matrícula", "marca", "modelo", "combustible", "código", "descripción", "fecha_entrada", "observación", "1", "N", "M"],
+                nodes: [
+                    // Entidades
+                    { id: "e1", type: "entity", label: "Cliente", x: 10, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity", label: "Auto", x: 42, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    { id: "e3", type: "entity", label: "Reparación", x: 74, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    
+                    // Relaciones
+                    { id: "r1", type: "relation", label: "Tiene", x: 26, y: 40, w: 80, h: 80, isBlank: true, placeholder: "¿Relación?" },
+                    { id: "r2", type: "relation", label: "Recibe", x: 58, y: 40, w: 80, h: 80, isBlank: true, placeholder: "¿Relación?" },
+
+                    // Atributos de Cliente
+                    { id: "a_e1_1", type: "attribute", isKey: true, label: "ci", x: 3, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, label: "nombre", x: 13, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, label: "apellido1", x: 22, y: 22, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de Auto
+                    { id: "a_e2_1", type: "attribute", isKey: true, label: "matrícula", x: 34, y: 15, w: 85, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, label: "marca", x: 44, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, label: "modelo", x: 53, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e2_4", type: "attribute", isKey: false, label: "combustible", x: 50, y: 25, w: 90, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de Reparación
+                    { id: "a_e3_1", type: "attribute", isKey: true, label: "código", x: 70, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e3_2", type: "attribute", isKey: false, label: "descripción", x: 80, y: 15, w: 90, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de la Relación "Recibe" (Atributos de Relación)
+                    { id: "a_r2_1", type: "attribute", isKey: false, label: "fecha_entrada", x: 58, y: 75, w: 100, h: 45, isBlank: true, placeholder: "¿Atributo Relación?" },
+                    { id: "a_r2_2", type: "attribute", isKey: false, label: "observación", x: 68, y: 75, w: 90, h: 45, isBlank: true, placeholder: "¿Atributo Relación?" },
+
+                    // Cardinalidades en las líneas de conexión
+                    { id: "c1_l", type: "cardinality", label: "1", x: 23, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." },
+                    { id: "c1_r", type: "cardinality", label: "N", x: 38, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." },
+                    { id: "c2_l", type: "cardinality", label: "N", x: 54, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." },
+                    { id: "c2_r", type: "cardinality", label: "M", x: 70, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." }
+                ],
+                connections: [
+                    // De Atributos a Entidades
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" }, { from: "a_e2_4", to: "e2" },
+                    { from: "a_e3_1", to: "e3" }, { from: "a_e3_2", to: "e3" },
+                    // De Entidades a Relación r1 (Tiene)
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+                    // De Entidades a Relación r2 (Recibe)
+                    { from: "e2", to: "r2" }, { from: "r2", to: "e3" },
+                    // De Relación r2 a sus Atributos propios
+                    { from: "r2", to: "a_r2_1" }, { from: "r2", to: "a_r2_2" }
+                ]
+            },
+            {
+                title: "Caso 2: Biblioteca Escolar",
+                description: `<strong>Contexto Real:</strong> Una escuela necesita organizar el préstamo de sus libros de lectura para todos sus estudiantes.<br><br>
+                <strong>Requerimientos para el diseño:</strong><br>
+                • Contamos con la entidad <strong>Socio</strong>, que representa a los estudiantes, de los cuales guardamos: id_socio, nombre y teléfono.<br>
+                • También tenemos la entidad <strong>Libro</strong>, de los cuales se registra el isbn, título y autor.<br>
+                • Un Socio puede realizar muchos préstamos de libros en el año, y un libro puede ser prestado a muchos socios diferentes.<br>
+                • Cada vez que se realiza un <strong>Préstamo</strong> (relación), se debe registrar la fecha_prestamo y si fue devuelto.`,
+                hint: "Las entidades son Socio y Libro. La relación es Préstamo, la cual tiene dos atributos propios porque es de muchos a muchos. La clave de un socio es id_socio, y de un libro es el isbn.",
+                wordBank: ["Socio", "Libro", "Préstamo", "id_socio", "nombre", "teléfono", "isbn", "título", "autor", "fecha_prestamo", "devuelto", "1", "N", "M"],
+                nodes: [
+                    // Entidades
+                    { id: "e1", type: "entity", label: "Socio", x: 15, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity", label: "Libro", x: 65, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    
+                    // Relaciones
+                    { id: "r1", type: "relation", label: "Préstamo", x: 40, y: 40, w: 85, h: 85, isBlank: true, placeholder: "¿Relación?" },
+
+                    // Atributos de Socio
+                    { id: "a_e1_1", type: "attribute", isKey: true, label: "id_socio", x: 5, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, label: "nombre", x: 15, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, label: "teléfono", x: 25, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de Libro
+                    { id: "a_e2_1", type: "attribute", isKey: true, label: "isbn", x: 55, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, label: "título", x: 65, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, label: "autor", x: 75, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de la Relación "Préstamo"
+                    { id: "a_r1_1", type: "attribute", isKey: false, label: "fecha_prestamo", x: 33, y: 75, w: 105, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_r1_2", type: "attribute", isKey: false, label: "devuelto", x: 47, y: 75, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Cardinalidades
+                    { id: "c1_l", type: "cardinality", label: "N", x: 28, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." },
+                    { id: "c1_r", type: "cardinality", label: "M", x: 55, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." }
+                ],
+                connections: [
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+                    { from: "r1", to: "a_r1_1" }, { from: "r1", to: "a_r1_2" }
+                ]
+            },
+            {
+                title: "Caso 3: Tienda Online",
+                description: `<strong>Contexto Real:</strong> Un comercio electrónico necesita registrar los pedidos que realizan los usuarios.<br><br>
+                <strong>Requerimientos para el diseño:</strong><br>
+                • Contamos con la entidad <strong>Cliente</strong> (id_cliente, nombre, email).<br>
+                • El cliente realiza un <strong>Pedido</strong> del cual se registra la fecha_pedido y el total de la compra.<br>
+                • Un cliente puede realizar muchos pedidos en la plataforma, pero cada pedido pertenece a un solo cliente específico.`,
+                hint: "Este es un caso de relación 1 a Muchos (1:N) entre Cliente y Pedido. Al ser 1:N, la relación no tiene atributos propios; estos pertenecen directamente a la entidad Pedido.",
+                wordBank: ["Cliente", "Pedido", "Realiza", "id_cliente", "nombre", "email", "nro_pedido", "fecha_pedido", "total", "1", "N"],
+                nodes: [
+                    // Entidades
+                    { id: "e1", type: "entity", label: "Cliente", x: 15, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity", label: "Pedido", x: 65, y: 40, w: 120, h: 55, isBlank: true, placeholder: "¿Entidad?" },
+                    
+                    // Relaciones
+                    { id: "r1", type: "relation", label: "Realiza", x: 40, y: 40, w: 85, h: 85, isBlank: true, placeholder: "¿Relación?" },
+
+                    // Atributos de Cliente
+                    { id: "a_e1_1", type: "attribute", isKey: true, label: "id_cliente", x: 5, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, label: "nombre", x: 15, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, label: "email", x: 25, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+
+                    // Atributos de Pedido
+                    { id: "a_e2_1", type: "attribute", isKey: true, label: "nro_pedido", x: 55, y: 15, w: 80, h: 45, isBlank: true, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, label: "fecha_pedido", x: 65, y: 15, w: 90, h: 45, isBlank: true, placeholder: "¿Atributo?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, label: "total", x: 75, y: 15, w: 80, h: 45, isBlank: true, placeholder: "Atributo" },
+
+                    // Cardinalidades
+                    { id: "c1_l", type: "cardinality", label: "1", x: 28, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." },
+                    { id: "c1_r", type: "cardinality", label: "N", x: 55, y: 44, w: 45, h: 35, isBlank: true, placeholder: "Card." }
+                ],
+                connections: [
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" }
+                ]
+            }
+        ];
+
+        let currentExerciseIndex = 0;
+        let selectedWord = null;
+        let scores = [0, 0, 0]; // Registro de aciertos por ejercicio para el reporte final
+
+        // Cargar el ejercicio inicial al abrir
+        window.onload = function() {
+            loadExercise(0);
+            window.addEventListener('resize', drawLines);
+        };
+
+        // Función para cambiar de modo de accesibilidad (Alto contraste / Lectura fácil)
+        function toggleAccessibility() {
+            const body = document.body;
+            body.classList.toggle('accessible-mode');
+            const btn = document.getElementById('btn-accessibility');
+            if (body.classList.contains('accessible-mode')) {
+                btn.innerHTML = "<span>☀️ Modo Normal</span>";
+                btn.classList.add('bg-yellow-500', 'text-slate-900', 'hover:bg-yellow-400');
+            } else {
+                btn.innerHTML = "<span>👁️ Vista Accesible / Contraste</span>";
+                btn.classList.remove('bg-yellow-500', 'text-slate-900', 'hover:bg-yellow-400');
+            }
+        }
+
+        // Carga un ejercicio en la pantalla
+        function loadExercise(index) {
+            currentExerciseIndex = parseInt(index);
+            selectedWord = null;
+            document.getElementById('selected-word-indicator').innerText = "";
+            document.getElementById('exercise-select').value = index;
+            document.getElementById('progress-indicator').innerText = `${currentExerciseIndex + 1} / 3`;
+            
+            // Ocultar caja de pistas y alerta
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('feedback-alert').classList.add('hidden');
+
+            const ex = exercises[currentExerciseIndex];
+            
+            // Renderizar Enunciado y Pista
+            document.getElementById('problem-description').innerHTML = ex.description;
+            document.getElementById('hint-box').innerHTML = `<strong>Pista del Docente:</strong> ${ex.hint}`;
+
+            // Renderizar Banco de Palabras
+            const bankContainer = document.getElementById('word-bank');
+            bankContainer.innerHTML = "";
+            ex.wordBank.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 bg-slate-100 hover:bg-indigo-100 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 transition active:scale-95";
+                btn.innerText = word;
+                btn.onclick = () => selectWord(word, btn);
+                bankContainer.appendChild(btn);
+            });
+
+            // Renderizar Lienzo E-R
+            renderCanvas(ex);
+        }
+
+        // Seleccionar palabra del banco
+        function selectWord(word, element) {
+            selectedWord = word;
+            document.getElementById('selected-word-indicator').innerText = `👉 Palabra lista para pegar: "${word}"`;
+            
+            // Resetear estilos de selección previos
+            const buttons = document.getElementById('word-bank').querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700'));
+            
+            // Aplicar estilo de seleccionado
+            element.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700');
+        }
+
+        // Dibuja los nodos en el canvas
+        function renderCanvas(ex) {
+            const container = document.getElementById('nodes-container');
+            container.innerHTML = "";
+
+            ex.nodes.forEach(node => {
+                const div = document.createElement('div');
+                div.id = node.id;
+                div.style.left = `${node.x}%`;
+                div.style.top = `${node.y}%`;
+                div.style.width = `${node.w}px`;
+                div.style.height = `${node.h}px`;
+                div.style.position = "absolute";
+                div.style.transform = "translate(-50%, -50%)";
+
+                // Clases bases según el tipo
+                let shapeClass = "";
+                let innerHTML = "";
+
+                if (node.type === "entity") {
+                    shapeClass = "er-entity shadow-sm rounded-lg flex flex-col justify-center items-center p-1";
+                    innerHTML = `
+                        <div class="text-[10px] text-blue-800 font-bold uppercase select-none mb-0.5">Entidad</div>
+                        <input type="text" id="input-${node.id}" placeholder="${node.placeholder}" 
+                            class="input-blank w-full text-xs py-1 rounded text-center font-bold"
+                            onclick="handleInputClick('${node.id}')">
+                    `;
+                } else if (node.type === "relation") {
+                    shapeClass = "er-relation shadow-sm flex justify-center items-center";
+                    innerHTML = `
+                        <div class="er-relation-inner flex flex-col justify-center items-center w-full h-full p-2">
+                            <div class="text-[8px] text-pink-800 font-bold uppercase select-none">Relación</div>
+                            <input type="text" id="input-${node.id}" placeholder="¿?" 
+                                class="input-blank w-14 text-xs py-0.5 rounded text-center font-bold"
+                                onclick="handleInputClick('${node.id}')">
+                        </div>
+                    `;
+                } else if (node.type === "attribute") {
+                    const keyClass = node.isKey ? "er-attribute-key border-double" : "";
+                    shapeClass = `er-attribute ${keyClass} shadow-sm flex flex-col justify-center items-center p-1`;
+                    innerHTML = `
+                        <div class="text-[8px] text-emerald-800 font-bold uppercase select-none mb-0.5">${node.isKey ? 'Clave' : 'Atrib'}</div>
+                        <input type="text" id="input-${node.id}" placeholder="${node.placeholder}" 
+                            class="input-blank w-full text-[11px] py-0.5 rounded text-center font-semibold"
+                            onclick="handleInputClick('${node.id}')">
+                    `;
+                } else if (node.type === "cardinality") {
+                    shapeClass = "bg-white border-2 border-slate-400 rounded-md flex justify-center items-center shadow-sm";
+                    innerHTML = `
+                        <input type="text" id="input-${node.id}" placeholder="0,N" 
+                            class="input-blank w-full h-full text-xs font-bold text-center uppercase"
+                            onclick="handleInputClick('${node.id}')">
+                    `;
+                }
+
+                div.className = shapeClass;
+                div.innerHTML = innerHTML;
+                container.appendChild(div);
+            });
+
+            // Dar un pequeño delay para asegurar la carga del DOM antes de dibujar líneas
+            setTimeout(drawLines, 100);
+        }
+
+        // Pega la palabra seleccionada del banco al cuadro de texto donde el alumno hace clic
+        function handleInputClick(nodeId) {
+            const input = document.getElementById(`input-${nodeId}`);
+            if (selectedWord !== null) {
+                input.value = selectedWord;
+                // Deseleccionar palabra para el próximo uso
+                selectedWord = null;
+                document.getElementById('selected-word-indicator').innerText = "";
+                const buttons = document.getElementById('word-bank').querySelectorAll('button');
+                buttons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white'));
+            }
+        }
+
+        // Dibuja las líneas usando SVG calculando las coordenadas reales de los nodos
+        function drawLines() {
+            const ex = exercises[currentExerciseIndex];
+            const svg = document.getElementById('diagram-lines');
+            const canvas = document.getElementById('er-canvas');
+            
+            svg.innerHTML = ""; // Limpiar líneas anteriores
+
+            const canvasRect = canvas.getBoundingClientRect();
+
+            ex.connections.forEach(conn => {
+                const elFrom = document.getElementById(conn.from);
+                const elTo = document.getElementById(conn.to);
+
+                if (elFrom && elTo) {
+                    const rectFrom = elFrom.getBoundingClientRect();
+                    const rectTo = elTo.getBoundingClientRect();
+
+                    // Calcular centro de cada elemento relativo al contenedor canvas
+                    const x1 = (rectFrom.left + rectFrom.width / 2) - canvasRect.left + canvas.scrollLeft;
+                    const y1 = (rectFrom.top + rectFrom.height / 2) - canvasRect.top + canvas.scrollTop;
+                    const x2 = (rectTo.left + rectTo.width / 2) - canvasRect.left + canvas.scrollLeft;
+                    const y2 = (rectTo.top + rectTo.height / 2) - canvasRect.top + canvas.scrollTop;
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", x1);
+                    line.setAttribute("y1", y1);
+                    line.setAttribute("x2", x2);
+                    line.setAttribute("y2", y2);
+                    line.setAttribute("stroke", "#475569"); // Color Slate 600
+                    line.setAttribute("stroke-width", "2.5");
+                    
+                    // Si conecta a un atributo, hacerlo con línea discontinua
+                    if (elFrom.classList.contains('er-attribute') || elTo.classList.contains('er-attribute')) {
+                        line.setAttribute("stroke-dasharray", "4,4");
+                        line.setAttribute("stroke", "#059669"); // Color verde para atributos
+                    }
+
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        // Mostrar u ocultar la pista
+        function showHint() {
+            const box = document.getElementById('hint-box');
+            box.classList.toggle('hidden');
+        }
+
+        // Reinicia las respuestas del ejercicio actual
+        function resetExercise() {
+            const ex = exercises[currentExerciseIndex];
+            ex.nodes.forEach(node => {
+                const input = document.getElementById(`input-${node.id}`);
+                if (input) {
+                    input.value = "";
+                    input.classList.remove('correct-blank', 'incorrect-blank');
+                }
+            });
+            document.getElementById('feedback-alert').classList.add('hidden');
+        }
+
+        // Avanzar al siguiente ejercicio
+        function nextExercise() {
+            const nextIndex = (currentExerciseIndex + 1) % exercises.length;
+            loadExercise(nextIndex);
+        }
+
+        // Corrige el ejercicio actual
+        function checkAnswers() {
+            const ex = exercises[currentExerciseIndex];
+            let correctCount = 0;
+            let totalBlanks = ex.nodes.length;
+
+            ex.nodes.forEach(node => {
+                const input = document.getElementById(`input-${node.id}`);
+                if (input) {
+                    const studentValue = input.value.trim().toLowerCase();
+                    const correctValue = node.label.toLowerCase();
+
+                    // Admitir pequeñas flexibilidades en la escritura
+                    if (studentValue === correctValue) {
+                        input.classList.remove('incorrect-blank');
+                        input.classList.add('correct-blank');
+                        correctCount++;
+                    } else {
+                        input.classList.remove('correct-blank');
+                        input.classList.add('incorrect-blank');
+                    }
+                }
+            });
+
+            // Guardar puntaje obtenido
+            scores[currentExerciseIndex] = correctCount;
+
+            const feedback = document.getElementById('feedback-alert');
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-amber-100', 'text-amber-800');
+
+            if (correctCount === totalBlanks) {
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `🎉 ¡Excelente trabajo! Completaste todo el diagrama de "${ex.title}" de forma correcta (${correctCount}/${totalBlanks}).`;
+            } else {
+                feedback.classList.add('bg-amber-100', 'text-amber-800');
+                feedback.innerHTML = `🤔 Tienes algunas figuras con respuestas incorrectas (${correctCount}/${totalBlanks} correctas). ¡Revisa las marcas rojas e inténtalo de nuevo! Puedes usar el banco de palabras como ayuda.`;
+            }
+        }
+
+        // Generar un reporte del estudiante (Impresión amigable / PDF)
+        function downloadReport() {
+            const name = prompt("Escribe tu nombre completo para el reporte:") || "Estudiante Autónomo";
+            const date = new Date().toLocaleDateString('es-UY');
+
+            let reportHTML = `
+                <html>
+                <head>
+                    <title>Reporte de Evaluación - Bases de Datos</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                </head>
+                <body class="p-8 text-slate-800 bg-white">
+                    <div class="max-w-3xl mx-auto border p-8 rounded-xl shadow-sm">
+                        <div class="flex justify-between items-center border-b pb-4 mb-6">
+                            <div>
+                                <h1 class="text-2xl font-bold text-indigo-800">Reporte de Diagramas E-R</h1>
+                                <p class="text-xs text-slate-500">Módulo 1: Bases de Datos Relacionales</p>
+                            </div>
+                            <div class="text-right text-xs">
+                                <p><strong>Fecha:</strong> ${date}</p>
+                                <p><strong>UTU:</strong> UTU La Paz</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6 bg-slate-50 p-4 rounded-lg">
+                            <p class="text-sm"><strong>Alumno/a:</strong> ${name}</p>
+                        </div>
+
+                        <h2 class="text-lg font-bold mb-4">Resultados por Ejercicio:</h2>
+                        <table class="w-full text-left border-collapse mb-8">
+                            <thead>
+                                <tr class="bg-slate-100">
+                                    <th class="p-3 border text-sm font-bold">Ejercicio</th>
+                                    <th class="p-3 border text-sm font-bold">Puntaje</th>
+                                    <th class="p-3 border text-sm font-bold">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            exercises.forEach((ex, idx) => {
+                const pct = Math.round((scores[idx] / ex.nodes.length) * 100) || 0;
+                const status = pct === 100 ? "Completado Excelente" : pct > 50 ? "En Progreso" : "No iniciado / Bajo";
+                const color = pct === 100 ? "text-emerald-700" : "text-amber-700";
+
+                reportHTML += `
+                    <tr>
+                        <td class="p-3 border text-sm">${ex.title}</td>
+                        <td class="p-3 border text-sm font-bold">${scores[idx]} / ${ex.nodes.length} (${pct}%)</td>
+                        <td class="p-3 border text-sm font-bold ${color}">${status}</td>
+                    </tr>
+                `;
+            });
+
+            reportHTML += `
+                            </tbody>
+                        </table>
+
+                        <div class="border-t pt-6 text-center text-xs text-slate-400">
+                            Firma del Docente: Elizabeth Izquierdo
+                        </div>
+                    </div>
+                    <script>window.print();<\/script>
+                </body>
+                </html>
+            `;
+
+            const win = window.open("", "_blank");
+            win.document.write(reportHTML);
+            win.document.close();
+        }
+    </script>
+</body>
+</html>

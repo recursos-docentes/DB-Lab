@@ -198,9 +198,9 @@
                     class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm">
                     📝 Corregir Diagrama
                 </button>
-                <button onclick="window.print()"
+                <button id="png-btn" onclick="saveAsPNG()"
                     class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2 text-xs">
-                    💾 Imprimir / Guardar PDF
+                    🖼️ Guardar como PNG
                 </button>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="resetExercise()"
@@ -782,6 +782,74 @@
             requestAnimationFrame(drawCrispConnectors);
         }
 
+        // ── Guardar diagrama como PNG ────────────────────────────
+        async function saveAsPNG() {
+            const btn = document.getElementById('png-btn');
+            if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
+
+            const canvasEl  = document.getElementById('er-canvas');
+            canvasEl.scrollLeft = 0;
+            canvasEl.scrollTop  = 0;
+
+            const canvasRect = canvasEl.getBoundingClientRect();
+            const overlays   = [];
+
+            // html2canvas no lee texto de <input> → creamos divs temporales encima
+            canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
+                inp.style.opacity = '0';
+                if (!inp.value) return;
+
+                const nodeId = inp.id.replace('input-', '');
+                const nodeEl = document.getElementById(nodeId) || inp.parentElement;
+                const r      = nodeEl.getBoundingClientRect();
+
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    position:absolute;
+                    left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
+                    top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
+                    width:${r.width}px; height:${r.height}px;
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:11px; font-weight:700;
+                    font-family:'Plus Jakarta Sans',sans-serif;
+                    pointer-events:none; z-index:9999; background:transparent;
+                    color:${
+                        inp.classList.contains('input-correct')   ? '#059669' :
+                        inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
+                    };
+                    text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
+                `;
+                div.textContent = inp.value;
+                canvasEl.appendChild(div);
+                overlays.push(div);
+            });
+
+            await new Promise(r => requestAnimationFrame(r));
+
+            try {
+                const shot = await html2canvas(canvasEl, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#f8fafc'
+                });
+
+                const link = document.createElement('a');
+                const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_');
+                link.download = `ER_${nombre}.png`;
+                link.href = shot.toDataURL('image/png');
+                link.click();
+
+            } catch (err) {
+                console.error('PNG error:', err);
+                alert('No se pudo generar la imagen. Intentá nuevamente.');
+            } finally {
+                canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
+                overlays.forEach(d => d.remove());
+                if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
+            }
+        }
+
         // ── Divisor redimensionable ──────────────────────────────
         (function initResizer() {
             const handle    = document.getElementById('resize-handle');
@@ -815,5 +883,6 @@
         })();
 
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>

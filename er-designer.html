@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-R Constructor Pro — Entrenador Conceptual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Fondo de puntos para el canvas — estilo herramienta profesional */
+        .canvas-grid {
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle, #c8d5e8 1.2px, transparent 1.2px);
+            background-size: 22px 22px;
+        }
+
+        /* Inputs en nodos del diagrama */
+        .diagram-input {
+            background: transparent;
+            border: 1.5px dashed #94a3b8;  /* visible solo cuando está vacío */
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 700;
+            color: #1e293b;
+            transition: border-color 0.15s, background 0.15s;
+            cursor: pointer;
+        }
+        /* Una vez completado: sin borde, sin fondo — el texto flota sobre la forma */
+        .diagram-input:not(:placeholder-shown) {
+            border: none !important;
+            background: transparent !important;
+        }
+        /* Hover solo cuando está vacío (placeholder visible) */
+        .diagram-input:placeholder-shown:hover {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.06);
+        }
+        /* Validación: solo color de texto, sin caja de fondo */
+        .input-correct {
+            border: none !important;
+            background: transparent !important;
+            color: #059669 !important;
+        }
+        .input-incorrect {
+            border: none !important;
+            background: transparent !important;
+            color: #dc2626 !important;
+        }
+
+        /* Slide-up para el panel de feedback */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        #feedback-alert:not(.hidden) { animation: slideUp 0.25s ease forwards; }
+
+        /* Pulso para la palabra seleccionada del banco */
+        @keyframes wordGlow {
+            0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+            50%      { box-shadow: 0 0 0 7px rgba(99,102,241,0); }
+        }
+        .word-active { animation: wordGlow 1.3s ease infinite; }
+
+        /* Modo alto contraste */
+        .high-contrast-mode { background-color: #000 !important; color: #fff !important; }
+        .high-contrast-mode .bg-white,
+        .high-contrast-mode .canvas-grid {
+            background: #111 !important;
+            border-color: #fff !important;
+            color: #fff !important;
+        }
+        .high-contrast-mode .diagram-input {
+            border-color: #fff !important; color: #fff !important; background: #222 !important;
+        }
+        .high-contrast-mode svg line { stroke: #fff !important; stroke-width: 3px !important; }
+        .high-contrast-mode select { background: #222 !important; color: #fff !important; border-color: #666 !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased transition-colors duration-300">
+
+    <!-- ══════════════════════════════════════════ HEADER con gradiente -->
+    <header style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 55%, #4f46e5 100%)"
+            class="text-white py-4 px-6 shadow-xl">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight leading-tight">E-R Constructor Pro</h1>
+                    <p class="text-xs text-indigo-300 font-medium">Modelado Entidad-Relación Conceptual · UTU 2026</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleAccessibility()"
+                    class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-xs font-semibold rounded-xl border border-white/20 transition flex items-center gap-1.5">
+                    👁️ Contraste
+                </button>
+                <div class="px-3.5 py-2 bg-white/10 rounded-xl text-xs font-bold border border-white/20 whitespace-nowrap">
+                    Ejercicio <span id="progress-indicator" class="text-white font-extrabold ml-0.5">1 de 3</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════ MAIN -->
+    <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex flex-col lg:flex-row items-stretch gap-4 lg:gap-0">
+
+        <!-- ── Panel Izquierdo ─────────────────────────────── -->
+        <section id="left-panel" class="flex flex-col gap-4 flex-shrink-0"
+                 style="width:380px;min-width:220px;max-width:620px;">
+
+            <!-- Selector de caso -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+                <label class="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest mb-2">
+                    Caso de Estudio
+                </label>
+                <select id="exercise-select" onchange="loadExercise(this.value)"
+                    class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition">
+                    <option value="0">🔧 Taller Mecánico (Caso CamScanner)</option>
+                    <option value="1">📚 Biblioteca Escolar (Préstamos)</option>
+                    <option value="2">🛒 Tienda Online (Pedidos)</option>
+                    <option value="3">🌐 Red Social (Especialización)</option>
+                </select>
+            </div>
+
+            <!-- Ficha del problema -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-3">
+                <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2 pb-2.5 border-b border-slate-100">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm flex-shrink-0">📋</span>
+                    Enunciado Técnico
+                </h2>
+                <div id="problem-description"
+                    class="text-sm leading-relaxed text-slate-600 max-h-52 overflow-y-auto pr-1">
+                </div>
+                <button onclick="toggleHint()"
+                    class="flex items-center gap-2 text-xs text-amber-700 hover:text-amber-900 font-bold group mt-1 w-fit">
+                    <span class="w-5 h-5 rounded bg-amber-100 group-hover:bg-amber-200 flex items-center justify-center transition text-sm">💡</span>
+                    Ver pista de diseño
+                </button>
+                <div id="hint-box"
+                    class="hidden text-xs bg-amber-50 text-amber-800 border border-amber-200 p-3 rounded-xl leading-relaxed">
+                </div>
+            </div>
+
+            <!-- Banco de elementos -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-3">
+                <div class="pb-2.5 border-b border-slate-100">
+                    <h3 class="text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">
+                        🔑 Banco de Elementos
+                    </h3>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Seleccioná un elemento y luego hacé clic en el hueco del diagrama para colocarlo.
+                </p>
+                <div id="word-bank" class="flex flex-wrap gap-2 pt-1"></div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="flex flex-col gap-2">
+                <button onclick="checkAnswers()"
+                    style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%)"
+                    class="w-full py-3.5 text-white font-bold rounded-2xl shadow-md hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm">
+                    ⚡ Validar Diagrama
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="resetExercise()"
+                        class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1">
+                        🔄 Reiniciar
+                    </button>
+                    <button onclick="nextExercise()"
+                        class="py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1">
+                        Siguiente ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Divisor redimensionable (solo escritorio) ──── -->
+        <div id="resize-handle"
+             class="hidden lg:flex flex-shrink-0 items-center justify-center cursor-col-resize group relative select-none"
+             style="width:14px;margin:0 3px;">
+            <!-- línea vertical -->
+            <div class="w-px h-full bg-slate-200 group-hover:bg-indigo-400 transition-colors duration-150 rounded-full"></div>
+            <!-- grip central -->
+            <div class="absolute top-1/2 -translate-y-1/2 bg-white group-hover:bg-indigo-50
+                        border border-slate-200 group-hover:border-indigo-300
+                        rounded-full w-5 h-10 flex items-center justify-center
+                        transition-all duration-150 shadow-sm z-50">
+                <svg width="6" height="18" viewBox="0 0 6 18" class="text-slate-400 group-hover:text-indigo-500">
+                    <circle cx="1.5" cy="3"  r="1.2" fill="currentColor"/>
+                    <circle cx="4.5" cy="3"  r="1.2" fill="currentColor"/>
+                    <circle cx="1.5" cy="9"  r="1.2" fill="currentColor"/>
+                    <circle cx="4.5" cy="9"  r="1.2" fill="currentColor"/>
+                    <circle cx="1.5" cy="15" r="1.2" fill="currentColor"/>
+                    <circle cx="4.5" cy="15" r="1.2" fill="currentColor"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ── Panel Derecho: Lienzo E-R ───────────────────── -->
+        <section id="right-panel" class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col"
+                 style="min-height:640px;min-width:400px;">
+
+            <!-- Leyenda de simbología -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-100">
+                <div class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500">
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-5 h-4 rounded-md bg-blue-50 border-2 border-blue-500 flex-shrink-0"></span>
+                        Entidad
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <svg width="16" height="16" viewBox="0 0 16 16" class="flex-shrink-0">
+                            <polygon points="8,1 15,8 8,15 1,8" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+                        </svg>
+                        Relación
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0"></span>
+                        Atributo
+                    </span>
+                    <!-- Clave: óvalo simple con texto subrayado -->
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0 flex items-center justify-center">
+                            <span class="text-[7px] text-emerald-700 font-bold underline leading-none">pk</span>
+                        </span>
+                        Clave (PK)
+                    </span>
+                    <!-- Multivaluado: doble óvalo -->
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-[3px] border-double border-emerald-600 flex-shrink-0"></span>
+                        Multivaluado
+                    </span>
+                    <!-- Calculado: óvalo punteado -->
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-dashed border-emerald-500 flex-shrink-0"></span>
+                        Calculado
+                    </span>
+                </div>
+                <div id="selection-status"
+                    class="text-xs font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-lg min-h-[26px] flex items-center">
+                </div>
+            </div>
+
+            <!-- Lienzo principal con fondo de puntos -->
+            <!-- height fijo: evita que el canvas se encoja cuando aparece el feedback -->
+            <div id="er-canvas"
+                class="canvas-grid relative rounded-2xl border border-slate-200 overflow-auto flex-shrink-0"
+                style="height:540px;">
+                <svg id="svg-connectors"
+                    class="absolute inset-0 pointer-events-none z-0"
+                    style="width:100%;height:100%;overflow:visible;"></svg>
+                <div id="diagram-nodes"
+                    class="absolute inset-0 z-10"
+                    style="min-width:1060px;min-height:100%;width:100%;height:100%;"></div>
+            </div>
+
+            <!-- Alerta de corrección animada -->
+            <div id="feedback-alert"
+                class="hidden mt-4 p-4 rounded-2xl text-center font-bold text-sm border">
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-500 text-xs py-4 text-center border-t border-slate-800">
+        Herramienta diseñada con apoyo docente para la inclusión educativa — UTU 2026
+    </footer>
+
+    <!-- ══════════════════════════════════════════ SCRIPT -->
+    <script>
+        const exercises = [
+            {
+                title: "Caso 1: Taller Mecánico",
+                description: `Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.<br><br>
+                • De cada <strong>Cliente</strong> se guarda la ci, nombre, apellido1.<br>
+                • De los <strong>Autos</strong> se guarda la matrícula, marca, modelo y combustible.<br>
+                • De cada <strong>Reparación</strong> se guarda un código único y una descripción de la reparación.<br>
+                • Un cliente puede tener muchos autos, mientras que un auto solo es de un cliente.<br>
+                • Un auto puede recibir muchas reparaciones y una reparación puede aplicarse a muchos autos.<br>
+                • Se registra la fecha de entrada y observación para cada reparación.`,
+                hint: "Coloca las Entidades (rectángulos) principales en los extremos y al medio. Las Relaciones (rombos) coordinan la acción entre ellas. Las cardinalidades muestran la proporción (1 a N, o N a M).",
+                wordBank: ["CLIENTE", "AUTO", "REPARACIÓN", "tiene", "recibe", "Ci", "Nombre", "Apellido1", "Matrícula", "Marca", "Modelo", "Combustible", "Código", "Descripción", "Fecha_entrada", "Observación", "1", "N", "M"],
+                nodes: [
+                    { id: "e1", type: "entity",      correctValue: "CLIENTE",       x: 15,   y: 50,   w: 120, h: 55,  placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity",      correctValue: "AUTO",          x: 50,   y: 50,   w: 120, h: 55,  placeholder: "¿Entidad?" },
+                    { id: "e3", type: "entity",      correctValue: "REPARACIÓN",    x: 85,   y: 50,   w: 120, h: 55,  placeholder: "¿Entidad?" },
+                    { id: "r1", type: "relation",    correctValue: "tiene",         x: 32.5, y: 50,   w: 80,  h: 80,  placeholder: "?" },
+                    { id: "r2", type: "relation",    correctValue: "recibe",        x: 67.5, y: 50,   w: 80,  h: 80,  placeholder: "?" },
+                    { id: "a_e1_1", type: "attribute", isKey: true,  correctValue: "Ci",           x: 5,  y: 22, w: 85, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, correctValue: "Nombre",       x: 15, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, correctValue: "Apellido1",    x: 25, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_1", type: "attribute", isKey: true,  correctValue: "Matrícula",    x: 40, y: 22, w: 88, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, correctValue: "Marca",        x: 50, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, correctValue: "Modelo",       x: 60, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_4", type: "attribute", isKey: false, correctValue: "Combustible",  x: 50, y: 78, w: 95, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e3_1", type: "attribute", isKey: true,  correctValue: "Código",       x: 80, y: 22, w: 85, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e3_2", type: "attribute", isKey: false, correctValue: "Descripción",  x: 90, y: 22, w: 92, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_r2_1", type: "attribute", isKey: false, correctValue: "Fecha_entrada",x: 62, y: 78, w: 100,h: 42, placeholder: "¿Atrib R.?" },
+                    { id: "a_r2_2", type: "attribute", isKey: false, correctValue: "Observación",  x: 73, y: 78, w: 90, h: 42, placeholder: "¿Atrib R.?" },
+                    { id: "c1", type: "cardinality", correctValue: "1", x: 24,   y: 50, w: 32, h: 32 },
+                    { id: "c2", type: "cardinality", correctValue: "N", x: 41,   y: 50, w: 32, h: 32 },
+                    { id: "c3", type: "cardinality", correctValue: "N", x: 59,   y: 50, w: 32, h: 32 },
+                    { id: "c4", type: "cardinality", correctValue: "M", x: 76,   y: 50, w: 32, h: 32 }
+                ],
+                connections: [
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" }, { from: "a_e2_4", to: "e2" },
+                    { from: "a_e3_1", to: "e3" }, { from: "a_e3_2", to: "e3" },
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+                    { from: "e2", to: "r2" }, { from: "r2", to: "e3" },
+                    { from: "r2", to: "a_r2_1" }, { from: "r2", to: "a_r2_2" }
+                ]
+            },
+            {
+                title: "Caso 2: Biblioteca Escolar",
+                description: `Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.<br><br>
+                • Cada <strong>Socio</strong> tiene id_socio, nombre y teléfono.<br>
+                • De los <strong>Libros</strong> se registra el isbn, título y autor.<br>
+                • Un socio puede solicitar múltiples préstamos y un libro puede prestarse a diferentes socios.<br>
+                • El <strong>Préstamo</strong> registra la fecha_prestamo y si fue devuelto.`,
+                hint: "Socio y Libro son las entidades primarias. Préstamo actúa como relación con atributos propios. Las cardinalidades serán de muchos a muchos (N a M).",
+                wordBank: ["SOCIO", "LIBRO", "préstamo", "Id_socio", "Nombre", "Teléfono", "Isbn", "Título", "Autor", "Fecha_prestamo", "Devuelto", "1", "N", "M"],
+                nodes: [
+                    { id: "e1", type: "entity",   correctValue: "SOCIO",          x: 20, y: 50, w: 120, h: 55, placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity",   correctValue: "LIBRO",          x: 80, y: 50, w: 120, h: 55, placeholder: "¿Entidad?" },
+                    { id: "r1", type: "relation", correctValue: "préstamo",       x: 50, y: 50, w: 85,  h: 85, placeholder: "?" },
+                    { id: "a_e1_1", type: "attribute", isKey: true,  correctValue: "Id_socio",     x: 10, y: 22, w: 88, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, correctValue: "Nombre",       x: 20, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, correctValue: "Teléfono",     x: 30, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_1", type: "attribute", isKey: true,  correctValue: "Isbn",         x: 70, y: 22, w: 85, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, correctValue: "Título",       x: 80, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, correctValue: "Autor",        x: 90, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_r1_1", type: "attribute", isKey: false, correctValue: "Fecha_prestamo",x: 43, y: 78, w: 105,h: 42, placeholder: "¿Atrib R.?" },
+                    { id: "a_r1_2", type: "attribute", isKey: false, correctValue: "Devuelto",     x: 57, y: 78, w: 85, h: 42, placeholder: "¿Atrib R.?" },
+                    { id: "c1", type: "cardinality", correctValue: "N", x: 35, y: 50, w: 32, h: 32 },
+                    { id: "c2", type: "cardinality", correctValue: "M", x: 65, y: 50, w: 32, h: 32 }
+                ],
+                connections: [
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+                    { from: "r1", to: "a_r1_1" }, { from: "r1", to: "a_r1_2" }
+                ]
+            },
+            {
+                title: "Caso 3: Tienda Online",
+                description: `Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.<br><br>
+                • El <strong>Cliente</strong> tiene id_cliente, nombre, email.<br>
+                • El cliente realiza un <strong>Pedido</strong> con nro_pedido, fecha_pedido, total.<br>
+                • Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente.`,
+                hint: "Este es un caso típico de relación Uno a Muchos (1 a N) entre Cliente y Pedido. No existen atributos propios en la relación.",
+                wordBank: ["CLIENTE", "PEDIDO", "realiza", "Id_cliente", "Nombre", "Email", "Nro_pedido", "Fecha_pedido", "Total", "1", "N"],
+                nodes: [
+                    { id: "e1", type: "entity",   correctValue: "CLIENTE",        x: 20, y: 50, w: 120, h: 55, placeholder: "¿Entidad?" },
+                    { id: "e2", type: "entity",   correctValue: "PEDIDO",         x: 80, y: 50, w: 120, h: 55, placeholder: "¿Entidad?" },
+                    { id: "r1", type: "relation", correctValue: "realiza",        x: 50, y: 50, w: 85,  h: 85, placeholder: "?" },
+                    { id: "a_e1_1", type: "attribute", isKey: true,  correctValue: "Id_cliente",   x: 10, y: 22, w: 90, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, correctValue: "Nombre",       x: 20, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, correctValue: "Email",        x: 30, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_1", type: "attribute", isKey: true,  correctValue: "Nro_pedido",   x: 70, y: 22, w: 90, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, correctValue: "Fecha_pedido", x: 80, y: 22, w: 95, h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, correctValue: "Total",        x: 90, y: 22, w: 85, h: 42, placeholder: "¿Atrib?" },
+                    { id: "c1", type: "cardinality", correctValue: "1", x: 35, y: 50, w: 32, h: 32 },
+                    { id: "c2", type: "cardinality", correctValue: "N", x: 65, y: 50, w: 32, h: 32 }
+                ],
+                connections: [
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" }
+                ]
+            },
+
+            // ── Ejercicio 4 ─────────────────────────────────────────────────────────
+            {
+                title: "Caso 4: Red Social",
+                description: `
+                    <p class="font-bold text-slate-800 mb-1">Red Social — Especialización (ISA)</p>
+                    <p class="text-slate-600 text-xs leading-relaxed">
+                        Una red social tiene <strong>Usuarios</strong>, que pueden ser <strong>Creadores</strong>
+                        o <strong>Espectadores</strong> (especialización ISA).
+                        Los usuarios tienen Id, Email y Año de ingreso.
+                        Los Creadores tienen cantidad de seguidores.
+                        Los Espectadores pueden tener varios teléfonos y una ciudad.
+                        Los Usuarios <em>publican</em> <strong>Contenidos</strong> (1:N).
+                        El Contenido tiene número, título y fecha.
+                    </p>`,
+                hint: "Usá el triángulo ISA para la especialización USUARIO → CREADOR / ESPECTADOR. Las cardinalidades van entre la entidad y la relación. Teléfono es multivaluado (doble óvalo).",
+                wordBank: ["USUARIO","CREADOR","ESPECTADOR","CONTENIDO","publica","Id_usuario","Email","Año_ingreso","Cant_seguidores","Teléfono","Ciudad","Nro_contenido","Título","Fecha","1","N"],
+                nodes: [
+                    // ── Entidades principales ─────────────────────────────
+                    { id: "e1",   type: "entity",      correctValue: "USUARIO",          x: 28,  y: 42,  w: 120, h: 55, placeholder: "¿Entidad?" },
+                    { id: "e2",   type: "entity",      correctValue: "CONTENIDO",        x: 72,  y: 42,  w: 120, h: 55, placeholder: "¿Entidad?" },
+                    // ── Subentidades ──────────────────────────────────────
+                    { id: "e3",   type: "entity",      correctValue: "CREADOR",          x: 16,  y: 76,  w: 110, h: 55, placeholder: "¿Entidad?" },
+                    { id: "e4",   type: "entity",      correctValue: "ESPECTADOR",       x: 42,  y: 76,  w: 120, h: 55, placeholder: "¿Entidad?" },
+                    // ── Relación ──────────────────────────────────────────
+                    { id: "r1",   type: "relation",    correctValue: "publica",          x: 50,  y: 42,  w: 90,  h: 90, placeholder: "¿Relación?" },
+                    // ── Triángulo ISA (sin valor correcto → no cuenta) ────
+                    { id: "isa1", type: "isa",                                           x: 28,  y: 59,  w: 70,  h: 56 },
+                    // ── Cardinalidades ────────────────────────────────────
+                    { id: "c1",   type: "cardinality", correctValue: "1",                x: 39,  y: 42,  w: 32,  h: 32 },
+                    { id: "c2",   type: "cardinality", correctValue: "N",                x: 61,  y: 42,  w: 32,  h: 32 },
+                    // ── Atributos de USUARIO ──────────────────────────────
+                    { id: "a_e1_1", type: "attribute", isKey: true,  correctValue: "Id_usuario",    x: 10,  y: 22,  w: 95,  h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e1_2", type: "attribute", isKey: false, correctValue: "Email",          x: 26,  y: 18,  w: 85,  h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e1_3", type: "attribute", isKey: false, correctValue: "Año_ingreso",   x: 42,  y: 18,  w: 95,  h: 42, placeholder: "¿Atrib?" },
+                    // ── Atributos de CONTENIDO ────────────────────────────
+                    { id: "a_e2_1", type: "attribute", isKey: true,  correctValue: "Nro_contenido", x: 60,  y: 18,  w: 105, h: 42, placeholder: "¿Clave?" },
+                    { id: "a_e2_2", type: "attribute", isKey: false, correctValue: "Título",         x: 76,  y: 18,  w: 85,  h: 42, placeholder: "¿Atrib?" },
+                    { id: "a_e2_3", type: "attribute", isKey: false, correctValue: "Fecha",          x: 90,  y: 18,  w: 85,  h: 42, placeholder: "¿Atrib?" },
+                    // ── Atributo de CREADOR ───────────────────────────────
+                    { id: "a_e3_1", type: "attribute", isKey: false, correctValue: "Cant_seguidores", x: 7,  y: 86,  w: 115, h: 42, placeholder: "¿Atrib?" },
+                    // ── Atributos de ESPECTADOR ───────────────────────────
+                    { id: "a_e4_1", type: "attribute", isMultivalued: true, correctValue: "Teléfono", x: 36, y: 90,  w: 92,  h: 44, placeholder: "¿Atrib?" },
+                    { id: "a_e4_2", type: "attribute", isKey: false,        correctValue: "Ciudad",   x: 52, y: 90,  w: 85,  h: 42, placeholder: "¿Atrib?" }
+                ],
+                connections: [
+                    // USUARIO ↔ sus atributos
+                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
+                    // Relación publica (cardinalidades flotan visualmente entre las entidades)
+                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+                    // CONTENIDO ↔ sus atributos
+                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
+                    // ISA: USUARIO → triángulo → subentidades
+                    { from: "e1",   to: "isa1" },
+                    { from: "isa1", to: "e3"   },
+                    { from: "isa1", to: "e4"   },
+                    // Subentidades ↔ sus atributos
+                    { from: "a_e3_1", to: "e3" },
+                    { from: "a_e4_1", to: "e4" }, { from: "a_e4_2", to: "e4" }
+                ]
+            }
+        ];
+
+        // Entidades por nombre para colorear el banco (incluye todos los ejercicios)
+        const ENTITY_WORDS   = new Set(["CLIENTE","AUTO","REPARACIÓN","SOCIO","LIBRO","PEDIDO"]);
+        const RELATION_WORDS = new Set(["tiene","recibe","préstamo","realiza"]);
+        const CARD_WORDS     = new Set(["1","N","M"]);
+
+        let activeExercise = 0;
+        let highlightedWord = null;
+        let lastHits  = 0;
+        let lastTotal = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExercise(0);
+            window.addEventListener('resize', drawCrispConnectors);
+        });
+
+        function toggleAccessibility() {
+            document.body.classList.toggle('high-contrast-mode');
+        }
+
+        function toggleHint() {
+            document.getElementById('hint-box').classList.toggle('hidden');
+        }
+
+        function loadExercise(index) {
+            activeExercise = parseInt(index);
+            highlightedWord = null;
+            document.getElementById('selection-status').innerText = "";
+            document.getElementById('exercise-select').value = index;
+            document.getElementById('progress-indicator').innerText = `${activeExercise + 1} de ${exercises.length}`;
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('feedback-alert').classList.add('hidden');
+
+            const cur = exercises[activeExercise];
+            document.getElementById('problem-description').innerHTML = cur.description;
+            document.getElementById('hint-box').innerHTML = `<strong>Guía del docente:</strong> ${cur.hint}`;
+
+            // Banco de palabras: mezclado y color uniforme para no revelar categorías
+            const bank = document.getElementById('word-bank');
+            bank.innerHTML = "";
+            const shuffled = [...cur.wordBank].sort(() => Math.random() - 0.5);
+            shuffled.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "px-3.5 py-1.5 border rounded-xl text-xs font-bold transition-all active:scale-95 bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700";
+                btn.innerText = word;
+                btn.onclick = () => selectWord(word, btn);
+                bank.appendChild(btn);
+            });
+
+            renderInteractiveCanvas(cur);
+        }
+
+        function selectWord(word, btn) {
+            highlightedWord = word;
+            const status = document.getElementById('selection-status');
+            status.innerText = `"${word}" seleccionado`;
+
+            // Limpiar selección anterior
+            document.getElementById('word-bank').querySelectorAll('button').forEach(b => {
+                b.classList.remove('ring-4', 'ring-indigo-400', 'word-active');
+            });
+            btn.classList.add('ring-4', 'ring-indigo-400', 'word-active');
+        }
+
+        function renderInteractiveCanvas(exercise) {
+            const container = document.getElementById('diagram-nodes');
+            container.innerHTML = "";
+
+            exercise.nodes.forEach(node => {
+                const el = document.createElement('div');
+                el.id = node.id;
+                el.style.cssText = `
+                    left: ${node.x}%;
+                    top: ${node.y}%;
+                    width: ${node.w}px;
+                    height: ${node.h}px;
+                    position: absolute;
+                    transform: translate(-50%, -50%);
+                `;
+
+                let html = "";
+
+                if (node.type === "entity") {
+                    // Sin bordes redondeados — rectángulo puro, notación Chen
+                    el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
+                    html = `
+                        <input type="text" id="input-${node.id}" placeholder="?"
+                            class="diagram-input w-full text-xs py-1 px-1"
+                            onclick="fillSlot('${node.id}')" readonly>
+                    `;
+
+                } else if (node.type === "relation") {
+                    el.className = "relative flex justify-center items-center z-20";
+                    html = `
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="relative z-30 flex items-center justify-center text-center w-full">
+                            <input type="text" id="input-${node.id}" placeholder="?"
+                                class="diagram-input w-10/12 text-[11px] py-0.5 px-1"
+                                onclick="fillSlot('${node.id}')" readonly>
+                        </div>
+                    `;
+
+                } else if (node.type === "attribute") {
+                    // Notación Chen correcta:
+                    //   isKey         → óvalo simple + texto subrayado
+                    //   isMultivalued → doble óvalo
+                    //   isDerived     → óvalo con borde punteado
+                    //   (ninguno)     → óvalo simple normal
+                    let borderClass, inputExtra;
+                    if (node.isKey) {
+                        borderClass = "border-2 border-emerald-500";
+                        inputExtra  = "underline";
+                    } else if (node.isMultivalued) {
+                        borderClass = "border-double border-[4px] border-emerald-600";
+                        inputExtra  = "";
+                    } else if (node.isDerived) {
+                        borderClass = "border-2 border-dashed border-emerald-500";
+                        inputExtra  = "";
+                    } else {
+                        borderClass = "border-2 border-emerald-500";
+                        inputExtra  = "";
+                    }
+                    el.className = `bg-emerald-50 rounded-[50%] shadow-sm flex justify-center items-center p-1 z-20 ${borderClass}`;
+                    html = `
+                        <input type="text" id="input-${node.id}" placeholder="?"
+                            class="diagram-input w-11/12 text-[10px] py-0.5 px-0.5 ${inputExtra}"
+                            onclick="fillSlot('${node.id}')" readonly>
+                    `;
+
+                } else if (node.type === "cardinality") {
+                    el.className = "bg-white border-2 border-slate-600 rounded-full flex items-center justify-center shadow-md z-30 overflow-hidden";
+                    html = `
+                        <input type="text" id="input-${node.id}" placeholder="?"
+                            class="diagram-input w-full h-full text-sm font-extrabold text-center uppercase border-none bg-transparent"
+                            onclick="fillSlot('${node.id}')" readonly>
+                    `;
+
+                } else if (node.type === "isa") {
+                    // Triángulo ISA — elemento estructural, no interactivo
+                    el.className = "relative z-20 pointer-events-none";
+                    html = `
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <polygon points="50,4 96,96 4,96" fill="white" stroke="#475569" stroke-width="5" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center pb-2">
+                            <span class="text-[9px] font-extrabold text-slate-500 tracking-widest select-none" style="margin-top:18px;">ISA</span>
+                        </div>
+                    `;
+                }
+
+                el.innerHTML = html;
+                container.appendChild(el);
+            });
+
+            setTimeout(drawCrispConnectors, 150);
+        }
+
+        function fillSlot(nodeId) {
+            if (highlightedWord === null) return;
+            const inp = document.getElementById(`input-${nodeId}`);
+            inp.value = highlightedWord;
+            inp.classList.remove('input-correct', 'input-incorrect');
+
+            highlightedWord = null;
+            document.getElementById('selection-status').innerText = "";
+            document.getElementById('word-bank').querySelectorAll('button').forEach(b => {
+                b.classList.remove('ring-4', 'ring-indigo-400', 'word-active');
+            });
+        }
+
+        function drawCrispConnectors() {
+            const cur    = exercises[activeExercise];
+            const svg    = document.getElementById('svg-connectors');
+            const canvas = document.getElementById('er-canvas');
+            svg.innerHTML = "";
+            const cr = canvas.getBoundingClientRect();
+
+            // Build fast type-lookup from node id → type
+            const typeMap = {};
+            cur.nodes.forEach(n => { typeMap[n.id] = n.type; });
+
+            // Returns {x, y} center of element in canvas coordinates
+            function center(el) {
+                const r = el.getBoundingClientRect();
+                return {
+                    x:  (r.left + r.width  / 2) - cr.left + canvas.scrollLeft,
+                    y:  (r.top  + r.height / 2) - cr.top  + canvas.scrollTop,
+                    hw: r.width  / 2,
+                    hh: r.height / 2
+                };
+            }
+
+            // Returns the point on the boundary of shape A facing toward (tx, ty),
+            // clipped by the shape's geometry so the line starts/ends at the edge.
+            function edgePoint(c, tx, ty, type) {
+                const dx = tx - c.x;
+                const dy = ty - c.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                if (len < 0.5) return { x: c.x, y: c.y };
+                const ndx = dx / len;
+                const ndy = dy / len;
+
+                let t;
+                if (type === 'attribute' || type === 'cardinality') {
+                    // Ellipse  (ndx·t/hw)² + (ndy·t/hh)² = 1
+                    t = 1 / Math.sqrt((ndx / c.hw) ** 2 + (ndy / c.hh) ** 2);
+                } else if (type === 'relation') {
+                    // Diamond  |ndx|/hw + |ndy|/hh = 1  (L1 norm)
+                    t = 1 / (Math.abs(ndx) / c.hw + Math.abs(ndy) / c.hh);
+                } else {
+                    // Rectangle / ISA / entity — clamp to bbox
+                    const tx2 = c.hw / Math.abs(ndx || 1e-9);
+                    const ty2 = c.hh / Math.abs(ndy || 1e-9);
+                    t = Math.min(tx2, ty2);
+                }
+                return { x: c.x + ndx * t, y: c.y + ndy * t };
+            }
+
+            cur.connections.forEach(({ from, to }) => {
+                const a = document.getElementById(from);
+                const b = document.getElementById(to);
+                if (!a || !b) return;
+
+                const ca = center(a);
+                const cb = center(b);
+                const p1 = edgePoint(ca, cb.x, cb.y, typeMap[from]);
+                const p2 = edgePoint(cb, ca.x, ca.y, typeMap[to]);
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
+                line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
+
+                const isAttr = typeMap[from] === 'attribute' || typeMap[to] === 'attribute';
+                line.setAttribute("stroke",         isAttr ? "#10b981" : "#64748b");
+                line.setAttribute("stroke-width",   isAttr ? "1.5"     : "2");
+                line.setAttribute("stroke-linecap", "round");
+
+                svg.appendChild(line);
+            });
+        }
+
+        function resetExercise() {
+            exercises[activeExercise].nodes.forEach(n => {
+                const el = document.getElementById(`input-${n.id}`);
+                if (el) { el.value = ""; el.classList.remove('input-correct', 'input-incorrect'); }
+            });
+            const fb = document.getElementById('feedback-alert');
+            fb.classList.add('hidden');
+        }
+
+        function nextExercise() {
+            loadExercise((activeExercise + 1) % exercises.length);
+        }
+
+        function checkAnswers() {
+            const cur = exercises[activeExercise];
+            let hits = 0;
+
+            cur.nodes.forEach(n => {
+                if (!n.correctValue) return;  // nodos estructurales sin respuesta (ISA, etc.)
+                const el = document.getElementById(`input-${n.id}`);
+                if (!el) return;
+                const ok = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
+                el.classList.toggle('input-correct',   ok);
+                el.classList.toggle('input-incorrect', !ok);
+                if (ok) hits++;
+            });
+
+            lastHits  = hits;
+            lastTotal = cur.nodes.filter(n => !!n.correctValue).length;
+
+            const fb = document.getElementById('feedback-alert');
+            fb.classList.remove(
+                'hidden',
+                'bg-emerald-50','text-emerald-800','border-emerald-300',
+                'bg-amber-50','text-amber-800','border-amber-300'
+            );
+
+            const msg = hits === lastTotal
+                ? `🎉 ¡Perfecto! Completaste el modelo E-R de <strong>"${cur.title}"</strong> (${hits}/${lastTotal}).`
+                : `👀 Casi — <strong>${hits} de ${lastTotal}</strong> correctas. Revisá las marcas rojas y ajustá con el banco.`;
+
+            fb.classList.add(
+                ...(hits === lastTotal
+                    ? ['bg-emerald-50','text-emerald-800','border-emerald-300']
+                    : ['bg-amber-50',  'text-amber-800', 'border-amber-300'])
+            );
+
+            fb.innerHTML = `
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <span class="text-sm">${msg}</span>
+                    <button id="pdf-btn" onclick="downloadReport()"
+                        class="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700
+                               text-white text-xs font-bold rounded-xl transition shadow-sm whitespace-nowrap flex-shrink-0">
+                        📄 Descargar informe PDF
+                    </button>
+                </div>`;
+
+            requestAnimationFrame(drawCrispConnectors);
+        }
+
+        async function downloadReport() {
+            const btn = document.getElementById('pdf-btn');
+            if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const cur      = exercises[activeExercise];
+                const canvasEl = document.getElementById('er-canvas');
+
+                // Llevar el scroll al origen
+                canvasEl.scrollLeft = 0;
+                canvasEl.scrollTop  = 0;
+
+                // html2canvas no renderiza texto de <input> de forma confiable.
+                // Solución: ocultamos cada input y colocamos un <div> temporal
+                // con el mismo texto, posición y estilo encima.
+                const canvasRect = canvasEl.getBoundingClientRect();
+                const overlays   = [];
+
+                canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
+                    // Ocultar input (mantiene el espacio en el layout)
+                    inp.style.opacity = '0';
+
+                    if (!inp.value) return;   // sin texto → no necesita overlay
+
+                    // Posicionar sobre el NODO (la figura completa), no sobre el input.
+                    // El input tiene id "input-{nodeId}" → obtenemos el contenedor padre.
+                    const nodeId  = inp.id.replace('input-', '');
+                    const nodeEl  = document.getElementById(nodeId) || inp.parentElement;
+                    const r       = nodeEl.getBoundingClientRect();
+
+                    const div = document.createElement('div');
+                    div.style.cssText = `
+                        position:absolute;
+                        left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
+                        top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
+                        width:${r.width}px;
+                        height:${r.height}px;
+                        text-align:center;
+                        line-height:${r.height}px;
+                        font-size:10px;
+                        font-weight:700;
+                        font-family:'Plus Jakarta Sans',sans-serif;
+                        pointer-events:none;
+                        z-index:9999;
+                        background:transparent;
+                        color:${
+                            inp.classList.contains('input-correct')   ? '#059669' :
+                            inp.classList.contains('input-incorrect') ? '#dc2626' :
+                            '#1e293b'
+                        };
+                        text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
+                    `;
+                    div.textContent = inp.value;
+                    canvasEl.appendChild(div);
+                    overlays.push(div);
+                });
+
+                await new Promise(r => requestAnimationFrame(r));
+
+                let shot;
+                try {
+                    shot = await html2canvas(canvasEl, {
+                        scale: 1.8,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#f8fafc'
+                    });
+                } finally {
+                    // Restaurar inputs y eliminar overlays siempre,
+                    // aunque html2canvas falle
+                    canvasEl.querySelectorAll('input.diagram-input')
+                             .forEach(inp => inp.style.opacity = '');
+                    overlays.forEach(d => d.remove());
+                }
+                const imgData = shot.toDataURL('image/png');
+
+                // ── Documento A4 apaisado ──────────────────────────────
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                const pw = 297, ph = 210, mg = 14;
+                const cw = pw - mg * 2;
+                let y = 0;
+
+                // Franja de cabecera
+                doc.setFillColor(55, 48, 163);
+                doc.rect(0, 0, pw, 20, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'bold');
+                doc.text('E-R Constructor Pro — Informe de Evaluación', mg, 13);
+                const fecha = new Date().toLocaleDateString('es-UY',
+                    { day: '2-digit', month: 'long', year: 'numeric' });
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`UTU · ${fecha}`, pw - mg, 13, { align: 'right' });
+                y = 27;
+
+                // Título del ejercicio
+                doc.setTextColor(30, 41, 59);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(cur.title, mg, y);
+                y += 7;
+
+                // Badge de puntuación
+                const pct  = Math.round((lastHits / lastTotal) * 100);
+                const bClr = lastHits === lastTotal ? [5, 150, 105] : [217, 119, 6];
+                doc.setFillColor(...bClr);
+                doc.roundedRect(mg, y - 4.5, 95, 9, 2, 2, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Resultado: ${lastHits} / ${lastTotal} correctas  ·  ${pct}%`, mg + 3, y + 2);
+                y += 13;
+
+                // Enunciado (sin etiquetas HTML)
+                const tmp = document.createElement('div');
+                tmp.innerHTML = cur.description;
+                const descTxt   = (tmp.textContent || tmp.innerText).replace(/\s+/g, ' ').trim();
+                doc.setTextColor(71, 85, 105);
+                doc.setFontSize(8.5);
+                doc.setFont('helvetica', 'normal');
+                const descLines = doc.splitTextToSize(descTxt, cw);
+                doc.text(descLines, mg, y);
+                y += descLines.length * 4.5 + 5;
+
+                // Separador
+                doc.setDrawColor(203, 213, 225);
+                doc.line(mg, y, pw - mg, y);
+                y += 4;
+
+                // Diagrama
+                const aspect = shot.height / shot.width;
+                const imgW   = cw;
+                const imgH   = Math.min(imgW * aspect, ph - y - mg);
+                if (imgH > 10) {
+                    doc.addImage(imgData, 'PNG', mg, y, imgW, imgH);
+                }
+
+                doc.save(`ER_Informe_${cur.title.replace(/[^\wáéíóúÁÉÍÓÚñÑ]/g, '_')}.pdf`);
+
+            } catch (err) {
+                console.error('PDF error:', err);
+                alert('No se pudo generar el PDF. Intentá nuevamente.');
+            } finally {
+                const b = document.getElementById('pdf-btn');
+                if (b) { b.innerHTML = '📄 Descargar informe PDF'; b.disabled = false; }
+            }
+        }
+
+        // ── Divisor redimensionable ─────────────────────────────
+        (function initResizer() {
+            const handle    = document.getElementById('resize-handle');
+            const leftPanel = document.getElementById('left-panel');
+            if (!handle || !leftPanel) return;
+
+            let dragging = false, startX = 0, startW = 0;
+
+            handle.addEventListener('mousedown', e => {
+                dragging = true;
+                startX   = e.clientX;
+                startW   = leftPanel.offsetWidth;
+                document.body.style.cursor     = 'col-resize';
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', e => {
+                if (!dragging) return;
+                const newW = Math.max(220, Math.min(startW + (e.clientX - startX), window.innerWidth * 0.55));
+                leftPanel.style.width = newW + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (!dragging) return;
+                dragging = false;
+                document.body.style.cursor     = '';
+                document.body.style.userSelect = '';
+                requestAnimationFrame(drawCrispConnectors);
+            });
+        })();
+
+    </script>
+
+    <!-- Librerías para generación de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

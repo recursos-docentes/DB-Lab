@@ -757,11 +757,11 @@
                 if (ok) hits++;
             });
 
-            // Calificación /12 (estilo UTU uruguayo)
-            const grade     = Math.round((hits / total) * 12);
+            // Calificación /10
+            const grade     = Math.round((hits / total) * 10);
             const approved  = grade >= 6;
             const gb        = document.getElementById('grade-box');
-            gb.innerText    = `${grade}/12`;
+            gb.innerText    = `${grade}/10`;
             gb.className    = `text-2xl font-black italic ${approved ? 'text-emerald-500' : 'text-rose-500'}`;
 
             // Feedback en pantalla
@@ -774,8 +774,8 @@
 
             const pct = Math.round((hits / total) * 100);
             const msg = hits === total
-                ? `🎉 ¡Perfecto! Completaste el modelo E-R de <strong>"${cur.title}"</strong> — ${grade}/12`
-                : `👀 <strong>${hits} de ${total}</strong> correctas (${pct}%) — Calificación: <strong>${grade}/12</strong>. Revisá las marcas rojas.`;
+                ? `🎉 ¡Perfecto! Completaste el modelo E-R de <strong>"${cur.title}"</strong> — ${grade}/10`
+                : `👀 <strong>${hits} de ${total}</strong> correctas (${pct}%) — Calificación: <strong>${grade}/10</strong>. Revisá las marcas rojas.`;
 
             fb.classList.add(
                 ...(hits === total

@@ -130,10 +130,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleAccessibility()"
-                    class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
-                    👁️ Contraste
-                </button>
                 <div class="px-3.5 py-2 bg-slate-800 rounded-xl text-xs font-bold border border-slate-700 whitespace-nowrap">
                     Ejercicio <span id="progress-indicator" class="text-indigo-400 font-extrabold ml-0.5">1 de 4</span>
                 </div>
@@ -186,7 +182,6 @@
                     <h3 class="text-emerald-400 font-bold text-sm uppercase tracking-wider">
                         ✂️ Banco de Elementos
                     </h3>
-                    <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-bold border border-emerald-900">Inclusión DUA</span>
                 </div>
                 <p class="text-xs text-slate-500 leading-relaxed">
                     Seleccioná un elemento y luego hacé clic en el hueco del diagrama.
@@ -275,26 +270,26 @@
             <div class="legend-bar no-print flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
                 <div class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-400">
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-5 h-4 bg-blue-950 border-2 border-blue-500 flex-shrink-0"></span>Entidad
+                        <span class="inline-block w-5 h-4 bg-blue-50 border-2 border-blue-500 flex-shrink-0"></span>Entidad
                     </span>
                     <span class="flex items-center gap-1.5">
                         <svg width="16" height="16" viewBox="0 0 16 16" class="flex-shrink-0">
-                            <polygon points="8,1 15,8 8,15 1,8" fill="#500724" stroke="#db2777" stroke-width="2"/>
+                            <polygon points="8,1 15,8 8,15 1,8" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
                         </svg>Relación
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-950 border-2 border-emerald-500 flex-shrink-0"></span>Atributo
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0"></span>Atributo
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-950 border-2 border-emerald-500 flex-shrink-0 flex items-center justify-center">
-                            <span class="text-[7px] text-emerald-400 font-bold underline leading-none">pk</span>
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0 flex items-center justify-center">
+                            <span class="text-[7px] text-emerald-700 font-bold underline leading-none">pk</span>
                         </span>Clave (PK)
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-950 border-[3px] border-double border-emerald-600 flex-shrink-0"></span>Multivaluado
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-[3px] border-double border-emerald-600 flex-shrink-0"></span>Multivaluado
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-950 border-2 border-dashed border-emerald-500 flex-shrink-0"></span>Calculado
+                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-dashed border-emerald-500 flex-shrink-0"></span>Calculado
                     </span>
                 </div>
             </div>
@@ -569,10 +564,10 @@
                 let html = "";
 
                 if (node.type === "entity") {
-                    el.className = "bg-blue-950 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
+                    el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
                     html = `
                         <input type="text" id="input-${node.id}" placeholder="?"
-                            class="diagram-input w-full text-xs py-1 px-1 text-blue-100"
+                            class="diagram-input w-full text-xs py-1 px-1"
                             onclick="fillSlot('${node.id}')" readonly>
                     `;
 
@@ -580,11 +575,11 @@
                     el.className = "relative flex justify-center items-center z-20";
                     html = `
                         <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <polygon points="50,3 97,50 50,97 3,50" fill="#500724" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                            <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
                         </svg>
                         <div class="relative z-30 flex items-center justify-center text-center w-full">
                             <input type="text" id="input-${node.id}" placeholder="?"
-                                class="diagram-input w-10/12 text-[11px] py-0.5 px-1 text-pink-200"
+                                class="diagram-input w-10/12 text-[11px] py-0.5 px-1"
                                 onclick="fillSlot('${node.id}')" readonly>
                         </div>
                     `;
@@ -604,18 +599,18 @@
                         borderClass = "border-2 border-emerald-500";
                         inputExtra  = "";
                     }
-                    el.className = `bg-emerald-950 rounded-[50%] shadow-sm flex justify-center items-center p-1 z-20 ${borderClass}`;
+                    el.className = `bg-emerald-50 rounded-[50%] shadow-sm flex justify-center items-center p-1 z-20 ${borderClass}`;
                     html = `
                         <input type="text" id="input-${node.id}" placeholder="?"
-                            class="diagram-input w-11/12 text-[10px] py-0.5 px-0.5 text-emerald-200 ${inputExtra}"
+                            class="diagram-input w-11/12 text-[10px] py-0.5 px-0.5 ${inputExtra}"
                             onclick="fillSlot('${node.id}')" readonly>
                     `;
 
                 } else if (node.type === "cardinality") {
-                    el.className = "bg-slate-800 border-2 border-slate-400 rounded-full flex items-center justify-center shadow-md z-30 overflow-hidden";
+                    el.className = "bg-white border-2 border-slate-600 rounded-full flex items-center justify-center shadow-md z-30 overflow-hidden";
                     html = `
                         <input type="text" id="input-${node.id}" placeholder="?"
-                            class="diagram-input w-full h-full text-sm font-extrabold text-center uppercase border-none bg-transparent text-slate-200"
+                            class="diagram-input w-full h-full text-sm font-extrabold text-center uppercase border-none bg-transparent"
                             onclick="fillSlot('${node.id}')" readonly>
                     `;
 
@@ -623,10 +618,10 @@
                     el.className = "relative z-20 pointer-events-none";
                     html = `
                         <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <polygon points="50,4 96,96 4,96" fill="#0f172a" stroke="#94a3b8" stroke-width="5" stroke-linejoin="round"/>
+                            <polygon points="50,4 96,96 4,96" fill="white" stroke="#475569" stroke-width="5" stroke-linejoin="round"/>
                         </svg>
                         <div class="absolute inset-0 flex items-center justify-center pb-2">
-                            <span class="text-[9px] font-extrabold text-slate-400 tracking-widest select-none" style="margin-top:18px;">ISA</span>
+                            <span class="text-[9px] font-extrabold text-slate-500 tracking-widest select-none" style="margin-top:18px;">ISA</span>
                         </div>
                     `;
                 }

@@ -1,571 +1,159 @@
-html:Ficha Interactiva de Evaluación E-R:index.html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de Evaluación Interactiva - Modelo Conceptual E-R</title>
-    <!-- Tailwind CSS para estilizado fluido -->
+    <title>E-R Constructor Pro — UTU 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* Simulación de Hoja A4 para examen */
-        .pdf-page {
-            background: #ffffff;
-            width: 210mm;
-            min-height: 297mm;
-            padding: 18mm;
-            margin: 0 auto;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            position: relative;
-            box-sizing: border-box;
-        }
+        .level-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .level-card:hover { transform: translateY(-6px); }
 
-        /* Estilo manuscrito para respuestas del alumno */
-        .handwritten {
-            font-family: 'Courier Prime', monospace;
-            font-weight: 700;
-            color: #1d4ed8;
-            text-transform: uppercase;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-
-        /* Estilos de los inputs integrados en la hoja de examen */
-        .blank-input {
-            border-bottom: 2px dashed #64748b;
-            background: transparent;
-            text-align: center;
-            font-size: 11px;
-            transition: all 0.2s ease;
-        }
-
-        .blank-input:focus {
-            outline: none;
-            border-bottom-color: #2563eb;
-            background-color: #eff6ff;
-        }
-
-        .blank-correct {
-            border-bottom: 2px solid #10b981 !important;
-            color: #047857 !important;
-            background-color: #ecfdf5 !important;
-        }
-
-        .blank-incorrect {
-            border-bottom: 2px solid #ef4444 !important;
-            color: #b91c1c !important;
-            background-color: #fef2f2 !important;
-        }
-
-        /* Banco de palabras tipo etiquetas recortables */
-        .word-tag {
-            border: 1.5px dashed #cbd5e1;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .word-tag:hover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        .word-tag-selected {
-            border-color: #2563eb !important;
-            background-color: #2563eb !important;
-            color: #ffffff !important;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
-        }
-
-        /* Estilos específicos para la generación del PDF impreso */
-        @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .pdf-page {
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 10mm !important;
-                width: 100% !important;
-                min-height: 100% !important;
-            }
-            .blank-input {
-                border-bottom: 1px solid #000000 !important;
-            }
-        }
+        .fade-up   { animation: fadeUp 0.5s ease forwards; opacity: 0; }
+        .delay-1   { animation-delay: 0.1s; }
+        .delay-2   { animation-delay: 0.25s; }
+        .delay-3   { animation-delay: 0.4s; }
     </style>
 </head>
-<body class="bg-slate-800 text-slate-900 min-h-screen p-4 flex flex-col items-center">
+<body class="bg-slate-900 text-white min-h-screen flex flex-col">
 
-    <!-- Panel de control de la parte superior (no se imprime) -->
-    <div class="no-print w-full max-w-5xl bg-slate-900 text-white p-4 rounded-2xl mb-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-            <h1 class="text-lg font-bold flex items-center gap-2">
-                <span class="text-xl">📝</span> Ficha de Evaluación Interactiva E-R
-            </h1>
-            <p class="text-xs text-slate-400">Completa los diagramas directamente en la ficha y genera tu PDF terminado.</p>
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="border-b border-slate-800 py-5 px-6">
+        <div class="max-w-5xl mx-auto flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600/25 border border-indigo-500/40 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-extrabold tracking-tight leading-tight">E-R Constructor Pro</h1>
+                <p class="text-xs text-slate-400">Modelado Entidad-Relación Conceptual · UTU 2026</p>
+            </div>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="flex flex-col">
-                <span class="text-[10px] text-slate-400 font-bold uppercase">Tema de Examen:</span>
-                <select id="exercise-select" onchange="switchExercise(this.value)" class="bg-slate-800 border border-slate-700 text-sm font-semibold rounded-lg p-1.5 focus:outline-none focus:border-blue-500">
-                    <option value="0">Caso 1: Taller Mecánico (CamScanner)</option>
-                    <option value="1">Caso 2: Biblioteca Escolar (Préstamos)</option>
-                    <option value="2">Caso 3: Tienda Online (Pedidos)</option>
-                </select>
-            </div>
-            <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1">
-                💾 Guardar / Imprimir PDF
-            </button>
-        </div>
-    </div>
+    </header>
 
-    <!-- Layout principal dividido (Panel de ayuda a la izquierda, Ficha de examen a la derecha) -->
-    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        <!-- PANEL IZQUIERDO DE APOYO (No se imprime) -->
-        <div class="lg:col-span-4 flex flex-col gap-4 no-print">
-            
-            <!-- Consigna Académica -->
-            <div class="bg-slate-900 text-slate-300 p-5 rounded-2xl shadow-md border border-slate-800 flex flex-col gap-3">
-                <h2 class="text-white font-bold text-sm uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                    📖 Requerimientos del Problema
-                </h2>
-                <div id="exercise-desc" class="text-xs leading-relaxed text-slate-300 max-h-52 overflow-y-auto pr-2">
-                    <!-- Dinámico -->
-                </div>
-                <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50 mt-1">
-                    <span class="text-[10px] uppercase font-bold text-amber-400 block mb-1">💡 Ayuda Pedagógica</span>
-                    <p id="exercise-hint" class="text-[11px] text-slate-400 leading-normal"></p>
-                </div>
-            </div>
+    <!-- ── Hero ───────────────────────────────────────────── -->
+    <main class="flex-1 flex flex-col items-center justify-center px-6 py-12">
 
-            <!-- Banco de Palabras Interactivo -->
-            <div class="bg-slate-900 text-slate-300 p-5 rounded-2xl shadow-md border border-slate-800 flex flex-col gap-2">
-                <div class="flex justify-between items-center mb-1">
-                    <h3 class="text-white font-bold text-sm uppercase tracking-wider text-emerald-400">
-                        ✂️ Recortes / Respuestas
-                    </h3>
-                    <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded font-bold">Inclusión DUA</span>
-                </div>
-                <p class="text-[11px] text-slate-400 leading-snug mb-2">Haz clic en una etiqueta de abajo y luego haz clic en cualquier línea vacía del examen para pegarla automáticamente.</p>
-                <div id="word-bank" class="flex flex-wrap gap-2">
-                    <!-- Dinámico -->
-                </div>
-                <div id="selected-indicator" class="text-xs text-yellow-400 font-bold min-h-[1.25rem] mt-1"></div>
-            </div>
-
-            <!-- Controles evaluativos -->
-            <div class="flex flex-col gap-2">
-                <button onclick="gradeSheet()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-emerald-900/20 transform active:scale-95 transition-all flex justify-center items-center gap-2">
-                    <span>📝 Corregir Ficha de Trabajo</span>
-                </button>
-                <button onclick="clearSheet()" class="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-xl transition text-xs flex justify-center items-center gap-1">
-                    <span>🔄 Borrar todo y empezar de nuevo</span>
-                </button>
-            </div>
-
+        <div class="text-center mb-12 max-w-xl fade-up delay-1">
+            <p class="text-xs font-extrabold text-indigo-400 uppercase tracking-widest mb-3">Entrenador Conceptual</p>
+            <h2 class="text-4xl font-extrabold leading-tight mb-4">
+                Practicá diagramas<br class="hidden sm:block"> Entidad-Relación
+            </h2>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Completá los espacios del diagrama, validá tus respuestas y guardá tu trabajo como imagen.
+                Elegí el nivel que corresponde a tu avance.
+            </p>
         </div>
 
-        <!-- FICHA IMPRESA (A4) -->
-        <div class="lg:col-span-8 flex justify-center">
-            
-            <div class="pdf-page shadow-2xl relative" id="exam-sheet">
-                
-                <!-- Encabezado Formal del Examen (UTU / Escuela Técnica uruguaya) -->
-                <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
-                    <div class="flex flex-col gap-0.5">
-                        <span class="text-xs font-extrabold tracking-wider uppercase text-slate-600">DGETP - UTU URUGUAY</span>
-                        <span class="text-sm font-black text-black">DIRECCIÓN DE EDUCACIÓN TÉCNICA</span>
-                        <span class="text-xs font-bold text-slate-700">Asignatura: Base de Datos 1 — Modelo Conceptual</span>
-                    </div>
-                    <!-- Tabla de Calificación -->
-                    <div class="border border-black p-2 text-center min-w-[100px]">
-                        <span class="text-[10px] font-bold block border-b border-black pb-1 uppercase">Calificación</span>
-                        <span id="grade-box" class="text-2xl font-black text-slate-400 italic">--</span>
-                    </div>
-                </div>
+        <!-- ── Tarjetas de nivel ──────────────────────────── -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
 
-                <!-- Datos del Alumno (Completables) -->
-                <div class="grid grid-cols-3 gap-4 text-xs font-bold mb-6 border-b border-dashed border-slate-300 pb-4">
-                    <div class="col-span-2 flex items-center gap-2">
-                        <span>Alumno/a:</span>
-                        <input type="text" placeholder="Escribe aquí tu nombre completo" class="flex-1 border-b border-black focus:outline-none p-1 handwritten text-sm">
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span>Fecha:</span>
-                        <input type="text" value="21/05/2026" class="w-full border-b border-black focus:outline-none p-1 text-center handwritten text-sm">
-                    </div>
+            <!-- BÁSICO -->
+            <a href="er-designer.html?ejercicio=2"
+               class="level-card fade-up delay-2 bg-slate-800 border border-slate-700 hover:border-emerald-500 rounded-2xl p-7 flex flex-col gap-4 cursor-pointer group shadow-lg hover:shadow-emerald-900/30">
+                <div class="flex items-center justify-between">
+                    <span class="text-4xl">🟢</span>
+                    <span class="flex gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                    </span>
                 </div>
-
-                <!-- Título del Examen -->
-                <div class="mb-6">
-                    <h2 class="text-base font-black uppercase tracking-tight text-center" id="sheet-title">
-                        FICHA PRÁCTICA: COMPLETAR EL DIAGRAMA ENTIDAD-RELACIÓN
-                    </h2>
-                    <p class="text-xs text-slate-600 mt-2 text-justify">
-                        <strong>Instrucciones:</strong> Complete los espacios vacíos en las figuras de Entidades, Relaciones y Atributos de acuerdo con la letra del problema adjunto. No olvide indicar las claves principales y las cardinalidades de correspondencia.
+                <div>
+                    <p class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest mb-1">Nivel Básico</p>
+                    <h3 class="text-2xl font-extrabold text-white mb-2">Tienda Online</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        2 entidades, 1 relación simple <strong class="text-slate-300">1:N</strong>. Sin atributos de relación. Ideal para empezar.
                     </p>
                 </div>
-
-                <!-- Lienzo Vectorial de la Ficha -->
-                <div class="relative border border-black bg-slate-50/50 w-full h-[580px] rounded-lg overflow-hidden">
-                    <!-- SVG para líneas sólidas de conexión tradicionales (Chen style) -->
-                    <svg id="canvas-lines" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
-                    
-                    <!-- Nodos de la hoja de examen -->
-                    <div id="canvas-nodes" class="absolute inset-0 w-full h-full z-10"></div>
+                <ul class="text-xs text-slate-500 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700">
+                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Entidades y atributos</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Relación 1 a N</li>
+                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> Clave primaria (PK)</li>
+                </ul>
+                <div class="py-3 bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-bold rounded-xl text-center transition">
+                    Comenzar →
                 </div>
+            </a>
 
-                <!-- Nota al pie de la hoja del examen -->
-                <div class="absolute bottom-6 left-12 right-12 flex justify-between items-center border-t border-slate-300 pt-3 text-[10px] text-slate-500 font-medium">
-                    <span>Ficha de Evaluación Práctica — UTU La Paz</span>
-                    <span>Pág. 1 / 1</span>
+            <!-- MEDIO -->
+            <a href="er-designer.html?ejercicio=0"
+               class="level-card fade-up delay-3 bg-slate-800 border border-slate-700 hover:border-amber-500 rounded-2xl p-7 flex flex-col gap-4 cursor-pointer group shadow-lg hover:shadow-amber-900/30">
+                <div class="flex items-center justify-between">
+                    <span class="text-4xl">🟡</span>
+                    <span class="flex gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                    </span>
                 </div>
+                <div>
+                    <p class="text-[10px] font-extrabold text-amber-400 uppercase tracking-widest mb-1">Nivel Medio</p>
+                    <h3 class="text-2xl font-extrabold text-white mb-2">Taller &amp; Biblioteca</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        3 entidades, cardinalidades <strong class="text-slate-300">N:M</strong> y atributos propios de la relación. 2 ejercicios disponibles.
+                    </p>
+                </div>
+                <ul class="text-xs text-slate-500 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700">
+                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Múltiples entidades</li>
+                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Cardinalidades N a M</li>
+                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Atributos de relación</li>
+                </ul>
+                <div class="py-3 bg-amber-600 group-hover:bg-amber-500 text-white text-xs font-bold rounded-xl text-center transition">
+                    Comenzar →
+                </div>
+            </a>
 
-            </div>
+            <!-- EXPERTO -->
+            <a href="er-designer.html?ejercicio=3"
+               class="level-card fade-up delay-3 bg-slate-800 border border-slate-700 hover:border-rose-500 rounded-2xl p-7 flex flex-col gap-4 cursor-pointer group shadow-lg hover:shadow-rose-900/30">
+                <div class="flex items-center justify-between">
+                    <span class="text-4xl">🔴</span>
+                    <span class="flex gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                    </span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-extrabold text-rose-400 uppercase tracking-widest mb-1">Nivel Experto</p>
+                    <h3 class="text-2xl font-extrabold text-white mb-2">Red Social</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Especialización <strong class="text-slate-300">ISA</strong>, subentidades, atributos multivaluados y herencia de entidades.
+                    </p>
+                </div>
+                <ul class="text-xs text-slate-500 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700">
+                    <li class="flex items-center gap-2"><span class="text-rose-500 font-bold">✓</span> Jerarquía ISA</li>
+                    <li class="flex items-center gap-2"><span class="text-rose-500 font-bold">✓</span> Subentidades especializadas</li>
+                    <li class="flex items-center gap-2"><span class="text-rose-500 font-bold">✓</span> Atributo multivaluado</li>
+                </ul>
+                <div class="py-3 bg-rose-600 group-hover:bg-rose-500 text-white text-xs font-bold rounded-xl text-center transition">
+                    Comenzar →
+                </div>
+            </a>
 
         </div>
 
-    </div>
+        <p class="mt-10 text-xs text-slate-600 text-center max-w-md">
+            Dentro del ejercicio podés navegar entre todos los casos con el selector de arriba.<br>
+            Al terminar, validá tus respuestas y guardá el diagrama como imagen.
+        </p>
 
-    <script>
-        // Datos de los Casos de Estudio y sus diagramas
-        const cases = [
-            {
-                title: "FICHA PRÁCTICA: TALLER MECÁNICO (CASO CAMSCANNER)",
-                description: `<strong>Taller Mecánico:</strong> Un taller desea mantener una base de datos con la información de las reparaciones realizadas sobre los autos y sus dueños.<br><br>
-                • De cada <strong>Cliente</strong> se guarda la ci, nombre, apellido1.<br>
-                • De los <strong>Autos</strong> se guarda la matrícula, marca, modelo y tipo de combustible.<br>
-                • De cada <strong>Reparación</strong> se guarda un código único y una descripción de la reparación.<br>
-                • Un cliente puede tener muchos autos, mientras que un auto solo es de un cliente.<br>
-                • Un auto puede recibir muchas reparaciones y una reparación puede aplicarse a muchos autos.<br>
-                • Cada vez que se realiza una reparación se registra la fecha de entrada y una observación.`,
-                hint: "Identifica las tres Entidades principales en los cuadros, las Relaciones en los rombos y las claves en los óvalos de doble borde.",
-                wordBank: ["Cliente", "Auto", "Reparación", "Tiene", "Recibe", "ci", "nombre", "apellido1", "matrícula", "marca", "modelo", "combustible", "código", "descripción", "fecha_entrada", "observación", "1", "N", "M"],
-                nodes: [
-                    // Entidades (Rectángulos)
-                    { id: "e1", type: "entity", value: "Cliente", x: 15, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "e2", type: "entity", value: "Auto", x: 50, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "e3", type: "entity", value: "Reparación", x: 85, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
+    </main>
 
-                    // Relaciones (Rombos SVG perfectos)
-                    { id: "r1", type: "relation", value: "Tiene", x: 32.5, y: 50, w: 75, h: 75, placeholder: "?" },
-                    { id: "r2", type: "relation", value: "Recibe", x: 67.5, y: 50, w: 75, h: 75, placeholder: "?" },
+    <!-- ── Footer ─────────────────────────────────────────── -->
+    <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-600">
+        Herramienta diseñada con apoyo docente para la inclusión educativa — UTU 2026
+    </footer>
 
-                    // Atributos de Cliente (Óvalos)
-                    { id: "a_e1_1", type: "attribute", isKey: true, value: "ci", x: 6, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e1_2", type: "attribute", isKey: false, value: "nombre", x: 15, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e1_3", type: "attribute", isKey: false, value: "apellido1", x: 24, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-
-                    // Atributos de Auto
-                    { id: "a_e2_1", type: "attribute", isKey: true, value: "matrícula", x: 41, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e2_2", type: "attribute", isKey: false, value: "marca", x: 50, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_3", type: "attribute", isKey: false, value: "modelo", x: 59, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_4", type: "attribute", isKey: false, value: "combustible", x: 50, y: 78, w: 85, h: 36, placeholder: "¿Atrib?" },
-
-                    // Atributos de Reparación
-                    { id: "a_e3_1", type: "attribute", isKey: true, value: "código", x: 79, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e3_2", type: "attribute", isKey: false, value: "descripción", x: 88, y: 22, w: 85, h: 36, placeholder: "¿Atrib?" },
-
-                    // Atributos de Relación Recibe
-                    { id: "a_r2_1", type: "attribute", isKey: false, value: "fecha_entrada", x: 62, y: 78, w: 90, h: 36, placeholder: "¿Atrib R.?" },
-                    { id: "a_r2_2", type: "attribute", isKey: false, value: "observación", x: 73, y: 78, w: 80, h: 36, placeholder: "¿Atrib R.?" },
-
-                    // Cardinalidades
-                    { id: "c1", type: "cardinality", value: "1", x: 23, y: 50, w: 30, h: 30 },
-                    { id: "c2", type: "cardinality", value: "N", x: 41, y: 50, w: 30, h: 30 },
-                    { id: "c3", type: "cardinality", value: "N", x: 59, y: 50, w: 30, h: 30 },
-                    { id: "c4", type: "cardinality", value: "M", x: 76, y: 50, w: 30, h: 30 }
-                ],
-                connections: [
-                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
-                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" }, { from: "a_e2_4", to: "e2" },
-                    { from: "a_e3_1", to: "e3" }, { from: "a_e3_2", to: "e3" },
-                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
-                    { from: "e2", to: "r2" }, { from: "r2", to: "e3" },
-                    { from: "r2", to: "a_r2_1" }, { from: "r2", to: "a_r2_2" }
-                ]
-            },
-            {
-                title: "FICHA PRÁCTICA: BIBLIOTECA ESCOLAR (PRÉSTAMOS)",
-                description: `<strong>Biblioteca Escolar:</strong> Se desea organizar el préstamo de libros de lectura.<br><br>
-                • Contamos con la entidad <strong>Socio</strong> (estudiante), del cual guardamos id_socio, nombre y teléfono.<br>
-                • La entidad <strong>Libro</strong> tiene isbn, título y autor.<br>
-                • Un Socio realiza múltiples préstamos, y un libro es prestado a diferentes socios.<br>
-                • Cada <strong>Préstamo</strong> registra la fecha_prestamo y si fue devuelto.`,
-                hint: "Las claves son id_socio (Socio) e isbn (Libro). Al ser una relación N a M, la relación Préstamo tiene sus propios atributos.",
-                wordBank: ["Socio", "Libro", "Préstamo", "id_socio", "nombre", "teléfono", "isbn", "título", "autor", "fecha_prestamo", "devuelto", "1", "N", "M"],
-                nodes: [
-                    { id: "e1", type: "entity", value: "Socio", x: 20, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "e2", type: "entity", value: "Libro", x: 80, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "r1", type: "relation", value: "Préstamo", x: 50, y: 50, w: 85, h: 85, placeholder: "?" },
-                    { id: "a_e1_1", type: "attribute", isKey: true, value: "id_socio", x: 10, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e1_2", type: "attribute", isKey: false, value: "nombre", x: 20, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e1_3", type: "attribute", isKey: false, value: "teléfono", x: 30, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_1", type: "attribute", isKey: true, value: "isbn", x: 70, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e2_2", type: "attribute", isKey: false, value: "título", x: 80, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_3", type: "attribute", isKey: false, value: "autor", x: 90, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_r1_1", type: "attribute", isKey: false, value: "fecha_prestamo", x: 42, y: 78, w: 90, h: 36, placeholder: "¿Atrib R.?" },
-                    { id: "a_r1_2", type: "attribute", isKey: false, value: "devuelto", x: 58, y: 78, w: 75, h: 36, placeholder: "¿Atrib R.?" },
-                    { id: "c1", type: "cardinality", value: "N", x: 35, y: 50, w: 30, h: 30 },
-                    { id: "c2", type: "cardinality", value: "M", x: 65, y: 50, w: 30, h: 30 }
-                ],
-                connections: [
-                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
-                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
-                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
-                    { from: "r1", to: "a_r1_1" }, { from: "r1", to: "a_r1_2" }
-                ]
-            },
-            {
-                title: "FICHA PRÁCTICA: TIENDA ONLINE (PEDIDOS)",
-                description: `<strong>Tienda Online:</strong> Se modela la compra de productos por clientes.<br><br>
-                • El <strong>Cliente</strong> cuenta con id_cliente, nombre, email.<br>
-                • El cliente realiza un <strong>Pedido</strong> con nro_pedido, fecha_pedido, total.<br>
-                • Un cliente realiza muchos pedidos, pero cada pedido solo pertenece a un cliente específico.`,
-                hint: "Es una relación de Uno a Muchos (1 a N). La relación 'Realiza' no tiene atributos propios.",
-                wordBank: ["Cliente", "Pedido", "Realiza", "id_cliente", "nombre", "email", "nro_pedido", "fecha_pedido", "total", "1", "N"],
-                nodes: [
-                    { id: "e1", type: "entity", value: "Cliente", x: 20, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "e2", type: "entity", value: "Pedido", x: 80, y: 50, w: 120, h: 48, placeholder: "¿Entidad?" },
-                    { id: "r1", type: "relation", value: "Realiza", x: 50, y: 50, w: 85, h: 85, placeholder: "?" },
-                    { id: "a_e1_1", type: "attribute", isKey: true, value: "id_cliente", x: 10, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e1_2", type: "attribute", isKey: false, value: "nombre", x: 20, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e1_3", type: "attribute", isKey: false, value: "email", x: 30, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_1", type: "attribute", isKey: true, value: "nro_pedido", x: 70, y: 22, w: 75, h: 36, placeholder: "¿Clave?" },
-                    { id: "a_e2_2", type: "attribute", isKey: false, value: "fecha_pedido", x: 80, y: 22, w: 85, h: 36, placeholder: "¿Atrib?" },
-                    { id: "a_e2_3", type: "attribute", isKey: false, value: "total", x: 90, y: 22, w: 75, h: 36, placeholder: "¿Atrib?" },
-                    { id: "c1", type: "cardinality", value: "1", x: 35, y: 50, w: 30, h: 30 },
-                    { id: "c2", type: "cardinality", value: "N", x: 65, y: 50, w: 30, h: 30 }
-                ],
-                connections: [
-                    { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
-                    { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
-                    { from: "e1", to: "r1" }, { from: "r1", to: "e2" }
-                ]
-            }
-        ];
-
-        let currentCaseIdx = 0;
-        let activeSelection = null;
-
-        // Al iniciar la ventana
-        window.addEventListener('DOMContentLoaded', () => {
-            switchExercise(0);
-            window.addEventListener('resize', drawLines);
-        });
-
-        // Cambiar entre problemas
-        function switchExercise(idx) {
-            currentCaseIdx = parseInt(idx);
-            activeSelection = null;
-            document.getElementById('selected-indicator').innerText = "";
-            
-            const selectedCase = cases[currentCaseIdx];
-            
-            // Textos descriptivos
-            document.getElementById('exercise-desc').innerHTML = selectedCase.description;
-            document.getElementById('exercise-hint').innerHTML = selectedCase.hint;
-            document.getElementById('sheet-title').innerText = selectedCase.title;
-            document.getElementById('grade-box').innerText = "--";
-
-            // Banco de palabras lateral
-            const bank = document.getElementById('word-bank');
-            bank.innerHTML = "";
-            selectedCase.wordBank.forEach(word => {
-                const tag = document.createElement('button');
-                tag.className = "px-3 py-1.5 bg-white border rounded-lg text-xs font-bold text-slate-800 word-tag transition-all active:scale-95";
-                tag.innerText = word;
-                tag.onclick = () => selectWord(word, tag);
-                bank.appendChild(tag);
-            });
-
-            renderPDFNodes(selectedCase);
-        }
-
-        // Selección del banco de palabras
-        function selectWord(word, el) {
-            activeSelection = word;
-            document.getElementById('selected-indicator').innerText = `📝 Pegarás: "${word}"`;
-            
-            // Limpiar estilos anteriores
-            const allTags = document.getElementById('word-bank').querySelectorAll('button');
-            allTags.forEach(t => t.className = "px-3 py-1.5 bg-white border rounded-lg text-xs font-bold text-slate-800 word-tag transition-all active:scale-95");
-            
-            // Aplicar estilo de selección activa
-            el.className = "px-3 py-1.5 text-xs font-bold word-tag-selected transition-all active:scale-95";
-        }
-
-        // Dibujar los nodos en la ficha de examen
-        function renderPDFNodes(selectedCase) {
-            const container = document.getElementById('canvas-nodes');
-            container.innerHTML = "";
-
-            selectedCase.nodes.forEach(node => {
-                const nodeDiv = document.createElement('div');
-                nodeDiv.id = node.id;
-                nodeDiv.style.left = `${node.x}%`;
-                nodeDiv.style.top = `${node.y}%`;
-                nodeDiv.style.width = `${node.w}px`;
-                nodeDiv.style.height = `${node.h}px`;
-                nodeDiv.style.position = "absolute";
-                nodeDiv.style.transform = "translate(-50%, -50%)";
-
-                let innerHtml = "";
-
-                if (node.type === "entity") {
-                    nodeDiv.className = "bg-slate-100 border border-black shadow-[2px_2px_0px_#000000] flex flex-col justify-center items-center p-1 z-20";
-                    innerHtml = `
-                        <span class="text-[8px] font-extrabold tracking-wider select-none text-slate-500">ENTIDAD</span>
-                        <input type="text" id="input-${node.id}" placeholder="${node.placeholder}" 
-                            class="blank-input w-[95%] text-xs py-0.5 handwritten"
-                            onclick="pasteWord('${node.id}')" readonly autocomplete="off">
-                    `;
-                } else if (node.type === "relation") {
-                    nodeDiv.className = "relative flex justify-center items-center z-20";
-                    innerHtml = `
-                        <!-- Rombo examen vectorizado -->
-                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <polygon points="50,2 98,50 50,98 2,50" fill="#f8fafc" stroke="#000000" stroke-width="1.5"/>
-                        </svg>
-                        <div class="relative z-30 flex flex-col items-center justify-center p-1 text-center w-full">
-                            <span class="text-[7px] font-extrabold select-none text-slate-500">RELACIÓN</span>
-                            <input type="text" id="input-${node.id}" placeholder="${node.placeholder}" 
-                                class="blank-input w-[80%] text-[10px] py-0.5 handwritten"
-                                onclick="pasteWord('${node.id}')" readonly autocomplete="off">
-                        </div>
-                    `;
-                } else if (node.type === "attribute") {
-                    const keyStyle = node.isKey ? "border-double border-[3px]" : "border";
-                    nodeDiv.className = `bg-white ${keyStyle} border-black rounded-[50%/50%] flex flex-col justify-center items-center p-1 z-20`;
-                    innerHtml = `
-                        <span class="text-[7px] font-extrabold select-none text-slate-500">${node.isKey ? 'CLAVE' : 'ATRIB'}</span>
-                        <input type="text" id="input-${node.id}" placeholder="${node.placeholder}" 
-                            class="blank-input w-[85%] text-[9px] py-0.5 handwritten"
-                            onclick="pasteWord('${node.id}')" readonly autocomplete="off">
-                    `;
-                } else if (node.type === "cardinality") {
-                    nodeDiv.className = "bg-white border border-black flex justify-center items-center z-30 shadow-[1px_1px_0px_#000000]";
-                    innerHtml = `
-                        <input type="text" id="input-${node.id}" placeholder="?" 
-                            class="blank-input w-full h-full text-[11px] font-extrabold text-center uppercase border-none handwritten"
-                            onclick="pasteWord('${node.id}')" readonly autocomplete="off">
-                    `;
-                }
-
-                nodeDiv.innerHTML = innerHtml;
-                container.appendChild(nodeDiv);
-            });
-
-            setTimeout(drawLines, 100);
-        }
-
-        // Pegar palabra del banco en el input de examen
-        function pasteWord(nodeId) {
-            if (activeSelection !== null) {
-                const inp = document.getElementById(`input-${nodeId}`);
-                inp.value = activeSelection;
-                inp.classList.remove('blank-correct', 'blank-incorrect');
-                
-                // Limpiar selección para el siguiente uso
-                activeSelection = null;
-                document.getElementById('selected-indicator').innerText = "";
-                const allTags = document.getElementById('word-bank').querySelectorAll('button');
-                allTags.forEach(t => t.className = "px-3 py-1.5 bg-white border rounded-lg text-xs font-bold text-slate-800 word-tag transition-all active:scale-95");
-            }
-        }
-
-        // Trazado de líneas vectoriales sólidas de Chen
-        function drawLines() {
-            const selectedCase = cases[currentCaseIdx];
-            const svg = document.getElementById('canvas-lines');
-            const canvas = document.getElementById('er-canvas');
-            
-            svg.innerHTML = ""; // Limpiar
-            const canvasRect = canvas.getBoundingClientRect();
-
-            selectedCase.connections.forEach(conn => {
-                const nodeFrom = document.getElementById(conn.from);
-                const nodeTo = document.getElementById(conn.to);
-
-                if (nodeFrom && nodeTo) {
-                    const rectFrom = nodeFrom.getBoundingClientRect();
-                    const rectTo = nodeTo.getBoundingClientRect();
-
-                    const startX = (rectFrom.left + rectFrom.width / 2) - canvasRect.left + canvas.scrollLeft;
-                    const startY = (rectFrom.top + rectFrom.height / 2) - canvasRect.top + canvas.scrollTop;
-                    const endX = (rectTo.left + rectTo.width / 2) - canvasRect.left + canvas.scrollLeft;
-                    const endY = (rectTo.top + rectTo.height / 2) - canvasRect.top + canvas.scrollTop;
-
-                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    line.setAttribute("x1", startX);
-                    line.setAttribute("y1", startY);
-                    line.setAttribute("x2", endX);
-                    line.setAttribute("y2", endY);
-                    
-                    // Conectores sólidos
-                    line.setAttribute("stroke", "#000000");
-                    line.setAttribute("stroke-width", "1.5");
-
-                    svg.appendChild(line);
-                }
-            });
-        }
-
-        // Borrar ficha
-        function clearSheet() {
-            const selectedCase = cases[currentCaseIdx];
-            selectedCase.nodes.forEach(node => {
-                const inp = document.getElementById(`input-${node.id}`);
-                if (inp) {
-                    inp.value = "";
-                    inp.classList.remove('blank-correct', 'blank-incorrect');
-                }
-            });
-            document.getElementById('grade-box').innerText = "--";
-        }
-
-        // Calificar la ficha de examen
-        function gradeSheet() {
-            const selectedCase = cases[currentCaseIdx];
-            let hits = 0;
-            let total = selectedCase.nodes.length;
-
-            selectedCase.nodes.forEach(node => {
-                const inp = document.getElementById(`input-${node.id}`);
-                if (inp) {
-                    const ans = inp.value.trim().toLowerCase();
-                    const corr = node.value.toLowerCase();
-
-                    if (ans === corr) {
-                        inp.classList.remove('blank-incorrect');
-                        inp.classList.add('blank-correct');
-                        hits++;
-                    } else {
-                        inp.classList.remove('blank-correct');
-                        inp.classList.add('blank-incorrect');
-                    }
-                }
-            });
-
-            // Mostrar nota final en formato uruguayo clásico (sobre 12)
-            const calculatedGrade = Math.round((hits / total) * 12);
-            document.getElementById('grade-box').innerText = `${calculatedGrade}/12`;
-            
-            if (calculatedGrade >= 6) {
-                document.getElementById('grade-box').className = "text-2xl font-black text-emerald-600 italic";
-            } else {
-                document.getElementById('grade-box').className = "text-2xl font-black text-rose-600 italic";
-            }
-        }
-    </script>
 </body>
 </html>

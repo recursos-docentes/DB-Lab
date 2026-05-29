@@ -155,10 +155,11 @@
                 </label>
                 <select id="exercise-select" onchange="loadExercise(this.value)"
                     class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                    <option value="0">🔧 Taller Mecánico (Caso CamScanner)</option>
+                    <option value="0">🔧 Taller Mecánico (N:M con atributos)</option>
                     <option value="1">📚 Biblioteca Escolar (Préstamos)</option>
-                    <option value="2">🛒 Tienda Online (Pedidos)</option>
-                    <option value="3">🌐 Red Social (Especialización)</option>
+                    <option value="2">🛒 Tienda Online (1:N básico)</option>
+                    <option value="3">🌐 Red Social (Especialización ISA)</option>
+                    <option value="4">🎬 Plataforma Streaming (Compuesto)</option>
                 </select>
             </div>
 
@@ -319,7 +320,9 @@
 
     <!-- Footer -->
     <footer class="no-print bg-slate-950 text-slate-500 text-xs py-4 text-center border-t border-slate-800">
-        Herramienta diseñada con apoyo docente para la inclusión educativa — UTU 2026
+        Herramienta diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude —
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank"
+           class="underline hover:text-slate-300 transition">licencia CC BY-SA</a>
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT -->
@@ -475,6 +478,74 @@
                     { from: "isa1", to: "e4"   },
                     { from: "a_e3_1", to: "e3" },
                     { from: "a_e4_1", to: "e4" }, { from: "a_e4_2", to: "e4" }
+                ]
+            },
+
+            // ── Ejercicio 5 ──────────────────────────────────────────────────────────
+            {
+                title: "Caso 5: Plataforma de Streaming",
+                description: `Una plataforma de streaming desea administrar su catálogo de películas y sus socios.<br><br>
+                • De cada <strong>Socio</strong> se guarda Cod_socio, Nombre_completo (compuesto por Primer_nom y Primer_ape) y una lista de Directores_favoritos.<br>
+                • De cada <strong>Película</strong> se registra Cod_pelicula, Titulo, Año y una lista de Actores.<br>
+                • Las películas se almacenan en <strong>Archivadores</strong> con Nro_arch y Ubicacion.<br>
+                • Un socio puede <em>alquilar</em> muchas películas y una película puede ser alquilada por muchos socios (N:M). Se registra Fecha y Devuelto.<br>
+                • Un archivador <em>guarda</em> muchas películas, pero cada película está en un solo archivador (N:1).`,
+                hint: "Nombre_completo es un atributo <strong>compuesto</strong>: Primer_nom y Primer_ape se conectan al óvalo de Nombre_completo, no a SOCIO directamente. Los atributos con doble borde son multivaluados (listas de valores).",
+                wordBank: ["SOCIO","PELÍCULA","ARCHIVADOR","alquila","guarda","Cod_socio","Nombre_completo","Primer_nom","Primer_ape","Directores_favoritos","Cod_pelicula","Titulo","Año","Actores","Nro_arch","Ubicacion","Fecha","Devuelto","N","M","1"],
+                nodes: [
+                    // ── Entidades ──
+                    { id: "e_soc", type: "entity",   correctValue: "SOCIO",      x: 10, y: 45, w: 110, h: 52 },
+                    { id: "e_pel", type: "entity",   correctValue: "PELÍCULA",   x: 54, y: 45, w: 115, h: 52 },
+                    { id: "e_arc", type: "entity",   correctValue: "ARCHIVADOR", x: 92, y: 45, w: 115, h: 52 },
+                    // ── Relaciones ──
+                    { id: "r_alq", type: "relation", correctValue: "alquila",    x: 30, y: 45, w: 80,  h: 80 },
+                    { id: "r_gua", type: "relation", correctValue: "guarda",     x: 74, y: 45, w: 75,  h: 75 },
+                    // ── Cardinalidades ──
+                    { id: "c1",    type: "cardinality", correctValue: "N",  x: 20, y: 45, w: 30, h: 30 },
+                    { id: "c2",    type: "cardinality", correctValue: "M",  x: 42, y: 45, w: 30, h: 30 },
+                    { id: "c3",    type: "cardinality", correctValue: "N",  x: 65, y: 45, w: 30, h: 30 },
+                    { id: "c4",    type: "cardinality", correctValue: "1",  x: 84, y: 45, w: 30, h: 30 },
+                    // ── Atributos SOCIO ──
+                    { id: "a_s1",  type: "attribute", isKey: true,         correctValue: "Cod_socio",           x: 3,  y: 23, w: 92,  h: 40 },
+                    { id: "a_s2",  type: "attribute", isKey: false,        correctValue: "Nombre_completo",     x: 14, y: 14, w: 112, h: 40 },
+                    { id: "a_s3",  type: "attribute", isKey: false,        correctValue: "Primer_nom",          x: 7,  y: 6,  w: 88,  h: 38 },
+                    { id: "a_s4",  type: "attribute", isKey: false,        correctValue: "Primer_ape",          x: 20, y: 6,  w: 88,  h: 38 },
+                    { id: "a_s5",  type: "attribute", isMultivalued: true, correctValue: "Directores_favoritos",x: 5,  y: 72, w: 132, h: 44 },
+                    // ── Atributos PELÍCULA ──
+                    { id: "a_p1",  type: "attribute", isKey: true,         correctValue: "Cod_pelicula",        x: 46, y: 23, w: 98,  h: 40 },
+                    { id: "a_p2",  type: "attribute", isKey: false,        correctValue: "Titulo",              x: 57, y: 14, w: 78,  h: 40 },
+                    { id: "a_p3",  type: "attribute", isKey: false,        correctValue: "Año",                 x: 66, y: 23, w: 65,  h: 40 },
+                    { id: "a_p4",  type: "attribute", isMultivalued: true, correctValue: "Actores",             x: 54, y: 72, w: 82,  h: 44 },
+                    // ── Atributos ARCHIVADOR ──
+                    { id: "a_a1",  type: "attribute", isKey: true,         correctValue: "Nro_arch",            x: 84, y: 23, w: 82,  h: 40 },
+                    { id: "a_a2",  type: "attribute", isKey: false,        correctValue: "Ubicacion",           x: 94, y: 23, w: 85,  h: 40 },
+                    // ── Atributos relación alquila ──
+                    { id: "a_r1",  type: "attribute", isKey: false,        correctValue: "Fecha",               x: 24, y: 72, w: 72,  h: 40 },
+                    { id: "a_r2",  type: "attribute", isKey: false,        correctValue: "Devuelto",            x: 35, y: 79, w: 80,  h: 40 }
+                ],
+                connections: [
+                    // SOCIO ↔ atributos
+                    { from: "a_s1",  to: "e_soc" },
+                    { from: "a_s2",  to: "e_soc" },           // Nombre_completo → SOCIO
+                    { from: "a_s3",  to: "a_s2" },            // Primer_nom → Nombre_completo (compuesto)
+                    { from: "a_s4",  to: "a_s2" },            // Primer_ape → Nombre_completo (compuesto)
+                    { from: "a_s5",  to: "e_soc" },
+                    // Relaciones entidad-relación
+                    { from: "e_soc", to: "r_alq" },
+                    { from: "r_alq", to: "e_pel" },
+                    { from: "e_pel", to: "r_gua" },
+                    { from: "r_gua", to: "e_arc" },
+                    // alquila ↔ sus atributos
+                    { from: "r_alq", to: "a_r1" },
+                    { from: "r_alq", to: "a_r2" },
+                    // PELÍCULA ↔ atributos
+                    { from: "a_p1",  to: "e_pel" },
+                    { from: "a_p2",  to: "e_pel" },
+                    { from: "a_p3",  to: "e_pel" },
+                    { from: "a_p4",  to: "e_pel" },
+                    // ARCHIVADOR ↔ atributos
+                    { from: "a_a1",  to: "e_arc" },
+                    { from: "a_a2",  to: "e_arc" }
                 ]
             }
         ];

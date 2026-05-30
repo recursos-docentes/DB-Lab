@@ -35,7 +35,7 @@
             </div>
             <div>
                 <h1 class="text-lg font-extrabold tracking-tight leading-tight">E-R Constructor Pro</h1>
-                <p class="text-xs text-slate-400">Modelado Entidad-Relación Conceptual · UTU 2026</p>
+                <p class="text-xs text-slate-400">Modelado Entidad-Relación</p>
             </div>
         </div>
     </header>
@@ -49,8 +49,7 @@
                 Practicá diagramas<br class="hidden sm:block"> Entidad-Relación
             </h2>
             <p class="text-slate-400 text-sm leading-relaxed">
-                Completá los espacios del diagrama, validá tus respuestas y guardá tu trabajo como imagen.
-                Elegí el nivel que corresponde a tu avance.
+                Elegí el nivel y el ejercicio. Se mostrará qué conceptos vas a practicar antes de comenzar.
             </p>
         </div>
 
@@ -58,89 +57,101 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
 
             <!-- BÁSICO -->
-            <a href="er-designer.html?ejercicio=0"
-               class="level-card fade-up delay-2 bg-slate-800 border border-slate-700 hover:border-emerald-500 rounded-2xl p-7 flex flex-col gap-4 cursor-pointer group shadow-lg hover:shadow-emerald-900/30">
+            <div class="level-card fade-up delay-2 bg-slate-800 border border-slate-700 hover:border-emerald-500/60 rounded-2xl p-6 flex flex-col gap-4 shadow-lg">
                 <div class="flex items-center justify-between">
-                    <span class="text-4xl">🟢</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-3xl">🟢</span>
+                        <p class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest">Nivel Básico</p>
+                    </div>
                     <span class="flex gap-1.5">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
                     </span>
                 </div>
-                <div>
-                    <p class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest mb-1">Nivel Básico</p>
-                    <h3 class="text-2xl font-extrabold text-white mb-2">Taller &amp; Streaming</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        3 ejercicios progresivos: <strong class="text-slate-300">1:N</strong>, <strong class="text-slate-300">N:M</strong> y atributos compuestos. Casos reales del aula.
-                    </p>
+                <h3 class="text-2xl font-extrabold text-white leading-tight">Entidades, atributos y relaciones</h3>
+                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3">
+                    <button onclick="selectEx(this, 2, ['Relación 1:N', 'Entidades y atributos', 'Clave primaria (PK)'])"
+                        class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+                        <span>🛒</span> Tienda Online
+                    </button>
+                    <button onclick="selectEx(this, 0, ['Relación N:N', 'Atributo de relación'])"
+                        class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+                        <span>🔧</span> Taller Mecánico
+                    </button>
+                    <button onclick="selectEx(this, 1, ['Atributo de relación (refuerzo)', 'Relación N:N (refuerzo)'])"
+                        class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+                        <span>📚</span> Biblioteca Escolar
+                    </button>
+                    <button onclick="selectEx(this, 4, ['Atributo compuesto', 'Atributo multivaluado'])"
+                        class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+                        <span>🎬</span> Plataforma Streaming
+                    </button>
                 </div>
-                <ul class="text-xs text-slate-500 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700">
-                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> 🛒 Tienda Online (1:N)</li>
-                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> 🔧 Taller Mecánico (N:M)</li>
-                    <li class="flex items-center gap-2"><span class="text-emerald-500 font-bold">✓</span> 🎬 Plataforma Streaming</li>
-                </ul>
-                <div class="py-3 bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-bold rounded-xl text-center transition">
-                    Comenzar →
+                <div class="concepts-panel hidden bg-slate-700/40 rounded-xl p-3 flex flex-col gap-2.5 border border-slate-600/50">
+                    <p class="text-[9px] font-extrabold text-indigo-300 uppercase tracking-widest">Conceptos nuevos que vas a practicar</p>
+                    <ul class="concepts-list flex flex-wrap gap-1.5"></ul>
+                    <a class="start-btn mt-1 block py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl text-center transition" href="#">
+                        Comenzar →
+                    </a>
                 </div>
-            </a>
+            </div>
 
             <!-- MEDIO -->
-            <a href="er-designer.html?ejercicio=3"
-               class="level-card fade-up delay-3 bg-slate-800 border border-slate-700 hover:border-amber-500 rounded-2xl p-7 flex flex-col gap-4 cursor-pointer group shadow-lg hover:shadow-amber-900/30">
+            <div class="level-card fade-up delay-3 bg-slate-800 border border-slate-700 hover:border-amber-500/60 rounded-2xl p-6 flex flex-col gap-4 shadow-lg">
                 <div class="flex items-center justify-between">
-                    <span class="text-4xl">🟡</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-3xl">🟡</span>
+                        <p class="text-[10px] font-extrabold text-amber-400 uppercase tracking-widest">Nivel Medio</p>
+                    </div>
                     <span class="flex gap-1.5">
-                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
                     </span>
                 </div>
-                <div>
-                    <p class="text-[10px] font-extrabold text-amber-400 uppercase tracking-widest mb-1">Nivel Medio</p>
-                    <h3 class="text-2xl font-extrabold text-white mb-2">Red Social</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Especialización <strong class="text-slate-300">ISA</strong>, subentidades, atributos multivaluados y herencia de entidades.
-                    </p>
+                <h3 class="text-2xl font-extrabold text-white leading-tight">Entidades débiles, autorelación, categorización y RNE</h3>
+                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3">
+                    <button onclick="selectEx(this, 3, ['Especialización ISA', 'Herencia de entidades'])"
+                        class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+                        <span>🌐</span> Red Social (ISA)
+                    </button>
                 </div>
-                <ul class="text-xs text-slate-500 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700">
-                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Jerarquía ISA</li>
-                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Subentidades especializadas</li>
-                    <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Atributo multivaluado</li>
-                </ul>
-                <div class="py-3 bg-amber-600 group-hover:bg-amber-500 text-white text-xs font-bold rounded-xl text-center transition">
-                    Comenzar →
+                <div class="concepts-panel hidden bg-slate-700/40 rounded-xl p-3 flex flex-col gap-2.5 border border-slate-600/50">
+                    <p class="text-[9px] font-extrabold text-indigo-300 uppercase tracking-widest">Conceptos nuevos que vas a practicar</p>
+                    <ul class="concepts-list flex flex-wrap gap-1.5"></ul>
+                    <a class="start-btn mt-1 block py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl text-center transition" href="#">
+                        Comenzar →
+                    </a>
                 </div>
-            </a>
+            </div>
 
             <!-- EXPERTO — Próximamente -->
-            <div class="level-card fade-up delay-3 bg-slate-800/60 border border-slate-700/50 rounded-2xl p-7 flex flex-col gap-4 shadow-lg opacity-70 cursor-default select-none">
+            <div class="level-card fade-up delay-3 bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 flex flex-col gap-4 shadow-lg opacity-70 cursor-default select-none">
                 <div class="flex items-center justify-between">
-                    <span class="text-4xl grayscale opacity-50">🔴</span>
-                    <span class="flex gap-1.5">
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
-                        <span class="w-3 h-3 rounded-full bg-slate-600"></span>
-                    </span>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <p class="text-[10px] font-extrabold text-rose-400/60 uppercase tracking-widest">Nivel Experto</p>
-                        <span class="px-2 py-0.5 bg-rose-950/60 border border-rose-700/40 text-rose-300/80 text-[9px] font-extrabold rounded-full uppercase tracking-widest animate-pulse">
-                            🔒 Próximamente
-                        </span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-3xl grayscale opacity-50">🔴</span>
+                        <div class="flex items-center gap-2">
+                            <p class="text-[10px] font-extrabold text-rose-400/60 uppercase tracking-widest">Nivel Experto</p>
+                            <span class="px-2 py-0.5 bg-rose-950/60 border border-rose-700/40 text-rose-300/80 text-[9px] font-extrabold rounded-full uppercase tracking-widest animate-pulse">
+                                🔒
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-extrabold text-slate-500 mb-2">Avanzado</h3>
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        Entidades débiles, cardinalidades ternarias y ejercicios integrados con mayor complejidad conceptual.
-                    </p>
                 </div>
-                <ul class="text-xs text-slate-600 flex flex-col gap-2 mt-auto pt-2 border-t border-slate-700/40">
-                    <li class="flex items-center gap-2"><span class="text-slate-600 font-bold">○</span> Entidades débiles</li>
-                    <li class="flex items-center gap-2"><span class="text-slate-600 font-bold">○</span> Relaciones ternarias</li>
-                    <li class="flex items-center gap-2"><span class="text-slate-600 font-bold">○</span> Ejercicios integrados</li>
-                </ul>
-                <div class="py-3 bg-slate-700/40 text-slate-500 text-xs font-bold rounded-xl text-center cursor-not-allowed">
+                <h3 class="text-2xl font-extrabold text-slate-500 leading-tight">Agregación y ejercicios integrados de mayor complejidad conceptual</h3>
+                <div class="flex flex-col gap-1 border-t border-slate-700/40 pt-3">
+                    <div class="px-3 py-2.5 text-xs font-semibold text-slate-600 flex items-center gap-2.5">
+                        <span>🧩</span> Entidades débiles
+                    </div>
+                    <div class="px-3 py-2.5 text-xs font-semibold text-slate-600 flex items-center gap-2.5">
+                        <span>🔗</span> Relaciones ternarias
+                    </div>
+                    <div class="px-3 py-2.5 text-xs font-semibold text-slate-600 flex items-center gap-2.5">
+                        <span>📐</span> Ejercicios integrados
+                    </div>
+                </div>
+                <div class="py-2.5 bg-slate-700/40 text-slate-500 text-xs font-bold rounded-xl text-center cursor-not-allowed mt-auto">
                     🔒 Próximamente
                 </div>
             </div>
@@ -160,6 +171,28 @@
         <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank"
            class="underline hover:text-slate-400 transition">licencia CC BY-SA</a>
     </footer>
+
+    <script>
+        function selectEx(btn, idx, concepts) {
+            const card = btn.closest('.level-card');
+            card.querySelectorAll('.ex-btn').forEach(b => {
+                b.classList.remove('bg-slate-600', 'text-white');
+                b.classList.add('text-slate-300');
+            });
+            btn.classList.add('bg-slate-600', 'text-white');
+            btn.classList.remove('text-slate-300');
+
+            const panel = card.querySelector('.concepts-panel');
+            const list  = card.querySelector('.concepts-list');
+            const link  = card.querySelector('.start-btn');
+
+            list.innerHTML = concepts.map(c =>
+                `<li class="px-2 py-1 bg-slate-600 text-slate-200 text-[10px] font-semibold rounded-lg">${c}</li>`
+            ).join('');
+            link.href = `er-designer.html?ejercicio=${idx}`;
+            panel.classList.remove('hidden');
+        }
+    </script>
 
 </body>
 </html>

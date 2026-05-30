@@ -70,6 +70,22 @@
         .high-contrast-mode .diagram-input { border-color: #fff !important; color: #fff !important; background: #222 !important; }
         .high-contrast-mode svg line { stroke: #fff !important; stroke-width: 3px !important; }
 
+        /* ── Stage tabs ── */
+        .stage-tab { padding: 0.45rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; border: 1.5px solid transparent; color: #94a3b8; }
+        .stage-tab:hover:not(:disabled) { color: #e2e8f0; background: rgba(99,102,241,0.12); }
+        .stage-tab.active { background: #6366f1; color: #fff; border-color: #818cf8; }
+        .stage-tab:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Analyze word chips ── */
+        .word-chip { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 0.375rem; border: 1.5px dashed #f59e0b; background: rgba(245,158,11,0.08); color: #fbbf24; cursor: pointer; font-weight: 600; transition: all 0.15s; line-height: 2; }
+        .word-chip:hover { background: rgba(245,158,11,0.2); border-style: solid; }
+        .word-chip.classified-entidad  { border: 1.5px solid #3b82f6 !important; background: rgba(59,130,246,0.15) !important; color: #93c5fd !important; }
+        .word-chip.classified-atributo { border: 1.5px solid #10b981 !important; background: rgba(16,185,129,0.15) !important; color: #6ee7b7 !important; }
+        .word-chip.classified-relacion { border: 1.5px solid #ec4899 !important; background: rgba(236,72,153,0.15) !important; color: #f9a8d4 !important; }
+        .word-chip.correct   { border: 2px solid #059669 !important; background: rgba(5,150,105,0.25) !important; color: #34d399 !important; }
+        .word-chip.incorrect { border: 2px solid #dc2626 !important; background: rgba(220,38,38,0.25) !important; color: #fca5a5 !important; }
+        .word-chip.unclassified-fb { border: 1.5px solid #475569 !important; background: rgba(71,85,105,0.15) !important; color: #64748b !important; }
+
         /* ── Solo impresión ── */
         .print-header { display: none; }
         .handwritten  { font-family: 'Courier Prime', monospace; font-weight: 700; color: #1d4ed8; }
@@ -126,7 +142,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight leading-tight">E-R Constructor Pro</h1>
-                    <p class="text-xs text-slate-400 font-medium">Modelado Entidad-Relación Conceptual · UTU 2026</p>
+                    <p class="text-xs text-slate-400 font-medium">Modelado Entidad-Relación</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -141,8 +157,77 @@
         </div>
     </header>
 
-    <!-- ══════════════════════════════════════════ MAIN -->
-    <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex flex-col lg:flex-row items-stretch gap-4 lg:gap-0">
+    <!-- ══ Stage navigation ═══════════════════════════════ -->
+    <nav class="no-print bg-slate-900 border-b border-slate-800 px-6 py-3">
+        <div class="max-w-[1600px] mx-auto flex items-center gap-2">
+            <button id="tab-analyze" onclick="setStage('analyze')" class="stage-tab active">📋 Analizar el problema</button>
+            <svg class="w-4 h-4 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <button id="tab-diagram" onclick="setStage('diagram')" class="stage-tab" disabled>🔗 Diseño E-R</button>
+            <svg class="w-4 h-4 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <button id="tab-tables" disabled class="stage-tab">📊 Pasaje a tablas 🔒</button>
+
+        </div>
+    </nav>
+
+    <!-- ══ Analizar el problema ════════════════════════════ -->
+    <div id="stage-analyze" class="no-print flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex flex-col lg:flex-row gap-5" style="min-height:640px;">
+
+        <!-- Texto limpio del problema -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col gap-3 lg:flex-[3]">
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+                <h2 class="text-indigo-400 font-bold text-sm uppercase tracking-wider">📖 Enunciado</h2>
+                <select id="analyze-select" onchange="loadExercise(this.value)"
+                    class="p-2 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    <option value="0">🔧 Taller Mecánico</option>
+                    <option value="1">📚 Biblioteca Escolar</option>
+                    <option value="2">🛒 Tienda Online</option>
+                    <option value="3">🌐 Red Social</option>
+                    <option value="4">🎬 Plataforma Streaming</option>
+                </select>
+            </div>
+            <div id="analyze-text" class="text-sm text-slate-200 leading-7 whitespace-pre-wrap flex-1 pt-1"></div>
+        </div>
+
+        <!-- Panel de clasificación -->
+        <div class="flex flex-col gap-3 lg:flex-[2]">
+
+            <!-- Fichas a clasificar -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-2.5">
+                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Términos a identificar</p>
+                <p class="text-xs text-slate-500">Hacé clic en cada término y clasificalo.</p>
+                <div id="terms-pool" class="flex flex-wrap gap-2 pt-1 min-h-[2rem]"></div>
+            </div>
+
+            <!-- Columnas de clasificación -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-blue-950/40 border border-blue-800/40 rounded-xl p-3 flex flex-col gap-1.5">
+                    <p class="text-[10px] font-extrabold text-blue-300 uppercase tracking-widest flex items-center gap-1.5"><svg width="14" height="10"><rect x="1" y="1" width="12" height="8" fill="none" stroke="#3b82f6" stroke-width="1.8"/></svg>Entidades</p>
+                    <div id="classified-entities" class="flex flex-col gap-1 min-h-[2rem]"></div>
+                </div>
+                <div class="bg-emerald-950/40 border border-emerald-800/40 rounded-xl p-3 flex flex-col gap-1.5">
+                    <p class="text-[10px] font-extrabold text-emerald-300 uppercase tracking-widest flex items-center gap-1.5"><svg width="16" height="10"><ellipse cx="8" cy="5" rx="7" ry="4" fill="none" stroke="#10b981" stroke-width="1.8"/></svg>Atributos</p>
+                    <div id="classified-attrs" class="flex flex-col gap-1 min-h-[2rem]"></div>
+                </div>
+                <div class="bg-pink-950/40 border border-pink-800/40 rounded-xl p-3 flex flex-col gap-1.5">
+                    <p class="text-[10px] font-extrabold text-red-400 uppercase tracking-widest flex items-center gap-1.5"><svg width="12" height="12"><polygon points="6,1 11,6 6,11 1,6" fill="none" stroke="#dc2626" stroke-width="1.8"/></svg>Relaciones</p>
+                    <div id="classified-relations" class="flex flex-col gap-1 min-h-[2rem]"></div>
+                </div>
+            </div>
+
+            <button id="btn-validate-analysis" onclick="validateAnalysis()"
+                class="py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm flex items-center justify-center gap-2 transition active:scale-[0.98] shadow-lg">
+                📝 Validar clasificación
+            </button>
+            <div id="analyze-feedback" class="hidden p-4 rounded-2xl text-center font-bold text-sm border"></div>
+            <button id="btn-go-diagram" onclick="setStage('diagram')" disabled
+                class="py-3 bg-slate-700/50 text-slate-500 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700">
+                🔒 Ir al Diseño E-R — evaluá primero
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ Diseño E-R ══════════════════════════════════════ -->
+    <main id="stage-diagram" class="hidden flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex flex-col lg:flex-row items-stretch gap-4 lg:gap-0">
 
         <!-- ── Panel Izquierdo (dark) ──────────────────────── -->
         <section id="left-panel" class="no-print flex flex-col gap-4 flex-shrink-0"
@@ -217,6 +302,10 @@
                         Siguiente ➡️
                     </button>
                 </div>
+                <a href="index.html"
+                    class="py-3 bg-slate-700/60 hover:bg-slate-700 text-slate-400 hover:text-slate-200 font-semibold rounded-xl transition text-xs flex items-center justify-center gap-1.5 border border-slate-700">
+                    🏠 Elegir otro ejercicio
+                </a>
             </div>
         </section>
 
@@ -275,15 +364,15 @@
             <div class="legend-bar no-print flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
                 <div class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-400">
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-5 h-4 bg-blue-50 border-2 border-blue-500 flex-shrink-0"></span>Entidad
+                        <svg width="20" height="14" class="flex-shrink-0"><rect x="1" y="1" width="18" height="12" fill="none" stroke="#3b82f6" stroke-width="2"/></svg>Entidad
                     </span>
                     <span class="flex items-center gap-1.5">
                         <svg width="16" height="16" viewBox="0 0 16 16" class="flex-shrink-0">
-                            <polygon points="8,1 15,8 8,15 1,8" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+                            <polygon points="8,1 15,8 8,15 1,8" fill="none" stroke="#dc2626" stroke-width="2"/>
                         </svg>Relación
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0"></span>Atributo
+                        <svg width="24" height="14" class="flex-shrink-0"><ellipse cx="12" cy="7" rx="11" ry="6" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/></svg>Atributo
                     </span>
                     <span class="flex items-center gap-1.5">
                         <span class="inline-block w-6 h-3.5 rounded-full bg-emerald-50 border-2 border-emerald-500 flex-shrink-0 flex items-center justify-center">
@@ -318,6 +407,16 @@
         </section>
     </main>
 
+    <!-- ══ Pasaje a tablas ════════════════════════════════ -->
+    <div id="stage-tables" class="no-print hidden flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex items-center justify-center" style="min-height:640px;">
+        <div class="text-center flex flex-col items-center gap-4">
+            <span class="text-6xl">📊</span>
+            <h2 class="text-2xl font-extrabold text-white">Pasaje a Tablas</h2>
+            <p class="text-slate-400 text-sm max-w-xs">Convertí tu modelo E-R en tablas relacionales. Esta sección estará disponible próximamente.</p>
+            <span class="px-4 py-2 bg-rose-950/60 border border-rose-700/40 text-rose-300/80 text-sm font-extrabold rounded-full animate-pulse">🔒 Próximamente</span>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="no-print bg-slate-950 text-slate-500 text-xs py-4 text-center border-t border-slate-800">
         Herramienta diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude —
@@ -339,7 +438,7 @@
                 • Un auto puede recibir muchas reparaciones y una reparación puede aplicarse a muchos autos.<br>
                 • Se registra la fecha de entrada y observación para cada reparación.`,
                 hint: "Coloca las Entidades (rectángulos) principales en los extremos y al medio. Las Relaciones (rombos) coordinan la acción entre ellas. Las cardinalidades muestran la proporción (1 a N, o N a M).",
-                wordBank: ["CLIENTE", "AUTO", "REPARACIÓN", "tiene", "recibe", "Ci", "Nombre", "Apellido1", "Matrícula", "Marca", "Modelo", "Combustible", "Código", "Descripción", "Fecha_entrada", "Observación", "1", "N", "M"],
+                wordBank: ["CLIENTE", "AUTO", "REPARACIÓN", "tiene", "recibe", "Ci", "Nombre", "Apellido1", "Matrícula", "Marca", "Modelo", "Combustible", "Código", "Descripción", "Fecha_entrada", "Observación", "1", "N"],
                 nodes: [
                     { id: "e1", type: "entity",      correctValue: "CLIENTE",       x: 15,   y: 50,   w: 120, h: 55 },
                     { id: "e2", type: "entity",      correctValue: "AUTO",          x: 50,   y: 50,   w: 120, h: 55 },
@@ -360,7 +459,7 @@
                     { id: "c1", type: "cardinality", correctValue: "1", x: 24,   y: 50, w: 32, h: 32 },
                     { id: "c2", type: "cardinality", correctValue: "N", x: 41,   y: 50, w: 32, h: 32 },
                     { id: "c3", type: "cardinality", correctValue: "N", x: 59,   y: 50, w: 32, h: 32 },
-                    { id: "c4", type: "cardinality", correctValue: "M", x: 76,   y: 50, w: 32, h: 32 }
+                    { id: "c4", type: "cardinality", correctValue: "N", x: 76,   y: 50, w: 32, h: 32 }
                 ],
                 connections: [
                     { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
@@ -381,7 +480,7 @@
                 • Un socio puede solicitar múltiples préstamos y un libro puede prestarse a diferentes socios.<br>
                 • El <strong>Préstamo</strong> registra la fecha_prestamo y si fue devuelto.`,
                 hint: "Socio y Libro son las entidades primarias. Préstamo actúa como relación con atributos propios. Las cardinalidades serán de muchos a muchos (N a M).",
-                wordBank: ["SOCIO", "LIBRO", "préstamo", "Id_socio", "Nombre", "Teléfono", "Isbn", "Título", "Autor", "Fecha_prestamo", "Devuelto", "1", "N", "M"],
+                wordBank: ["SOCIO", "LIBRO", "préstamo", "Id_socio", "Nombre", "Teléfono", "Isbn", "Título", "Autor", "Fecha_prestamo", "Devuelto", "1", "N"],
                 nodes: [
                     { id: "e1", type: "entity",   correctValue: "SOCIO",           x: 20, y: 50, w: 120, h: 55 },
                     { id: "e2", type: "entity",   correctValue: "LIBRO",           x: 80, y: 50, w: 120, h: 55 },
@@ -395,7 +494,7 @@
                     { id: "a_r1_1", type: "attribute", isKey: false, correctValue: "Fecha_prestamo", x: 43, y: 78, w: 105, h: 42 },
                     { id: "a_r1_2", type: "attribute", isKey: false, correctValue: "Devuelto",      x: 57, y: 78, w: 85,  h: 42 },
                     { id: "c1", type: "cardinality", correctValue: "N", x: 35, y: 50, w: 32, h: 32 },
-                    { id: "c2", type: "cardinality", correctValue: "M", x: 65, y: 50, w: 32, h: 32 }
+                    { id: "c2", type: "cardinality", correctValue: "N", x: 65, y: 50, w: 32, h: 32 }
                 ],
                 connections: [
                     { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
@@ -491,7 +590,7 @@
                 • Un socio puede <em>alquilar</em> muchas películas y una película puede ser alquilada por muchos socios (N:M). Se registra Fecha y Devuelto.<br>
                 • Un archivador <em>guarda</em> muchas películas, pero cada película está en un solo archivador (N:1).`,
                 hint: "Nombre_completo es un atributo <strong>compuesto</strong>: Primer_nom y Primer_ape se conectan al óvalo de Nombre_completo, no a SOCIO directamente. Los atributos con doble borde son multivaluados (listas de valores).",
-                wordBank: ["SOCIO","PELÍCULA","ARCHIVADOR","alquila","guarda","Cod_socio","Nombre_completo","Primer_nom","Primer_ape","Directores_favoritos","Cod_pelicula","Titulo","Año","Actores","Nro_arch","Ubicacion","Fecha","Devuelto","N","M","1"],
+                wordBank: ["SOCIO","PELÍCULA","ARCHIVADOR","alquila","guarda","Cod_socio","Nombre_completo","Primer_nom","Primer_ape","Directores_favoritos","Cod_pelicula","Titulo","Año","Actores","Nro_arch","Ubicacion","Fecha","Devuelto","N","1"],
                 nodes: [
                     // ── Entidades ──
                     { id: "e_soc", type: "entity",   correctValue: "SOCIO",      x: 10, y: 45, w: 110, h: 52 },
@@ -502,7 +601,7 @@
                     { id: "r_gua", type: "relation", correctValue: "guarda",     x: 74, y: 45, w: 75,  h: 75 },
                     // ── Cardinalidades ──
                     { id: "c1",    type: "cardinality", correctValue: "N",  x: 20, y: 45, w: 30, h: 30 },
-                    { id: "c2",    type: "cardinality", correctValue: "M",  x: 42, y: 45, w: 30, h: 30 },
+                    { id: "c2",    type: "cardinality", correctValue: "N",  x: 42, y: 45, w: 30, h: 30 },
                     { id: "c3",    type: "cardinality", correctValue: "N",  x: 65, y: 45, w: 30, h: 30 },
                     { id: "c4",    type: "cardinality", correctValue: "1",  x: 84, y: 45, w: 30, h: 30 },
                     // ── Atributos SOCIO ──
@@ -550,10 +649,82 @@
             }
         ];
 
+        // ── Datos de análisis de texto por ejercicio ─────────────────────────────
+        // Cada elemento es un array de segmentos: string = texto plano, objeto = palabra clickeable
+        const analyzeData = [
+            // 0 ── Taller Mecánico
+            [
+                "Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.\n\n",
+                "• De cada ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " se guarda la ",
+                {word:"ci",type:"atributo",attrType:"clave"}, ", ", {word:"nombre",type:"atributo",attrType:"simple"}, ", ", {word:"apellido1",type:"atributo",attrType:"simple"}, ".\n",
+                "• De los ", {word:"Autos",type:"entidad",entityType:"fuerte"}, " se guarda la ",
+                {word:"matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"marca",type:"atributo",attrType:"simple"}, ", ", {word:"modelo",type:"atributo",attrType:"simple"}, " y ", {word:"combustible",type:"atributo",attrType:"simple"}, ".\n",
+                "• De cada ", {word:"Reparación",type:"entidad",entityType:"fuerte"}, " se guarda un ",
+                {word:"código",type:"atributo",attrType:"clave"}, " único y una ", {word:"descripción",type:"atributo",attrType:"simple"}, " de la reparación.\n",
+                "• Un cliente puede ", {word:"tener",type:"relacion"}, " muchos autos, mientras que un auto solo es de un cliente.\n",
+                "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones y una reparación puede aplicarse a muchos autos.\n",
+                "• Se registra la ", {word:"fecha_entrada",type:"atributo",attrType:"relacion"}, " y ", {word:"observación",type:"atributo",attrType:"relacion"}, " para cada reparación."
+            ],
+            // 1 ── Biblioteca Escolar
+            [
+                "Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.\n\n",
+                "• Cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " tiene ",
+                {word:"id_socio",type:"atributo",attrType:"clave"}, ", ", {word:"nombre",type:"atributo",attrType:"simple"}, " y ", {word:"teléfono",type:"atributo",attrType:"simple"}, ".\n",
+                "• De los ", {word:"Libros",type:"entidad",entityType:"fuerte"}, " se registra el ",
+                {word:"isbn",type:"atributo",attrType:"clave"}, ", ", {word:"título",type:"atributo",attrType:"simple"}, " y ", {word:"autor",type:"atributo",attrType:"simple"}, ".\n",
+                "• Un socio puede ", {word:"solicitar",type:"relacion"}, " múltiples préstamos y un libro puede prestarse a diferentes socios.\n",
+                "• El Préstamo registra la ", {word:"fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"devuelto",type:"atributo",attrType:"relacion"}, "."
+            ],
+            // 2 ── Tienda Online
+            [
+                "Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.\n\n",
+                "• El ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " tiene ",
+                {word:"id_cliente",type:"atributo",attrType:"clave"}, ", ", {word:"nombre",type:"atributo",attrType:"simple"}, ", ", {word:"email",type:"atributo",attrType:"simple"}, ".\n",
+                "• El cliente ", {word:"realiza",type:"relacion"}, " un ", {word:"Pedido",type:"entidad",entityType:"fuerte"}, " con ",
+                {word:"nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"total",type:"atributo",attrType:"simple"}, ".\n",
+                "• Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente."
+            ],
+            // 3 ── Red Social
+            [
+                "Una red social tiene ", {word:"Usuarios",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
+                {word:"Creadores",type:"entidad",entityType:"fuerte"}, " o ", {word:"Espectadores",type:"entidad",entityType:"fuerte"}, " (especialización ISA).\n",
+                "Los usuarios tienen ", {word:"Id_usuario",type:"atributo",attrType:"clave"}, ", ", {word:"Email",type:"atributo",attrType:"simple"}, " y ", {word:"Año_ingreso",type:"atributo",attrType:"simple"}, ".\n",
+                "Los Creadores tienen ", {word:"Cant_seguidores",type:"atributo",attrType:"simple"}, ".\n",
+                "Los Espectadores pueden tener varios ", {word:"Teléfono",type:"atributo",attrType:"multivaluado"}, " y una ", {word:"Ciudad",type:"atributo",attrType:"simple"}, ".\n",
+                "Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"Contenidos",type:"entidad",entityType:"fuerte"}, " (1:N).\n",
+                "El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
+            ],
+            // 4 ── Plataforma Streaming
+            [
+                "Una plataforma de streaming desea administrar su catálogo de películas y sus socios.\n\n",
+                "• De cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " se guarda ",
+                {word:"Cod_socio",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre_completo",type:"atributo",attrType:"compuesto",components:["Primer_nom","Primer_ape"]},
+                " (compuesto por ", {word:"Primer_nom",type:"atributo",attrType:"simple"}, " y ", {word:"Primer_ape",type:"atributo",attrType:"simple"}, ") y una lista de ",
+                {word:"Directores_favoritos",type:"atributo",attrType:"multivaluado"}, ".\n",
+                "• De cada ", {word:"Película",type:"entidad",entityType:"fuerte"}, " se registra ",
+                {word:"Cod_pelicula",type:"atributo",attrType:"clave"}, ", ", {word:"Titulo",type:"atributo",attrType:"simple"}, ", ",
+                {word:"Año",type:"atributo",attrType:"simple"}, " y una lista de ", {word:"Actores",type:"atributo",attrType:"multivaluado"}, ".\n",
+                "• Las películas se almacenan en ", {word:"Archivadores",type:"entidad",entityType:"fuerte"}, " con ",
+                {word:"Nro_arch",type:"atributo",attrType:"clave"}, " y ", {word:"Ubicacion",type:"atributo",attrType:"simple"}, ".\n",
+                "• Un socio puede ", {word:"alquilar",type:"relacion"}, " muchas películas y una película puede ser alquilada por muchos socios. Se registra ",
+                {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, ".\n",
+                "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador (N:1)."
+            ]
+        ];
+
         let activeExercise  = 0;
         let highlightedWord = null;
+        let wordClassifications = {};
+        let wordAttrTypes = {};
+        let wordEntityTypes = {};
+        let wordCompounds = {};        // idx → [component words]
+        let selectedComponents = new Set();
+        let activeWordIdx = null;
+        let evalMode = false;  // false = ejercitación, true = evaluación
 
         window.addEventListener('DOMContentLoaded', () => {
+            _initMode();
+            document.addEventListener('click', hidePopup);
             // Fecha de hoy en la cabecera de impresión
             const hoy = new Date().toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const dateEl = document.getElementById('exam-date');
@@ -584,6 +755,8 @@
 
             document.getElementById('selection-status').innerText = "";
             document.getElementById('exercise-select').value = index;
+            const asel = document.getElementById('analyze-select');
+            if (asel) asel.value = index;
             document.getElementById('progress-indicator').innerText = `${activeExercise + 1} de ${exercises.length}`;
             document.getElementById('hint-box').classList.add('hidden');
             document.getElementById('feedback-alert').classList.add('hidden');
@@ -610,6 +783,9 @@
             });
 
             renderInteractiveCanvas(cur);
+            renderAnalysisPanel(activeExercise);
+            _resetCorregirBtn();
+            setStage('analyze');
         }
 
         // ── Seleccionar palabra del banco ────────────────────────
@@ -819,14 +995,66 @@
         // ── Corregir ─────────────────────────────────────────────
         function checkAnswers() {
             const cur   = exercises[activeExercise];
-            let hits    = 0;
             const total = cur.nodes.filter(n => !!n.correctValue).length;
 
+            // Map: attrId → parentId (from connections where the attr is the "from" side)
+            const parentMap = {};
+            cur.connections.forEach(({ from, to }) => {
+                const fromNode = cur.nodes.find(n => n.id === from);
+                if (fromNode?.type === 'attribute') parentMap[from] = to;
+            });
+
+            // Group attribute nodes by parent
+            const attrGroups = {};
+            cur.nodes.forEach(n => {
+                if (n.type !== 'attribute' || !n.correctValue) return;
+                const parent = parentMap[n.id] ?? '__orphan__';
+                (attrGroups[parent] = attrGroups[parent] ?? []).push(n.id);
+            });
+
+            // Build correctness map:
+            // - key attributes (isKey:true): exact match required
+            // - non-key attributes within same parent: order-independent
+            const correctMap = {};
+            Object.values(attrGroups).forEach(nodeIds => {
+                // Separate key nodes from non-key nodes
+                const keyIds    = nodeIds.filter(id => cur.nodes.find(n => n.id === id).isKey);
+                const nonKeyIds = nodeIds.filter(id => !cur.nodes.find(n => n.id === id).isKey);
+
+                // Key attrs: exact match
+                keyIds.forEach(id => {
+                    const node = cur.nodes.find(n => n.id === id);
+                    const el   = document.getElementById(`input-${id}`);
+                    const val  = el ? el.value.trim().toLowerCase() : '';
+                    correctMap[id] = val === node.correctValue.toLowerCase();
+                });
+
+                // Non-key attrs: order-independent pool
+                const pool = nonKeyIds.map(id => cur.nodes.find(n => n.id === id).correctValue.toLowerCase());
+                nonKeyIds.forEach(id => {
+                    const el  = document.getElementById(`input-${id}`);
+                    const val = el ? el.value.trim().toLowerCase() : '';
+                    const idx = pool.indexOf(val);
+                    if (idx !== -1) { pool.splice(idx, 1); correctMap[id] = true; }
+                    else correctMap[id] = false;
+                });
+            });
+
+            // Non-attribute nodes: exact match
+            cur.nodes.forEach(n => {
+                if (!n.correctValue || n.type === 'attribute') return;
+                const el = document.getElementById(`input-${n.id}`);
+                if (!el) return;
+                correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
+            });
+
+            // Apply styles and count
+            let hits = 0;
             cur.nodes.forEach(n => {
                 if (!n.correctValue) return;
                 const el = document.getElementById(`input-${n.id}`);
                 if (!el) return;
-                const ok = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
+                const ok = correctMap[n.id] ?? false;
                 el.classList.toggle('input-correct',   ok);
                 el.classList.toggle('input-incorrect', !ok);
                 if (ok) hits++;
@@ -858,16 +1086,36 @@
                     : ['bg-amber-950',  'text-amber-300', 'border-amber-700'])
             );
             fb.innerHTML = `<span class="text-sm">${msg}</span>`;
-
             requestAnimationFrame(drawCrispConnectors);
+
+            if (evalMode) {
+                const btn = document.querySelector('button[onclick="checkAnswers()"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.className = 'w-full py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+                    btn.textContent = '✓ Diagrama registrado';
+                }
+            }
         }
 
         // ── Guardar diagrama como PNG ────────────────────────────
         async function saveAsPNG() {
             const btn = document.getElementById('png-btn');
-            if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
+            const canvasEl = document.getElementById('er-canvas');
 
-            const canvasEl  = document.getElementById('er-canvas');
+            // Avisar si el contenido está cortado
+            if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
+                const ok = confirm(
+                    '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
+                    '📐 Para que salga completo:\n' +
+                    '  • Reducí el zoom del navegador (Ctrl + −)\n' +
+                    '  • O ampliá la ventana\n\n' +
+                    '¿Querés guardar igualmente?'
+                );
+                if (!ok) return;
+            }
+
+            if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
             canvasEl.scrollLeft = 0;
             canvasEl.scrollTop  = 0;
 
@@ -930,6 +1178,406 @@
             }
         }
 
+        // ── Modo ejercitación / evaluación ───────────────────
+        // Activado via ?ex=1 en la URL (no visible para estudiantes).
+        // Se persiste en sessionStorage para sobrevivir un F5 sin el param.
+        function _initMode() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('ex') === '1') {
+                sessionStorage.setItem('ermode', 'eval');
+            }
+            evalMode = sessionStorage.getItem('ermode') === 'eval';
+        }
+
+        // ── Stage navigation ─────────────────────────────────
+        function setStage(stage) {
+            ['analyze', 'diagram', 'tables'].forEach(s => {
+                const panel = document.getElementById(`stage-${s}`);
+                if (panel) panel.classList.toggle('hidden', s !== stage);
+                const tab = document.getElementById(`tab-${s}`);
+                if (tab && !tab.disabled) tab.classList.toggle('active', s === stage);
+            });
+            hidePopup();
+            if (stage === 'diagram') requestAnimationFrame(drawCrispConnectors);
+        }
+
+        // ── Render analysis panel ─────────────────────────────
+        function renderAnalysisPanel(exerciseIndex) {
+            wordClassifications = {};
+            wordAttrTypes = {};
+            wordEntityTypes = {};
+            wordCompounds = {};
+            selectedComponents = new Set();
+            activeWordIdx = null;
+
+            const btn = document.getElementById('btn-go-diagram');
+            if (btn) {
+                btn.disabled = true;
+                btn.className = 'py-3 bg-slate-700/50 text-slate-500 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+                btn.textContent = '🔒 Ir al Diseño E-R — evaluá primero';
+            }
+            const tab = document.getElementById('tab-diagram');
+            if (tab) tab.disabled = true;
+            const vbtn = document.getElementById('btn-validate-analysis');
+            if (vbtn) {
+                vbtn.disabled = false;
+                vbtn.className = 'py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm flex items-center justify-center gap-2 transition active:scale-[0.98] shadow-lg';
+                vbtn.textContent = '📝 Validar clasificación';
+            }
+            document.getElementById('analyze-feedback').classList.add('hidden');
+
+            const segments = analyzeData[exerciseIndex];
+
+            // Texto completamente limpio (sin resaltados)
+            const textContainer = document.getElementById('analyze-text');
+            textContainer.innerHTML = '';
+            if (!segments) {
+                textContainer.innerHTML = '<p class="text-slate-500 italic">Análisis no disponible para este ejercicio.</p>';
+                document.getElementById('terms-pool').innerHTML = '';
+                updateClassificationPanels();
+                return;
+            }
+            segments.forEach(seg => {
+                textContainer.appendChild(document.createTextNode(typeof seg === 'string' ? seg : seg.word));
+            });
+
+            // Fichas en el panel lateral
+            const pool = document.getElementById('terms-pool');
+            pool.innerHTML = '';
+            segments.forEach((seg, idx) => {
+                if (typeof seg === 'string') return;
+                const chip = document.createElement('button');
+                chip.className = 'term-chip px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 border border-amber-500/60 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20';
+                chip.dataset.wordIdx = idx;
+                chip.dataset.word = seg.word;
+                chip.textContent = seg.word;
+                chip.onclick = (e) => { e.stopPropagation(); showPopup(chip, idx); };
+                pool.appendChild(chip);
+            });
+
+            updateClassificationPanels();
+        }
+
+        // ── Word popup ────────────────────────────────────────
+        function showPopup(chipEl, wordIdx) {
+            activeWordIdx = wordIdx;
+            const popup = document.getElementById('word-popup');
+            const rect  = chipEl.getBoundingClientRect();
+            popup.style.top  = (rect.bottom + 6 + window.scrollY) + 'px';
+            popup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 260) + 'px';
+            popup.classList.remove('hidden');
+        }
+
+        function hidePopup() {
+            const p = document.getElementById('word-popup');
+            if (p) {
+                p.classList.add('hidden');
+                document.getElementById('popup-step1').style.display = '';
+                document.getElementById('popup-step2').style.display = '';
+                document.getElementById('popup-step3').style.display = '';
+            }
+            activeWordIdx = null;
+            selectedComponents = new Set();
+        }
+
+        function classifyWord(type) {
+            if (activeWordIdx === null) return;
+            wordClassifications[activeWordIdx] = type;
+
+            if (type === 'atributo') { _showSubtypePopup('atributo'); return; }
+            if (type === 'entidad')  { _showSubtypePopup('entidad');  return; }
+            // relacion: clasificación directa
+            delete wordAttrTypes[activeWordIdx];
+            delete wordEntityTypes[activeWordIdx];
+            updateChipStyle(activeWordIdx);
+            hidePopup();
+            updateClassificationPanels();
+        }
+
+        function _showSubtypePopup(mainType) {
+            wordClassifications[activeWordIdx] = mainType;
+
+            // Calcular qué subtipos existen en este ejercicio
+            const segments = analyzeData[activeExercise] || [];
+            const existing = new Set();
+            segments.forEach(seg => {
+                if (typeof seg === 'string') return;
+                if (seg.type === mainType) {
+                    const sub = mainType === 'atributo' ? seg.attrType : seg.entityType;
+                    if (sub) existing.add(sub);
+                }
+            });
+
+            // Entidad: si solo existe "fuerte", clasificar directo sin preguntar
+            if (mainType === 'entidad') {
+                const entOpts = [['fuerte','Fuerte'],['débil','Débil']].filter(([v]) => existing.has(v));
+                if (entOpts.length <= 1) {
+                    wordEntityTypes[activeWordIdx] = 'fuerte';
+                    updateChipStyle(activeWordIdx);
+                    hidePopup();
+                    updateClassificationPanels();
+                    return;
+                }
+                // Múltiples tipos → mostrar paso 2
+                _renderStep2(mainType, entOpts);
+                return;
+            }
+
+            // Atributo → siempre mostrar paso 2 con las opciones del ejercicio
+            const attrOpts = [
+                ['simple','Simple'], ['clave','Clave'], ['relacion','De relación'],
+                ['compuesto','Compuesto'], ['multivaluado','Multivaluado'], ['derivado','Derivado']
+            ].filter(([v]) => existing.has(v));
+            _renderStep2(mainType, attrOpts);
+        }
+
+        function _renderStep2(mainType, opts) {
+            document.getElementById('popup-step1').style.display = 'none';
+            const step2 = document.getElementById('popup-step2');
+            step2.style.display = 'flex';
+            step2.style.flexDirection = 'column';
+            document.getElementById('popup-step2-title').textContent =
+                mainType === 'atributo' ? '¿Qué tipo de atributo?' : '¿Qué tipo de entidad?';
+            const btnClass = 'px-2.5 py-1.5 text-[11px] font-bold rounded-lg transition border';
+            const color = mainType === 'atributo'
+                ? 'text-emerald-300 hover:bg-emerald-900/60 border-emerald-700/40'
+                : 'text-blue-300 hover:bg-blue-900/60 border-blue-700/40';
+            document.getElementById('popup-step2-options').innerHTML = opts.map(([val, label]) =>
+                `<button onclick="classifySubtype('${val}')" class="${btnClass} ${color}">${label}</button>`
+            ).join('');
+        }
+
+        function classifySubtype(subtype) {
+            if (activeWordIdx === null) return;
+            const mainType = wordClassifications[activeWordIdx];
+            if (mainType === 'atributo') wordAttrTypes[activeWordIdx]   = subtype;
+            if (mainType === 'entidad')  wordEntityTypes[activeWordIdx] = subtype;
+
+            if (mainType === 'atributo' && subtype === 'compuesto') {
+                _showCompoundStep(); return;
+            }
+            updateChipStyle(activeWordIdx);
+            hidePopup();
+            updateClassificationPanels();
+        }
+
+        function _showCompoundStep() {
+            document.getElementById('popup-step2').style.display = 'none';
+            const step3 = document.getElementById('popup-step3');
+            step3.style.display = 'flex';
+            step3.style.flexDirection = 'column';
+            selectedComponents = new Set();
+            const segments = analyzeData[activeExercise] || [];
+            const opts = segments
+                .filter((seg, idx) => typeof seg !== 'string' && idx !== activeWordIdx && seg.type === 'atributo')
+                .map(seg => seg.word);
+            const btnCls = 'comp-btn px-2 py-1 text-[10px] font-bold rounded-lg transition border border-slate-600 bg-slate-700/40 text-slate-300 hover:border-emerald-500 hover:text-emerald-300';
+            document.getElementById('popup-step3-options').innerHTML = opts.map(w =>
+                `<button onclick="toggleComponent(this,'${w}')" class="${btnCls}" data-word="${w}">${w}</button>`
+            ).join('');
+        }
+
+        function toggleComponent(btn, word) {
+            if (selectedComponents.has(word)) {
+                selectedComponents.delete(word);
+                btn.className = 'comp-btn px-2 py-1 text-[10px] font-bold rounded-lg transition border border-slate-600 bg-slate-700/40 text-slate-300 hover:border-emerald-500 hover:text-emerald-300';
+            } else {
+                selectedComponents.add(word);
+                btn.className = 'comp-btn px-2 py-1 text-[10px] font-bold rounded-lg transition border border-emerald-500 bg-emerald-500/20 text-emerald-300';
+            }
+        }
+
+        function confirmCompoundComponents() {
+            if (activeWordIdx === null) return;
+            wordCompounds[activeWordIdx] = [...selectedComponents];
+            updateChipStyle(activeWordIdx);
+
+            // Gregor visualmente los chips que son componentes
+            _refreshComponentChips();
+
+            hidePopup();
+            updateClassificationPanels();
+        }
+
+        // Pone en gris los chips que ya fueron identificados como parte de un compuesto
+        function _refreshComponentChips() {
+            const componentWords = _getComponentWords();
+            document.querySelectorAll('#terms-pool [data-word-idx]').forEach(chip => {
+                if (componentWords.has(chip.dataset.word)) {
+                    chip.className = 'term-chip px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-700/40 bg-slate-800/40 text-slate-600 cursor-default select-none';
+                    chip.onclick = null;
+                    chip.dataset.isComponent = 'true';
+                } else if (chip.dataset.isComponent === 'true') {
+                    // Re-habilitar si ya no es componente de nada
+                    chip.dataset.isComponent = '';
+                    chip.className = 'term-chip px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 border border-amber-500/60 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20';
+                    const idx = chip.dataset.wordIdx;
+                    chip.onclick = (e) => { e.stopPropagation(); showPopup(chip, parseInt(idx)); };
+                }
+            });
+        }
+
+        function _getComponentWords() {
+            const s = new Set();
+            Object.values(wordCompounds).forEach(comps => comps.forEach(w => s.add(w)));
+            return s;
+        }
+
+        function updateChipStyle(idx) {
+            const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
+            if (!chip) return;
+            const type      = wordClassifications[idx];
+            const attrSub   = wordAttrTypes[idx];
+            const entSub    = wordEntityTypes[idx];
+            const word      = chip.dataset.word;
+            const base = 'term-chip rounded-lg text-xs font-bold transition-all active:scale-95 border flex flex-col items-center leading-tight';
+            if (type === 'entidad') {
+                chip.className = `${base} px-2.5 py-1 border-blue-500 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25`;
+                chip.innerHTML = entSub
+                    ? `${word}<span class="text-[9px] font-extrabold text-blue-400/80 uppercase tracking-wide">${entSub}</span>`
+                    : word;
+            } else if (type === 'relacion') {
+                chip.className = `${base} px-2.5 py-1.5 border-pink-500 bg-pink-500/15 text-pink-300 hover:bg-pink-500/25`;
+                chip.innerHTML = word;
+            } else if (type === 'atributo') {
+                chip.className = `${base} px-2.5 py-1 border-emerald-500 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25`;
+                const comps = wordCompounds[idx];
+                if (attrSub === 'compuesto' && comps && comps.length > 0) {
+                    chip.innerHTML = `${word}<span class="text-[9px] font-extrabold text-emerald-400/80 uppercase tracking-wide">compuesto: ${comps.join(', ')}</span>`;
+                } else if (attrSub) {
+                    chip.innerHTML = `${word}<span class="text-[9px] font-extrabold text-emerald-400/80 uppercase tracking-wide">${attrSub}</span>`;
+                } else {
+                    chip.innerHTML = word;
+                }
+            }
+        }
+
+        function updateClassificationPanels() {
+            const segments = analyzeData[activeExercise] || [];
+            const componentWords = _getComponentWords();
+            const cols = { entidad: [], atributo: [], relacion: [] };
+            segments.forEach((seg, idx) => {
+                if (typeof seg === 'string') return;
+                if (componentWords.has(seg.word)) return; // no mostrar componentes por separado
+                const t = wordClassifications[idx];
+                if (!t) return;
+                if (t === 'atributo') {
+                    const sub = wordAttrTypes[idx];
+                    cols.atributo.push(sub ? `${seg.word} <span class="text-[9px] text-emerald-400/70 font-extrabold uppercase">${sub}</span>` : seg.word);
+                } else if (t === 'entidad') {
+                    const sub = wordEntityTypes[idx];
+                    cols.entidad.push(sub ? `${seg.word} <span class="text-[9px] text-blue-400/70 font-extrabold uppercase">${sub}</span>` : seg.word);
+                } else {
+                    cols[t].push(seg.word);
+                }
+            });
+            const color = { entidad: 'text-blue-300 bg-blue-900/30', atributo: 'text-emerald-300 bg-emerald-900/30', relacion: 'text-pink-300 bg-pink-900/30' };
+            const ids   = { entidad: 'classified-entities', atributo: 'classified-attrs', relacion: 'classified-relations' };
+            Object.keys(cols).forEach(type => {
+                const el = document.getElementById(ids[type]);
+                if (el) el.innerHTML = cols[type].map(w =>
+                    `<span class="px-2 py-1 rounded-lg font-semibold text-[11px] ${color[type]}">${w}</span>`
+                ).join('');
+            });
+        }
+
+        function _resetCorregirBtn() {
+            const btn = document.querySelector('button[onclick="checkAnswers()"]');
+            if (btn) {
+                btn.disabled = false;
+                btn.className = 'w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm';
+                btn.textContent = '📝 Corregir Diagrama';
+            }
+        }
+
+        function validateAnalysis() {
+            const segments = analyzeData[activeExercise] || [];
+            const componentWords = _getComponentWords();
+            let total = 0, hits = 0;
+            segments.forEach((seg, idx) => {
+                if (typeof seg === 'string') return;
+                if (componentWords.has(seg.word)) return; // excluir componentes del compuesto
+                total++;
+                const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
+                if (!chip) return;
+                const userType    = wordClassifications[idx];
+                const userAttrSub = wordAttrTypes[idx];
+
+                let correct = false;
+                if (userType === seg.type) {
+                    if (seg.type === 'atributo' && seg.attrType) {
+                        if (userAttrSub !== seg.attrType) {
+                            correct = false;
+                        } else if (seg.attrType === 'compuesto' && seg.components) {
+                            const userComps = wordCompounds[idx] || [];
+                            correct = seg.components.length === userComps.length &&
+                                      seg.components.every(c => userComps.includes(c));
+                        } else {
+                            correct = true;
+                        }
+                    } else if (seg.type === 'entidad' && seg.entityType) {
+                        correct = wordEntityTypes[idx] === seg.entityType;
+                    } else {
+                        correct = true;
+                    }
+                }
+
+                const word = chip.dataset.word || chip.textContent;
+                if (!userType) {
+                    chip.className = 'term-chip px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-600 bg-slate-700/30 text-slate-500';
+                    chip.textContent = word;
+                } else if (correct) {
+                    chip.className = 'term-chip px-2.5 py-1 rounded-lg text-xs font-bold border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 flex flex-col items-center leading-tight';
+                    const label = seg.attrType ? `<span class="text-[9px] font-extrabold text-emerald-400/80 uppercase">${seg.attrType}</span>` : '';
+                    chip.innerHTML = `${word}${label}`;
+                    hits++;
+                } else {
+                    // Mostrar qué era correcto
+                    const correctLabel = seg.type === 'atributo' && seg.attrType ? `atributo (${seg.attrType})`
+                                       : seg.type === 'entidad'  && seg.entityType ? `entidad (${seg.entityType})`
+                                       : seg.type;
+                    chip.className = 'term-chip px-2.5 py-1 rounded-lg text-xs font-bold border-2 border-rose-500 bg-rose-500/20 text-rose-300 flex flex-col items-center leading-tight';
+                    chip.innerHTML = `${word}<span class="text-[9px] font-extrabold text-rose-400/80 uppercase">${correctLabel}</span>`;
+                }
+            });
+            const fb  = document.getElementById('analyze-feedback');
+            const pct = total > 0 ? Math.round((hits / total) * 100) : 0;
+            fb.classList.remove('hidden','bg-emerald-950','text-emerald-300','border-emerald-700','bg-amber-950','text-amber-300','border-amber-700');
+            const msg = hits === total
+                ? `🎉 ¡Perfecto! Identificaste todos los términos (${hits}/${total})`
+                : `👀 <strong>${hits} de ${total}</strong> correctos (${pct}%). Verde = correcto · Rojo = incorrecto · Gris = sin clasificar.`;
+            fb.classList.add(...(hits === total
+                ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
+                : ['bg-amber-950','text-amber-300','border-amber-700']));
+            fb.innerHTML = `<span class="text-sm">${msg}</span>`;
+
+            const goBtn = document.getElementById('btn-go-diagram');
+            const vbtn  = document.getElementById('btn-validate-analysis');
+
+            const tabDiagram = document.getElementById('tab-diagram');
+            if (evalMode) {
+                vbtn.disabled = true;
+                vbtn.className = 'py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+                vbtn.textContent = '✓ Clasificación registrada';
+                goBtn.disabled = false;
+                goBtn.className = 'py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition';
+                goBtn.textContent = 'Ir al Diseño E-R →';
+                if (tabDiagram) tabDiagram.disabled = false;
+            } else {
+                if (hits / total >= 0.5) {
+                    goBtn.disabled = false;
+                    goBtn.className = 'py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition';
+                    goBtn.textContent = 'Ir al Diseño E-R →';
+                    if (tabDiagram) tabDiagram.disabled = false;
+                } else {
+                    goBtn.disabled = true;
+                    goBtn.className = 'py-3 bg-slate-700/50 text-slate-500 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+                    goBtn.textContent = '🔒 Necesitás al menos el 50% — intentá de nuevo';
+                    if (tabDiagram) tabDiagram.disabled = true;
+                }
+            }
+        }
+
         // ── Divisor redimensionable ──────────────────────────────
         (function initResizer() {
             const handle    = document.getElementById('resize-handle');
@@ -964,5 +1612,31 @@
 
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- ── Word classification popup ── -->
+    <div id="word-popup" class="hidden fixed bg-slate-800 border border-slate-600 rounded-xl shadow-2xl z-[9999] p-1.5" style="top:0;left:0;min-width:200px;" onclick="event.stopPropagation()">
+        <!-- Paso 1: tipo principal -->
+        <div id="popup-step1" class="flex gap-1">
+            <button onclick="classifyWord('entidad')"  class="px-3 py-2 text-xs font-bold text-blue-300   hover:bg-blue-900/60   rounded-lg transition flex items-center gap-1.5"><svg width="16" height="12"><rect x="1" y="1" width="14" height="10" fill="none" stroke="#3b82f6" stroke-width="1.8"/></svg>Entidad</button>
+            <button onclick="classifyWord('atributo')" class="px-3 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition flex items-center gap-1.5"><svg width="18" height="11"><ellipse cx="9" cy="5.5" rx="8" ry="4.5" fill="none" stroke="#10b981" stroke-width="1.8"/></svg>Atributo</button>
+            <button onclick="classifyWord('relacion')" class="px-3 py-2 text-xs font-bold text-red-400    hover:bg-red-900/60    rounded-lg transition flex items-center gap-1.5"><svg width="14" height="14"><polygon points="7,1 13,7 7,13 1,7" fill="none" stroke="#dc2626" stroke-width="1.8"/></svg>Relación</button>
+            <button onclick="hidePopup()"              class="px-2 py-2 text-xs text-slate-500 hover:bg-slate-700 rounded-lg transition">✕</button>
+        </div>
+        <!-- Paso 2: subtipo (atributo o entidad, se puebla dinámicamente) -->
+        <div id="popup-step2" class="hidden flex-col gap-1.5 p-1">
+            <p id="popup-step2-title" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1"></p>
+            <div id="popup-step2-options" class="flex flex-wrap gap-1"></div>
+            <button onclick="hidePopup()" class="text-[10px] text-slate-500 hover:text-slate-300 text-right pr-1 transition">✕ cancelar</button>
+        </div>
+        <!-- Paso 3: componentes del atributo compuesto -->
+        <div id="popup-step3" class="hidden flex-col gap-1.5 p-1" style="max-width:280px;">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1">¿De qué atributos está compuesto?</p>
+            <div id="popup-step3-options" class="flex flex-wrap gap-1"></div>
+            <div class="flex justify-between items-center pt-1">
+                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border-emerald-700/40">✓ Confirmar</button>
+                <button onclick="hidePopup()" class="text-[10px] text-slate-500 hover:text-slate-300 transition pr-1">✕ cancelar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

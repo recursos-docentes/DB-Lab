@@ -86,6 +86,9 @@
         .word-chip.incorrect { border: 2px solid #dc2626 !important; background: rgba(220,38,38,0.25) !important; color: #fca5a5 !important; }
         .word-chip.unclassified-fb { border: 1.5px solid #475569 !important; background: rgba(71,85,105,0.15) !important; color: #64748b !important; }
 
+        /* ── Modales ── */
+        .tutorial-step { animation: fadeUp 0.3s ease; }
+
         /* ── Solo impresión ── */
         .print-header { display: none; }
         .handwritten  { font-family: 'Courier Prime', monospace; font-weight: 700; color: #1d4ed8; }
@@ -166,6 +169,14 @@
             <svg class="w-4 h-4 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             <button id="tab-tables" disabled class="stage-tab">📊 Pasaje a tablas 🔒</button>
 
+            <div class="ml-auto flex items-center gap-2">
+                <button onclick="showTutorial()" title="¿Cómo usar la herramienta?"
+                    class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition text-sm font-bold">?</button>
+                <button onclick="toggleAccessibility()" id="contrast-btn" title="Alto contraste"
+                    class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20" stroke-dasharray="3 3"/></svg>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -194,7 +205,10 @@
             <!-- Fichas a clasificar -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-2.5">
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Términos a identificar</p>
-                <p class="text-xs text-slate-500">Hacé clic en cada término y clasificalo.</p>
+                <div class="flex items-start gap-2 bg-indigo-950/40 border border-indigo-800/40 rounded-xl px-3 py-2.5">
+                    <span class="text-base flex-shrink-0">👆</span>
+                    <p class="text-xs text-indigo-200 leading-relaxed font-medium">Hacé clic en cada ficha naranja y clasificala como <strong>Entidad</strong>, <strong>Atributo</strong> o <strong>Relación</strong>. Podés consultar el <button onclick="showGlossary()" class="underline hover:text-white transition">glosario</button> si tenés dudas.</p>
+                </div>
                 <div id="terms-pool" class="flex flex-wrap gap-2 pt-1 min-h-[2rem]"></div>
             </div>
 
@@ -712,8 +726,17 @@
             ]
         ];
 
+        const analyzeConfig = [
+            { requireSubtypes: false }, // 0 Taller - básico
+            { requireSubtypes: false }, // 1 Biblioteca - básico
+            { requireSubtypes: false }, // 2 Tienda - básico
+            { requireSubtypes: true  }, // 3 Red Social - ISA
+            { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
+        ];
+
         let activeExercise  = 0;
         let highlightedWord = null;
+        let analysisAttempts = 0;
         let wordClassifications = {};
         let wordAttrTypes = {};
         let wordEntityTypes = {};
@@ -737,6 +760,8 @@
             loadExercise(inicio);
 
             window.addEventListener('resize', drawCrispConnectors);
+
+            if (!localStorage.getItem('ert_tutorial_seen')) showTutorial();
         });
 
         // ── Accesibilidad ────────────────────────────────────────
@@ -1205,6 +1230,7 @@
         function renderAnalysisPanel(exerciseIndex) {
             wordClassifications = {};
             wordAttrTypes = {};
+            analysisAttempts = 0;
             wordEntityTypes = {};
             wordCompounds = {};
             selectedComponents = new Set();
@@ -1296,6 +1322,14 @@
 
         function _showSubtypePopup(mainType) {
             wordClassifications[activeWordIdx] = mainType;
+
+            // Si el ejercicio no requiere subtipos de atributo, clasificar directo
+            if (mainType === 'atributo' && !analyzeConfig[activeExercise]?.requireSubtypes) {
+                updateChipStyle(activeWordIdx);
+                hidePopup();
+                updateClassificationPanels();
+                return;
+            }
 
             // Calcular qué subtipos existen en este ejercicio
             const segments = analyzeData[activeExercise] || [];
@@ -1440,6 +1474,12 @@
                 chip.className = `${base} px-2.5 py-1.5 border-pink-500 bg-pink-500/15 text-pink-300 hover:bg-pink-500/25`;
                 chip.innerHTML = word;
             } else if (type === 'atributo') {
+                // Si el ejercicio no requiere subtipos, no mostrar el badge
+                if (!analyzeConfig[activeExercise]?.requireSubtypes) {
+                    chip.className = `${base} px-2.5 py-1.5 border-emerald-500 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25`;
+                    chip.innerHTML = word;
+                    return;
+                }
                 chip.className = `${base} px-2.5 py-1 border-emerald-500 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25`;
                 const comps = wordCompounds[idx];
                 if (attrSub === 'compuesto' && comps && comps.length > 0) {
@@ -1505,7 +1545,7 @@
 
                 let correct = false;
                 if (userType === seg.type) {
-                    if (seg.type === 'atributo' && seg.attrType) {
+                    if (seg.type === 'atributo' && seg.attrType && analyzeConfig[activeExercise]?.requireSubtypes) {
                         if (userAttrSub !== seg.attrType) {
                             correct = false;
                         } else if (seg.attrType === 'compuesto' && seg.components) {
@@ -1528,7 +1568,8 @@
                     chip.textContent = word;
                 } else if (correct) {
                     chip.className = 'term-chip px-2.5 py-1 rounded-lg text-xs font-bold border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 flex flex-col items-center leading-tight';
-                    const label = seg.attrType ? `<span class="text-[9px] font-extrabold text-emerald-400/80 uppercase">${seg.attrType}</span>` : '';
+                    const showAttrLabel = seg.attrType && analyzeConfig[activeExercise]?.requireSubtypes;
+                    const label = showAttrLabel ? `<span class="text-[9px] font-extrabold text-emerald-400/80 uppercase">${seg.attrType}</span>` : '';
                     chip.innerHTML = `${word}${label}`;
                     hits++;
                 } else {
@@ -1550,6 +1591,20 @@
                 ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
                 : ['bg-amber-950','text-amber-300','border-amber-700']));
             fb.innerHTML = `<span class="text-sm">${msg}</span>`;
+
+            // Rastrear intentos y comparar progreso
+            analysisAttempts++;
+            _saveScore(activeExercise, hits, total);
+            const prev = _getPrevScore(activeExercise);
+            if (prev && !evalMode) {
+                const diff = hits - prev.hits;
+                const arrow = diff > 0 ? `⬆️ +${diff} respuestas más que la vez anterior` : diff < 0 ? `⬇️ ${Math.abs(diff)} menos que la vez anterior` : '↔️ Igual que la vez anterior';
+                fb.innerHTML += `<div class="mt-2 text-xs font-semibold text-slate-300">${arrow}</div>`;
+            }
+            // Mostrar "Ver respuestas" después de 2 intentos fallidos
+            if (!evalMode && analysisAttempts >= 2 && hits < total) {
+                fb.innerHTML += `<button onclick="_revealCorrectAnswers()" class="mt-2 w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl text-xs transition">💡 Ver respuestas correctas</button>`;
+            }
 
             const goBtn = document.getElementById('btn-go-diagram');
             const vbtn  = document.getElementById('btn-validate-analysis');
@@ -1576,6 +1631,67 @@
                     if (tabDiagram) tabDiagram.disabled = true;
                 }
             }
+        }
+
+        // ── Score tracking ────────────────────────────────────────
+        function _saveScore(exerciseIdx, hits, total) {
+            const key = `ert_s_${exerciseIdx}`;
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            arr.push({ hits, total, date: new Date().toLocaleDateString('es-UY') });
+            localStorage.setItem(key, JSON.stringify(arr.slice(-10)));
+        }
+        function _getPrevScore(exerciseIdx) {
+            const key = `ert_s_${exerciseIdx}`;
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            return arr.length >= 2 ? arr[arr.length - 2] : null;
+        }
+
+        // ── Revelar respuestas correctas ──────────────────────────
+        function _revealCorrectAnswers() {
+            const segments = analyzeData[activeExercise] || [];
+            const componentWords = _getComponentWords();
+            segments.forEach((seg, idx) => {
+                if (typeof seg === 'string') return;
+                if (componentWords.has(seg.word)) return;
+                const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
+                if (!chip) return;
+                const word = chip.dataset.word || seg.word;
+                const label = seg.type === 'entidad'  ? (seg.entityType || 'entidad') :
+                              seg.type === 'atributo' ? (analyzeConfig[activeExercise]?.requireSubtypes ? (seg.attrType || 'atributo') : 'atributo') :
+                              'relación';
+                chip.className = 'term-chip px-2.5 py-1 rounded-lg text-xs font-bold border-2 border-indigo-400 bg-indigo-500/20 text-indigo-200 flex flex-col items-center leading-tight';
+                chip.innerHTML = `${word}<span class="text-[9px] font-extrabold text-indigo-300/80 uppercase tracking-wide">${label}</span>`;
+            });
+        }
+
+        // ── Glosario ──────────────────────────────────────────────
+        function showGlossary() { document.getElementById('glossary-modal').classList.remove('hidden'); }
+        function closeGlossary() { document.getElementById('glossary-modal').classList.add('hidden'); }
+
+        // ── Tutorial ──────────────────────────────────────────────
+        let _tutorialStep = 0;
+        function showTutorial() {
+            _tutorialStep = 0;
+            _renderTutorialStep();
+            document.getElementById('tutorial-modal').classList.remove('hidden');
+        }
+        function closeTutorial() {
+            document.getElementById('tutorial-modal').classList.add('hidden');
+            localStorage.setItem('ert_tutorial_seen', '1');
+        }
+        function nextTutorialStep() {
+            const steps = document.querySelectorAll('.tutorial-step');
+            if (_tutorialStep >= steps.length - 1) { closeTutorial(); return; }
+            _tutorialStep++;
+            _renderTutorialStep();
+        }
+        function _renderTutorialStep() {
+            const steps = document.querySelectorAll('.tutorial-step');
+            const dots  = document.querySelectorAll('[data-dot]');
+            steps.forEach((s, i) => s.classList.toggle('hidden', i !== _tutorialStep));
+            dots.forEach((d, i)  => d.className = `w-2 h-2 rounded-full ${i === _tutorialStep ? 'bg-indigo-500' : 'bg-slate-600'}`);
+            const btn = document.getElementById('tutorial-next-btn');
+            btn.textContent = _tutorialStep === steps.length - 1 ? '¡Comenzar! 🚀' : 'Siguiente →';
         }
 
         // ── Divisor redimensionable ──────────────────────────────
@@ -1612,6 +1728,115 @@
 
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- ── Glosario modal ── -->
+    <div id="glossary-modal" class="hidden fixed inset-0 bg-black/70 z-[10000] flex items-center justify-center p-4" onclick="if(event.target===this)closeGlossary()">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-5 border-b border-slate-800 sticky top-0 bg-slate-900">
+                <h2 class="text-white font-extrabold text-lg">📖 Glosario de E-R</h2>
+                <button onclick="closeGlossary()" class="text-slate-400 hover:text-white text-xl leading-none">✕</button>
+            </div>
+            <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Entidad -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="44" height="34" class="flex-shrink-0 mt-1"><rect x="2" y="2" width="40" height="30" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/></svg>
+                    <div><p class="text-blue-300 font-extrabold text-sm mb-1">Entidad</p><p class="text-slate-300 text-xs leading-relaxed">Objeto o concepto del mundo real del que se guarda información. Ej: CLIENTE, AUTO, PRODUCTO.</p></div>
+                </div>
+                <!-- Relación -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="44" height="44" class="flex-shrink-0 mt-1"><polygon points="22,2 42,22 22,42 2,22" fill="#fff1f2" stroke="#dc2626" stroke-width="2"/></svg>
+                    <div><p class="text-red-300 font-extrabold text-sm mb-1">Relación</p><p class="text-slate-300 text-xs leading-relaxed">Vínculo o acción entre dos o más entidades. Suele ser un verbo. Ej: tiene, realiza, recibe.</p></div>
+                </div>
+                <!-- Atributo simple -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="56" height="30" class="flex-shrink-0 mt-1"><ellipse cx="28" cy="15" rx="26" ry="12" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/></svg>
+                    <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo simple</p><p class="text-slate-300 text-xs leading-relaxed">Dato que describe a una entidad o relación. No se puede dividir. Ej: nombre, fecha, precio.</p></div>
+                </div>
+                <!-- Atributo clave -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="56" height="30" class="flex-shrink-0 mt-1"><ellipse cx="28" cy="15" rx="26" ry="12" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/><text x="28" y="19" text-anchor="middle" font-size="10" font-weight="bold" text-decoration="underline" fill="#059669">PK</text></svg>
+                    <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo clave (PK)</p><p class="text-slate-300 text-xs leading-relaxed">Identifica de forma única a cada instancia de una entidad. Se subraya. Ej: ci, id_cliente, isbn.</p></div>
+                </div>
+                <!-- Atributo multivaluado -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="56" height="30" class="flex-shrink-0 mt-1"><ellipse cx="28" cy="15" rx="26" ry="12" fill="#f0fdf4" stroke="#10b981" stroke-width="3"/><ellipse cx="28" cy="15" rx="20" ry="8" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                    <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo multivaluado</p><p class="text-slate-300 text-xs leading-relaxed">Puede tener varios valores para la misma entidad. Se dibuja con doble borde. Ej: teléfonos, actores.</p></div>
+                </div>
+                <!-- Atributo compuesto -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3">
+                    <svg width="56" height="40" class="flex-shrink-0 mt-1">
+                        <ellipse cx="28" cy="22" rx="24" ry="12" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/>
+                        <ellipse cx="14" cy="8" rx="12" ry="6" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+                        <ellipse cx="42" cy="8" rx="12" ry="6" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+                        <line x1="14" y1="14" x2="20" y2="20" stroke="#10b981" stroke-width="1"/>
+                        <line x1="42" y1="14" x2="36" y2="20" stroke="#10b981" stroke-width="1"/>
+                    </svg>
+                    <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo compuesto</p><p class="text-slate-300 text-xs leading-relaxed">Se puede dividir en partes más pequeñas. Ej: Nombre_completo → Primer_nom + Primer_ape.</p></div>
+                </div>
+                <!-- Atributo de relación -->
+                <div class="bg-slate-800 rounded-xl p-4 flex gap-3 sm:col-span-2">
+                    <div class="flex-shrink-0 flex items-center gap-1 mt-1">
+                        <svg width="30" height="30"><polygon points="15,2 28,15 15,28 2,15" fill="#fff1f2" stroke="#dc2626" stroke-width="1.5"/></svg>
+                        <svg width="4" height="20"><line x1="2" y1="0" x2="2" y2="20" stroke="#10b981" stroke-width="1.5"/></svg>
+                        <svg width="44" height="24"><ellipse cx="22" cy="12" rx="20" ry="10" fill="#f0fdf4" stroke="#10b981" stroke-width="2"/></svg>
+                    </div>
+                    <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo de relación</p><p class="text-slate-300 text-xs leading-relaxed">Describe información propia del vínculo entre entidades (no de las entidades en sí). Se conecta al rombo. Ej: fecha_entrada, observación en la relación "recibe".</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Tutorial modal ── -->
+    <div id="tutorial-modal" class="hidden fixed inset-0 bg-black/80 z-[10001] flex items-end sm:items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg">
+            <div class="p-6">
+                <div id="tutorial-steps">
+                    <!-- Step 1 -->
+                    <div class="tutorial-step" data-step="0">
+                        <p class="text-4xl mb-3">👋</p>
+                        <h3 class="text-white font-extrabold text-xl mb-2">¡Bienvenido a E-R Constructor!</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">Esta herramienta te ayuda a practicar el <strong class="text-white">Modelo Entidad-Relación</strong> paso a paso. Tiene 3 etapas que te guían desde leer el problema hasta armar el diagrama.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="tutorial-step hidden" data-step="1">
+                        <p class="text-4xl mb-3">📋</p>
+                        <h3 class="text-white font-extrabold text-xl mb-2">Etapa 1: Analizar</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Leé el enunciado del problema. A la derecha aparecen <strong class="text-amber-300">fichas naranja</strong> con los términos importantes.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en cada ficha y decí si es una <strong class="text-blue-300">Entidad</strong>, un <strong class="text-emerald-300">Atributo</strong> o una <strong class="text-red-300">Relación</strong>. Luego presioná <strong class="text-white">Validar clasificación</strong>.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="tutorial-step hidden" data-step="2">
+                        <p class="text-4xl mb-3">🔗</p>
+                        <h3 class="text-white font-extrabold text-xl mb-2">Etapa 2: Diseño E-R</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">El diagrama tiene <strong class="text-white">huecos</strong> en blanco. A la izquierda hay un <strong class="text-white">banco de palabras</strong>.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en una palabra del banco y después en el hueco donde corresponde. Cuando termines, presioná <strong class="text-white">Corregir Diagrama</strong>.</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="tutorial-step hidden" data-step="3">
+                        <p class="text-4xl mb-3">💡</p>
+                        <h3 class="text-white font-extrabold text-xl mb-2">Consejos útiles</h3>
+                        <ul class="text-slate-300 text-sm leading-relaxed space-y-2">
+                            <li>• Podés consultar el <button onclick="closeTutorial();showGlossary()" class="text-indigo-300 underline hover:text-white">📖 Glosario</button> en cualquier momento.</li>
+                            <li>• Si algo quedó rojo, no te preocupes — podés intentarlo de nuevo.</li>
+                            <li>• Usá el botón <strong class="text-white">Ver pista de diseño</strong> si necesitás ayuda.</li>
+                            <li>• En el botón <strong class="text-white">⊙</strong> del menú podés activar alto contraste.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Progress dots -->
+                <div class="flex justify-center gap-2 my-4" id="tutorial-dots">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500" data-dot="0"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="1"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="2"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="3"></span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="closeTutorial()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-xl text-sm transition">Saltar</button>
+                    <button id="tutorial-next-btn" onclick="nextTutorialStep()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition">Siguiente →</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ── Word classification popup ── -->
     <div id="word-popup" class="hidden fixed bg-slate-800 border border-slate-600 rounded-xl shadow-2xl z-[9999] p-1.5" style="top:0;left:0;min-width:200px;" onclick="event.stopPropagation()">

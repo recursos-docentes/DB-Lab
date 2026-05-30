@@ -44,9 +44,24 @@ er-designer.html?ejercicio=2&ex=1
 - **Dos pasos** para atributos: primero elegir "Atributo", luego el subtipo.
   - Subtipos disponibles: Simple, Clave, De relación, Compuesto, Multivaluado, Derivado.
   - Los subtipos se muestran **solo si existen en ese ejercicio** (opciones dinámicas).
+  - En ejercicios básicos (0–2) **no se pregunta subtipo**: solo Entidad / Atributo / Relación, para reducir la carga cognitiva.
 - **Tres pasos** para atributos compuestos: identifica el tipo, luego selecciona los atributos que lo componen. Los componentes quedan grises y se excluyen de la validación individual.
 - **Entidades:** si el ejercicio solo tiene entidades fuertes, se clasifican directo sin preguntar.
 - **Estado persistente:** al cambiar al tab de Diseño E-R y volver, la clasificación se mantiene.
+- **Rastreo de progreso:** compara el resultado actual con el intento anterior (guardado en `localStorage`).
+- **Ver respuestas:** después de 2 intentos fallidos en modo ejercitación aparece el botón "💡 Ver respuestas correctas".
+
+---
+
+## Accesibilidad y soporte para estudiantes con dificultades
+
+| Función | Descripción |
+|---------|-------------|
+| 📖 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. Accesible desde las instrucciones o el tutorial. |
+| ? **Tutorial** | Modal de 4 pasos que se muestra automáticamente en el primer uso. Se puede reabrir con el botón `?` en el nav. |
+| ⊙ **Alto contraste** | Botón visible en la barra de navegación para activar modo alto contraste. |
+| 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación para desbloquear al estudiante. |
+| ⬆️ **Comparación de intentos** | Al validar, muestra si mejoró, empeoró o se mantuvo respecto al intento anterior. |
 
 ---
 

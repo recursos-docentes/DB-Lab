@@ -1,9 +1,9 @@
-# E-R Constructor Pro — UTU 2026
+# DB-Lab — UTU 2026
 
 Herramienta interactiva para practicar diagramas **Entidad-Relación** (notación Chen) en el aula.  
 Diseñada por **Prof. Elizabeth Izquierdo** con asistencia de Claude — [licencia CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-🌐 **Demo en vivo:** https://recursos-docentes.github.io/merTutor/
+🌐 **Demo en vivo:** https://recursos-docentes.github.io/DB-Lab/
 
 ---
 
@@ -57,7 +57,8 @@ er-designer.html?ejercicio=2&ex=1
 
 | Función | Descripción |
 |---------|-------------|
-| 📖 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. Accesible desde las instrucciones o el tutorial. |
+| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad y más. Accesible con el botón `📖` en el nav. |
+| 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. Accesible desde las instrucciones. |
 | ? **Tutorial** | Modal de 4 pasos que se muestra automáticamente en el primer uso. Se puede reabrir con el botón `?` en el nav. |
 | ⊙ **Alto contraste** | Botón visible en la barra de navegación para activar modo alto contraste. |
 | 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación para desbloquear al estudiante. |
@@ -154,25 +155,27 @@ En `er-designer.html`, agregá la misma opción en **ambos** `<select>`:
 
 ### Paso 4 — Página de inicio
 
-En `index.html`, agregá un botón dentro de la tarjeta de nivel correspondiente:
+En `index.html`, agregá un enlace dentro de la sección de concepto correspondiente:
 
 ```html
-<button onclick="selectEx(this, 5, ['Concepto nuevo A', 'Concepto nuevo B'])"
-    class="ex-btn text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-700 flex items-center gap-2.5 transition">
+<a href="er-designer.html?ejercicio=5" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
     <span>🏥</span> Hospital
-</button>
+</a>
 ```
 
-El tercer argumento de `selectEx` son los **conceptos nuevos** que introduce el ejercicio.
+El enlace debe usar el parámetro `?ejercicio=X` donde X es el índice del ejercicio en el array `exercises` de `script.js`.
 
 ---
 
 ## Estructura de archivos
 
 ```
-merTutor/
-├── index.html        ← Página de bienvenida (niveles Básico / Medio / Experto)
-├── er-designer.html  ← Aplicación principal con todos los ejercicios
+DB-Lab/
+├── index.html        ← Página de inicio con ejercicios por concepto
+├── er-designer.html  ← Aplicación principal con 3 etapas (Analizar, Diseño E-R, etc.)
+├── script.js         ← Lógica de ejercicios, validación, canvas
+├── styles.css        ← Estilos personalizados
+├── add-exercise-wizard.html ← Asistente para crear nuevos ejercicios
 ├── serve.pl          ← Servidor local para desarrollo (Perl)
 └── README.md         ← Este archivo
 ```
@@ -181,13 +184,15 @@ merTutor/
 
 ## Ejercicios disponibles
 
-| Índice | Caso | Nivel | Conceptos nuevos |
-|--------|------|-------|-----------------|
-| 0 | Taller Mecánico | Básico | Relación N:N, Atributo de relación |
-| 1 | Biblioteca Escolar | Básico | Refuerzo N:N y atributo de relación |
-| 2 | Tienda Online | Básico | Relación 1:N, Entidades y atributos, PK |
-| 3 | Red Social | Medio | Especialización ISA, Herencia |
-| 4 | Plataforma Streaming | Básico | Atributo compuesto, Atributo multivaluado |
+| Índice | Caso | Concepto | Dificultad |
+|--------|------|---------|-----------|
+| 0 | Taller Mecánico | Atributos especiales (relación) | Intermedio |
+| 1 | Biblioteca Escolar | Atributos especiales (relación) | Intermedio |
+| 2 | Tienda Online | Relaciones simples | Básico |
+| 3 | Red Social | Generalización/ISA | Avanzado |
+| 4 | Plataforma Streaming | Atributos especiales | Intermedio |
+| 5 | Sistema Hospitalario | Relaciones simples | Básico |
+| 6 | Institución educativa | Atributos especiales | Intermedio |
 
 ---
 
@@ -196,6 +201,41 @@ merTutor/
 - **Tailwind CSS** (CDN) — estilos
 - **html2canvas 1.4.1** (CDN) — exportación PNG
 - JavaScript vanilla — sin frameworks ni dependencias de build
+
+---
+
+---
+
+## 🚀 Planes Futuros
+
+### **Migración a Firebase** (próximas fases)
+
+#### Fase 1: Preparación
+- [x] Agregar metadatos a ejercicios (concepto, disponibilidad)
+- [ ] Reorganizar index por conceptos E-R (en lugar de niveles)
+- [ ] Diseñar estructura de BD Firestore
+
+#### Fase 2: Configurar Firebase
+- [ ] Crear proyecto Firebase
+- [ ] Configurar Firestore con ejercicios
+- [ ] Agregar autenticación profesor/estudiante
+- [ ] Migrar a Firebase Hosting
+
+#### Fase 3: Integración
+- [ ] Reescribir carga de ejercicios desde Firestore
+- [ ] Crear **Panel de Profesor** para habilitar/deshabilitar ejercicios
+- [ ] Control de disponibilidad: clase, casa, evaluación
+- [ ] Cargar dinámicamente qué ejercicios ve cada usuario
+
+#### Fase 4: Seguridad
+- [ ] Reglas Firestore para proteger evaluaciones
+- [ ] Tests de seguridad
+
+#### Beneficios
+- Ejercicios configurables sin editar código
+- Disponibilidad controlada (algunos solo para evaluaciones)
+- Separación profesor/estudiante
+- Escalable para múltiples aulas
 
 ---
 

@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente: Agregar Ejercicio E-R</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .card-shadow { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .step-active { @apply bg-indigo-600 text-white; }
+        .step-done { @apply bg-emerald-600 text-white; }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            font-family: 'Courier Prime', monospace;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .input-field { @apply w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500; }
+        .btn-primary { @apply px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition; }
+        .btn-secondary { @apply px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition; }
+
+        /* Canvas preview */
+        #preview-canvas {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .entity-box { stroke: #3b82f6; stroke-width: 2; fill: #dbeafe; }
+        .relation-diamond { stroke: #ec4899; stroke-width: 2; fill: #fce7f3; }
+        .attribute-oval { stroke: #10b981; stroke-width: 2; fill: #d1fae5; }
+        .cardinality-circle { stroke: #6b7280; stroke-width: 2; fill: #ffffff; }
+
+        .preview-text { font-family: 'Plus Jakarta Sans'; font-size: 12px; font-weight: 700; }
+
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 1024px) {
+            .grid-2col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-slate-900 mb-2">🧙 Asistente: Agregar Ejercicio</h1>
+                <p class="text-slate-600">Con vista previa en tiempo real</p>
+            </div>
+
+            <!-- Progress steps -->
+            <div class="mb-8 flex items-center justify-between">
+                <div class="flex-1 flex items-center">
+                    <div id="step-1" class="step-active w-10 h-10 rounded-full flex items-center justify-center font-bold">1</div>
+                    <div class="flex-1 h-1 bg-slate-300 mx-2"></div>
+                </div>
+                <div class="flex-1 flex items-center">
+                    <div id="step-2" class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold bg-slate-300 text-slate-600">2</div>
+                    <div class="flex-1 h-1 bg-slate-300 mx-2"></div>
+                </div>
+                <div class="flex-1 flex items-center">
+                    <div id="step-3" class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold bg-slate-300 text-slate-600">3</div>
+                </div>
+            </div>
+
+            <!-- Contenedor principal -->
+            <div id="steps-container">
+                <!-- PASO 1: Info General + Preview -->
+                <div id="step-1-content" class="grid-2col">
+                    <!-- Formulario -->
+                    <div class="bg-white rounded-2xl p-8 card-shadow">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-6">Paso 1: Información General</h2>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">📌 Título/Nombre</label>
+                                <input type="text" id="title" class="input-field"
+                                       placeholder="ej: Farmacia Online"
+                                       value=""
+                                       oninput="updatePreview()"
+                                       style="background-color: #fef3c7; border: 2px solid #f59e0b;">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">📖 Descripción</label>
+                                <textarea id="description" class="input-field" rows="10"
+                                          oninput="updatePreview()"
+                                          placeholder="Describe el caso de estudio aquí..."
+                                          style="font-size: 13px; width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">💡 Pista</label>
+                                <input type="text" id="hint" class="input-field"
+                                       placeholder="ej: Recuerda que Cédula es la clave primaria de PACIENTE."
+                                       value=""
+                                       oninput="updatePreview()"
+                                       style="background-color: #fef3c7; border: 2px solid #f59e0b;">
+                            </div>
+
+                            <div>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="requireSubtypes" onchange="updatePreview()">
+                                    <span class="text-sm text-slate-700">¿Tiene atributos especiales o ISA?</span>
+                                </label>
+                            </div>
+
+                            <button class="btn-primary w-full" onclick="nextStep(1)">Siguiente →</button>
+                        </div>
+                    </div>
+
+                    <!-- Preview de descripción -->
+                    <div class="bg-white rounded-2xl p-8 card-shadow">
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">📋 Preview: Descripción</h3>
+                        <div id="preview-description" class="text-sm text-slate-700 leading-relaxed p-4 bg-slate-50 rounded-lg max-h-96 overflow-y-auto border border-slate-200">
+                            <em class="text-slate-500">La descripción aparecerá aquí...</em>
+                        </div>
+                        <button class="btn-primary text-sm mt-3 w-full" onclick="updatePreview()">🔄 Actualizar Preview</button>
+                    </div>
+                </div>
+
+                <!-- PASO 2: Entidades + Vista Previa Diagrama -->
+                <div id="step-2-content" class="hidden grid-2col">
+                    <!-- Formulario -->
+                    <div class="bg-white rounded-2xl p-8 card-shadow">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-6">Paso 2: Estructura</h2>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">📋 Entidades</label>
+                                <p class="text-xs text-slate-600 mb-2">
+                                    Formato: <code class="bg-slate-100 px-2 py-1 rounded">NOMBRE | clave | attr1 | attr2 | ...</code>
+                                </p>
+                                <div class="text-xs bg-slate-100 border border-slate-300 rounded p-3 mb-3 space-y-1">
+                                    <p><strong class="text-slate-800">Tipos especiales de atributos:</strong></p>
+                                    <p class="text-slate-700">🔹 Compuesto: <code class="bg-white px-1">Domicilio(Calle, Número, Ciudad)</code></p>
+                                    <p class="text-slate-700">⭕ Multivaluado: <code class="bg-white px-1">*Teléfono</code></p>
+                                    <p class="text-slate-700">📊 Derivado: <code class="bg-white px-1">#Edad</code></p>
+                                    <p class="text-slate-700 pt-2 border-t border-slate-300">ℹ️ Primer atributo = clave primaria</p>
+                                </div>
+                                <textarea id="entities-input" class="input-field" rows="8"
+                                          oninput="updatePreview()"
+                                          placeholder="NOMBRE | clave | attr1 | attr2 | ..."
+                                          style="font-size: 13px; font-family: monospace; width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">🔗 Relaciones</label>
+                                <p class="text-xs text-slate-600 mb-2">
+                                    Formato: <code class="bg-slate-100 px-2 py-1 rounded">nombre | Ent1 | Ent2 | attr1 | ...</code>
+                                </p>
+                                <div class="text-xs bg-slate-100 border border-slate-300 rounded p-3 mb-3 space-y-1">
+                                    <p class="text-slate-700"><strong>Ejemplo:</strong> <code class="bg-white px-1">realiza | PACIENTE | CONSULTA | Fecha_consulta</code></p>
+                                    <p class="text-slate-700"><strong>Prefijos especiales:</strong></p>
+                                    <p class="text-slate-700">🔹 Compuestos: <code class="bg-white px-1">Dirección(Calle, Nro, Esquina)</code></p>
+                                    <p class="text-slate-700">🔹 Derivados: <code class="bg-white px-1">#Edad</code></p>
+                                </div>
+                                <textarea id="relations-input" class="input-field" rows="6"
+                                          oninput="updatePreview()"
+                                          placeholder="nombre | Ent1 | Ent2 | attr1 | ..."
+                                          style="font-size: 13px; font-family: monospace; width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">🔢 Cardinalidades (opcional)</label>
+                                <p class="text-xs text-slate-600 mb-2">
+                                    Una línea por relación: <code class="bg-slate-100 px-2 py-1 rounded">nombre: card1, card2</code>
+                                </p>
+                                <div class="text-xs bg-yellow-50 border border-yellow-300 rounded p-3 mb-3 space-y-1">
+                                    <p><strong class="text-yellow-900">Ejemplos:</strong></p>
+                                    <p class="text-yellow-900"><code class="bg-white px-1">cursa: N, N</code></p>
+                                    <p class="text-yellow-900"><code class="bg-white px-1">realiza: 1, N</code></p>
+                                    <p class="text-yellow-900"><code class="bg-white px-1">pertenece: N, 1</code></p>
+                                    <p class="text-yellow-800 mt-2">Si no especificas, usará <strong>N, 1</strong> para todas.</p>
+                                </div>
+                                <textarea id="cardinalities-input" class="input-field" rows="4"
+                                          placeholder="nombre_rel: N, 1&#10;otra_rel: 1, 1&#10;..."
+                                          style="font-size: 13px; font-family: monospace; width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">📚 Concepto E-R</label>
+                                <p class="text-xs text-slate-600 mb-2">Selecciona qué concepto enseña este ejercicio</p>
+                                <select id="concept-select" class="input-field" style="width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;">
+                                    <option value="">-- Seleccionar concepto --</option>
+                                    <option value="entidades_atributos_simples">Entidades y atributos simples</option>
+                                    <option value="relaciones_simples">Relaciones 1:N (uno a muchos)</option>
+                                    <option value="relaciones_complejas">Relaciones N:N (muchos a muchos)</option>
+                                    <option value="atributos_especiales">Atributos especiales (compuesto, multivaluado, derivado)</option>
+                                    <option value="generalizacion">Generalización/Herencia (ISA)</option>
+                                </select>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button class="btn-secondary flex-1" onclick="prevStep(2)">← Anterior</button>
+                                <button class="btn-primary flex-1" onclick="nextStep(2)">Siguiente →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview del diagrama E-R -->
+                    <div class="bg-white rounded-2xl p-8 card-shadow">
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">📐 Preview: Diagrama E-R</h3>
+                        <svg id="preview-canvas" width="100%" height="400" viewBox="0 0 800 400">
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                                    <path d="M0,0 L10,5 L0,10" stroke="#94a3b8" stroke-width="2" fill="none"/>
+                                </marker>
+                            </defs>
+                            <!-- Los elementos se renderizarán aquí -->
+                        </svg>
+                        <p class="text-xs text-slate-500 mt-2 text-center">Diagrama en tiempo real</p>
+                    </div>
+                </div>
+
+                <!-- PASO 3: Generar Código -->
+                <div id="step-3-content" class="hidden bg-white rounded-2xl p-8 card-shadow">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">Paso 3: Código Generado</h2>
+
+                    <div id="generated-code" class="space-y-6 max-h-[600px] overflow-y-auto">
+                        <p class="text-slate-600">Generando código...</p>
+                    </div>
+
+                    <div class="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p class="text-sm text-amber-900"><strong>📌 Próximos pasos:</strong></p>
+                        <ol class="text-sm text-amber-900 list-decimal list-inside mt-2 space-y-1">
+                            <li>Copia cada bloque de código (botón <strong>Copiar</strong>)</li>
+                            <li>Pégalo en <code>script.js</code> en el array correspondiente</li>
+                            <li>Agrega opciones en los <code>&lt;select&gt;</code> del HTML</li>
+                            <li>Prueba en el navegador ✅</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-slate-100 border border-slate-300 rounded-lg">
+                        <p class="text-sm text-slate-800"><strong>ℹ️ Ajustar posiciones (opcional):</strong></p>
+                        <p class="text-xs text-slate-700 mt-2">Si el diagrama no se ve perfecto, puedes ajustar manualmente las posiciones en <code class="bg-white px-1">script.js</code>:</p>
+                        <p class="text-xs text-slate-700 mt-2 font-mono bg-white p-2 rounded border border-slate-200">
+                            { id: "a_1", type: "attribute", correctValue: "Nombre", <span class="text-amber-600 font-bold">x: 20, y: 72</span>, ... }
+                        </p>
+                        <p class="text-xs text-slate-700 mt-2">• <strong>x:</strong> posición horizontal (0=izquierda, 100=derecha)<br>• <strong>y:</strong> posición vertical (0=arriba, 100=abajo)</p>
+                        <p class="text-xs text-slate-600 mt-3 pt-3 border-t border-slate-300"><em>💡 En el futuro: herramienta visual para arrastrar y soltar nodos directamente en el diagrama.</em></p>
+                    </div>
+
+                    <div class="flex justify-between gap-3 mt-8">
+                        <button class="btn-secondary" onclick="prevStep(3)">← Anterior</button>
+                        <button class="btn-primary" onclick="resetWizard()">✓ Crear Otro</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let entitiesData = {};
+        let relationsData = [];
+
+        function nextStep(from) {
+            if (from === 1) {
+                if (!document.getElementById('title').value.trim()) {
+                    alert('❌ Por favor, completa el título');
+                    return;
+                }
+                if (!document.getElementById('description').value.trim()) {
+                    alert('❌ Por favor, completa la descripción');
+                    return;
+                }
+                currentStep = 2;
+            } else if (from === 2) {
+                if (!document.getElementById('entities-input').value.trim()) {
+                    alert('❌ Define al menos una entidad');
+                    return;
+                }
+                currentStep = 3;
+                generateCode();
+            }
+            updateSteps();
+        }
+
+        function prevStep(from) {
+            currentStep = from - 1;
+            updateSteps();
+        }
+
+        function updateSteps() {
+            ['1', '2', '3'].forEach((n) => {
+                const stepEl = document.getElementById(`step-${n}-content`);
+                const stepNum = document.getElementById(`step-${n}`);
+
+                if (stepEl) {
+                    stepEl.classList.toggle('hidden', parseInt(n) !== currentStep);
+                }
+
+                if (parseInt(n) < currentStep) {
+                    if (stepNum) {
+                        stepNum.className = 'step-done w-10 h-10 rounded-full flex items-center justify-center font-bold';
+                        stepNum.textContent = '✓';
+                    }
+                } else if (parseInt(n) === currentStep) {
+                    if (stepNum) {
+                        stepNum.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold';
+                        stepNum.textContent = n;
+                    }
+                } else {
+                    if (stepNum) {
+                        stepNum.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold bg-slate-300 text-slate-600';
+                        stepNum.textContent = n;
+                    }
+                }
+            });
+
+            // Actualizar diagrama si vamos al paso 2
+            if (currentStep === 2) {
+                setTimeout(() => renderDiagramPreview(), 300);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updatePreview() {
+            // Actualizar preview de descripción
+            const descEl = document.getElementById('description');
+            const previewEl = document.getElementById('preview-description');
+
+            if (descEl && previewEl) {
+                const desc = descEl.value.trim();
+                if (desc) {
+                    // Convertir saltos de línea a <br> y preserve HTML tags
+                    const formatted = desc
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/&lt;strong&gt;/g, '<strong>')
+                        .replace(/&lt;\/strong&gt;/g, '</strong>')
+                        .replace(/&lt;em&gt;/g, '<em>')
+                        .replace(/&lt;\/em&gt;/g, '</em>')
+                        .replace(/&lt;br&gt;/g, '<br>')
+                        .replace(/\n/g, '<br>');
+                    previewEl.innerHTML = formatted;
+                } else {
+                    previewEl.innerHTML = '<em class="text-slate-500">La descripción aparecerá aquí...</em>';
+                }
+            }
+
+            // Actualizar diagrama (solo en paso 2)
+            if (currentStep === 2) {
+                renderDiagramPreview();
+            }
+        }
+
+        function parseEntities() {
+            entitiesData = {};
+            const lines = document.getElementById('entities-input').value.split('\n');
+            lines.forEach((line, idx) => {
+                const parts = line.split('|').map(p => p.trim()).filter(p => p);
+                if (parts.length >= 2) {
+                    const name = parts[0];
+                    const key = parts[1];
+                    const attrs = [];
+                    const attrTypes = {}; // almacenar tipos especiales
+                    const attrComponents = {}; // para atributos compuestos
+
+                    // Procesar atributos y detectar prefijos
+                    parts.slice(2).forEach(attr => {
+                        let attrName = attr;
+                        let type = 'simple'; // default
+                        let components = [];
+
+                        // Detectar compuestos por paréntesis (Nombre(sub1, sub2, ...))
+                        const compMatch = attrName.match(/^(@?)(\w+)\((.*)\)$/);
+                        if (compMatch) {
+                            type = 'compuesto';
+                            attrName = compMatch[2];
+                            components = compMatch[3].split(',').map(c => c.trim());
+                            attrComponents[attrName] = components;
+                        } else if (attr.startsWith('@')) {
+                            // @ sin paréntesis es compuesto sin sub-atributos especificados
+                            type = 'compuesto';
+                            attrName = attr.substring(1);
+                        } else if (attr.startsWith('*')) {
+                            type = 'multivaluado';
+                            attrName = attr.substring(1);
+                        } else if (attr.startsWith('#')) {
+                            type = 'derivado';
+                            attrName = attr.substring(1);
+                        }
+
+                        attrs.push(attrName);
+                        attrTypes[attrName] = type;
+                    });
+
+                    entitiesData[name] = { key, attrs, attrTypes, attrComponents, idx };
+                }
+            });
+            return entitiesData;
+        }
+
+        function parseRelations() {
+            relationsData = [];
+            const lines = document.getElementById('relations-input').value.split('\n');
+            lines.forEach((line, idx) => {
+                const parts = line.split('|').map(p => p.trim()).filter(p => p);
+                if (parts.length >= 3) {
+                    const name = parts[0];
+                    const ent1 = parts[1];
+                    const ent2 = parts[2];
+                    const attrs = parts.slice(3);
+                    relationsData.push({ name, ent1, ent2, attrs, idx });
+                }
+            });
+            return relationsData;
+        }
+
+        function renderDiagramPreview() {
+            const svg = document.getElementById('preview-canvas');
+            svg.innerHTML = '';
+
+            // Crear defs con marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrow');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '10');
+            marker.setAttribute('refX', '5');
+            marker.setAttribute('refY', '5');
+            marker.setAttribute('orient', 'auto');
+            const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            markerPath.setAttribute('d', 'M0,0 L10,5 L0,10');
+            markerPath.setAttribute('stroke', '#94a3b8');
+            markerPath.setAttribute('stroke-width', '2');
+            markerPath.setAttribute('fill', 'none');
+            marker.appendChild(markerPath);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+
+            parseEntities();
+            parseRelations();
+
+            const entities = Object.entries(entitiesData);
+            const relations = relationsData;
+
+            if (entities.length === 0) {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', '400');
+                text.setAttribute('y', '200');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#94a3b8');
+                text.setAttribute('font-size', '16');
+                text.textContent = 'Define entidades para ver el diagrama...';
+                svg.appendChild(text);
+                return;
+            }
+
+            // Posicionar entidades
+            const entityPositions = {};
+            const canvasWidth = 800;
+            const spacing = canvasWidth / (entities.length + 1);
+
+            entities.forEach(([name, data], idx) => {
+                const x = (idx + 1) * spacing;
+                const y = 100;
+                entityPositions[name] = { x, y };
+
+                // Rectángulo entidad
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', x - 60);
+                rect.setAttribute('y', y - 25);
+                rect.setAttribute('width', '120');
+                rect.setAttribute('height', '50');
+                rect.setAttribute('fill', '#dbeafe');
+                rect.setAttribute('stroke', '#3b82f6');
+                rect.setAttribute('stroke-width', '2');
+                rect.setAttribute('rx', '4');
+                svg.appendChild(rect);
+
+                // Nombre entidad
+                const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                nameText.setAttribute('x', x);
+                nameText.setAttribute('y', y + 5);
+                nameText.setAttribute('text-anchor', 'middle');
+                nameText.setAttribute('fill', '#1e40af');
+                nameText.setAttribute('font-weight', '700');
+                nameText.setAttribute('font-size', '13');
+                nameText.textContent = name;
+                svg.appendChild(nameText);
+
+                // Atributo clave
+                const keyEllipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                keyEllipse.setAttribute('cx', x);
+                keyEllipse.setAttribute('cy', y - 70);
+                keyEllipse.setAttribute('rx', '50');
+                keyEllipse.setAttribute('ry', '18');
+                keyEllipse.setAttribute('fill', '#d1fae5');
+                keyEllipse.setAttribute('stroke', '#10b981');
+                keyEllipse.setAttribute('stroke-width', '2');
+                svg.appendChild(keyEllipse);
+
+                const keyText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                keyText.setAttribute('x', x);
+                keyText.setAttribute('y', y - 64);
+                keyText.setAttribute('text-anchor', 'middle');
+                keyText.setAttribute('fill', '#047857');
+                keyText.setAttribute('font-weight', '700');
+                keyText.setAttribute('font-size', '11');
+                keyText.setAttribute('text-decoration', 'underline');
+                keyText.textContent = data.key;
+                svg.appendChild(keyText);
+
+                // Otros atributos (mostrar hasta 4, en dos filas)
+                data.attrs.slice(0, 4).forEach((attr, aIdx) => {
+                    // Posicionar en 2 filas (2 atributos por fila)
+                    const row = Math.floor(aIdx / 2);
+                    const col = aIdx % 2;
+                    const aX = x - 55 + (col * 55);
+                    const aY = y + 70 + (row * 40);
+
+                    const attrType = data.attrTypes && data.attrTypes[attr] ? data.attrTypes[attr] : 'simple';
+
+                    // === MULTIVALUADO: Doble óvalo ===
+                    if (attrType === 'multivaluado') {
+                        // Óvalo externo
+                        const ellipse1 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        ellipse1.setAttribute('cx', aX);
+                        ellipse1.setAttribute('cy', aY);
+                        ellipse1.setAttribute('rx', '45');
+                        ellipse1.setAttribute('ry', '16');
+                        ellipse1.setAttribute('fill', 'none');
+                        ellipse1.setAttribute('stroke', '#10b981');
+                        ellipse1.setAttribute('stroke-width', '2');
+                        svg.appendChild(ellipse1);
+
+                        // Óvalo interno
+                        const ellipse2 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        ellipse2.setAttribute('cx', aX);
+                        ellipse2.setAttribute('cy', aY);
+                        ellipse2.setAttribute('rx', '40');
+                        ellipse2.setAttribute('ry', '14');
+                        ellipse2.setAttribute('fill', '#d1fae5');
+                        ellipse2.setAttribute('stroke', '#10b981');
+                        ellipse2.setAttribute('stroke-width', '2');
+                        svg.appendChild(ellipse2);
+
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', aX);
+                        text.setAttribute('y', aY + 4);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('fill', '#047857');
+                        text.setAttribute('font-weight', '700');
+                        text.setAttribute('font-size', '9');
+                        text.textContent = attr;
+                        svg.appendChild(text);
+                    }
+                    // === DERIVADO: Óvalo punteado ===
+                    else if (attrType === 'derivado') {
+                        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        ellipse.setAttribute('cx', aX);
+                        ellipse.setAttribute('cy', aY);
+                        ellipse.setAttribute('rx', '40');
+                        ellipse.setAttribute('ry', '14');
+                        ellipse.setAttribute('fill', '#d1fae5');
+                        ellipse.setAttribute('stroke', '#10b981');
+                        ellipse.setAttribute('stroke-width', '2');
+                        ellipse.setAttribute('stroke-dasharray', '5,5');
+                        svg.appendChild(ellipse);
+
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', aX);
+                        text.setAttribute('y', aY + 4);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('fill', '#047857');
+                        text.setAttribute('font-weight', '700');
+                        text.setAttribute('font-size', '9');
+                        text.textContent = attr;
+                        svg.appendChild(text);
+                    }
+                    // === COMPUESTO: Óvalo con sub-atributos ===
+                    else if (attrType === 'compuesto') {
+                        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        ellipse.setAttribute('cx', aX);
+                        ellipse.setAttribute('cy', aY);
+                        ellipse.setAttribute('rx', '45');
+                        ellipse.setAttribute('ry', '14');
+                        ellipse.setAttribute('fill', '#d1fae5');
+                        ellipse.setAttribute('stroke', '#10b981');
+                        ellipse.setAttribute('stroke-width', '2');
+                        svg.appendChild(ellipse);
+
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', aX);
+                        text.setAttribute('y', aY + 4);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('fill', '#047857');
+                        text.setAttribute('font-weight', '700');
+                        text.setAttribute('font-size', '9');
+                        text.textContent = attr;
+                        svg.appendChild(text);
+
+                        // Dibujar línea de conexión a sub-atributos
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', aX);
+                        line.setAttribute('y1', aY + 14);
+                        line.setAttribute('x2', aX);
+                        line.setAttribute('y2', aY + 25);
+                        line.setAttribute('stroke', '#cbd5e1');
+                        line.setAttribute('stroke-width', '1');
+                        svg.appendChild(line);
+
+                        // Dibujar sub-atributos
+                        const components = data.attrComponents && data.attrComponents[attr] ? data.attrComponents[attr] : [];
+                        components.slice(0, 3).forEach((comp, cIdx) => {
+                            const compX = aX - 30 + (cIdx * 30);
+                            const compY = aY + 40;
+
+                            const subEllipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                            subEllipse.setAttribute('cx', compX);
+                            subEllipse.setAttribute('cy', compY);
+                            subEllipse.setAttribute('rx', '22');
+                            subEllipse.setAttribute('ry', '10');
+                            subEllipse.setAttribute('fill', '#f0fdf4');
+                            subEllipse.setAttribute('stroke', '#6ee7b7');
+                            subEllipse.setAttribute('stroke-width', '1');
+                            svg.appendChild(subEllipse);
+
+                            const subLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            subLine.setAttribute('x1', aX);
+                            subLine.setAttribute('y1', aY + 25);
+                            subLine.setAttribute('x2', compX);
+                            subLine.setAttribute('y2', compY - 10);
+                            subLine.setAttribute('stroke', '#cbd5e1');
+                            subLine.setAttribute('stroke-width', '1');
+                            svg.appendChild(subLine);
+
+                            const subText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            subText.setAttribute('x', compX);
+                            subText.setAttribute('y', compY + 3);
+                            subText.setAttribute('text-anchor', 'middle');
+                            subText.setAttribute('fill', '#065f46');
+                            subText.setAttribute('font-weight', '700');
+                            subText.setAttribute('font-size', '7');
+                            subText.textContent = comp;
+                            svg.appendChild(subText);
+                        });
+                    }
+                    // === SIMPLE: Óvalo normal ===
+                    else {
+                        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        ellipse.setAttribute('cx', aX);
+                        ellipse.setAttribute('cy', aY);
+                        ellipse.setAttribute('rx', '40');
+                        ellipse.setAttribute('ry', '14');
+                        ellipse.setAttribute('fill', '#d1fae5');
+                        ellipse.setAttribute('stroke', '#10b981');
+                        ellipse.setAttribute('stroke-width', '2');
+                        svg.appendChild(ellipse);
+
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', aX);
+                        text.setAttribute('y', aY + 4);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('fill', '#047857');
+                        text.setAttribute('font-weight', '700');
+                        text.setAttribute('font-size', '9');
+                        text.textContent = attr;
+                        svg.appendChild(text);
+                    }
+                });
+            });
+
+            // Dibujar relaciones
+            relations.forEach((rel) => {
+                const ent1Pos = entityPositions[rel.ent1];
+                const ent2Pos = entityPositions[rel.ent2];
+
+                if (!ent1Pos || !ent2Pos) return;
+
+                const midX = (ent1Pos.x + ent2Pos.x) / 2;
+                const midY = (ent1Pos.y + ent2Pos.y) / 2;
+
+                // Línea 1
+                const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line1.setAttribute('x1', ent1Pos.x + 60);
+                line1.setAttribute('y1', ent1Pos.y);
+                line1.setAttribute('x2', midX - 35);
+                line1.setAttribute('y2', midY);
+                line1.setAttribute('stroke', '#cbd5e1');
+                line1.setAttribute('stroke-width', '2');
+                line1.setAttribute('marker-end', 'url(#arrow)');
+                svg.appendChild(line1);
+
+                // Línea 2
+                const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line2.setAttribute('x1', midX + 35);
+                line2.setAttribute('y1', midY);
+                line2.setAttribute('x2', ent2Pos.x - 60);
+                line2.setAttribute('y2', ent2Pos.y);
+                line2.setAttribute('stroke', '#cbd5e1');
+                line2.setAttribute('stroke-width', '2');
+                line2.setAttribute('marker-end', 'url(#arrow)');
+                svg.appendChild(line2);
+
+                // Diamante (relación)
+                const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                diamond.setAttribute('d', `M${midX} ${midY - 30} L${midX + 45} ${midY} L${midX} ${midY + 30} L${midX - 45} ${midY} Z`);
+                diamond.setAttribute('fill', '#fce7f3');
+                diamond.setAttribute('stroke', '#ec4899');
+                diamond.setAttribute('stroke-width', '2');
+                svg.appendChild(diamond);
+
+                // Nombre relación
+                const relText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                relText.setAttribute('x', midX);
+                relText.setAttribute('y', midY + 4);
+                relText.setAttribute('text-anchor', 'middle');
+                relText.setAttribute('fill', '#be123c');
+                relText.setAttribute('font-weight', '700');
+                relText.setAttribute('font-size', '11');
+                relText.textContent = rel.name;
+                svg.appendChild(relText);
+
+                // Cardinalidad N (izquierda)
+                const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle1.setAttribute('cx', ent1Pos.x + 45);
+                circle1.setAttribute('cy', ent1Pos.y - 15);
+                circle1.setAttribute('r', '15');
+                circle1.setAttribute('fill', '#ffffff');
+                circle1.setAttribute('stroke', '#6b7280');
+                circle1.setAttribute('stroke-width', '2');
+                svg.appendChild(circle1);
+
+                const cardText1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                cardText1.setAttribute('x', ent1Pos.x + 45);
+                cardText1.setAttribute('y', ent1Pos.y - 10);
+                cardText1.setAttribute('text-anchor', 'middle');
+                cardText1.setAttribute('fill', '#000');
+                cardText1.setAttribute('font-weight', '700');
+                cardText1.setAttribute('font-size', '12');
+                cardText1.textContent = 'N';
+                svg.appendChild(cardText1);
+
+                // Cardinalidad 1 (derecha)
+                const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle2.setAttribute('cx', ent2Pos.x - 45);
+                circle2.setAttribute('cy', ent2Pos.y - 15);
+                circle2.setAttribute('r', '15');
+                circle2.setAttribute('fill', '#ffffff');
+                circle2.setAttribute('stroke', '#6b7280');
+                circle2.setAttribute('stroke-width', '2');
+                svg.appendChild(circle2);
+
+                const cardText2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                cardText2.setAttribute('x', ent2Pos.x - 45);
+                cardText2.setAttribute('y', ent2Pos.y - 10);
+                cardText2.setAttribute('text-anchor', 'middle');
+                cardText2.setAttribute('fill', '#000');
+                cardText2.setAttribute('font-weight', '700');
+                cardText2.setAttribute('font-size', '12');
+                cardText2.textContent = '1';
+                svg.appendChild(cardText2);
+            });
+        }
+
+        function generateCode() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const hint = document.getElementById('hint').value;
+            const concept = document.getElementById('concept-select').value;
+            const requireSubtypes = document.getElementById('requireSubtypes').checked;
+
+            if (!concept) {
+                alert('⚠️ Por favor selecciona un concepto E-R antes de continuar.');
+                return;
+            }
+
+            parseEntities();
+            parseRelations();
+
+            // Parsear cardinalidades personalizadas
+            const cardinalitiesMap = {};
+            const cardText = document.getElementById('cardinalities-input').value.trim();
+            if (cardText) {
+                cardText.split('\n').forEach(line => {
+                    const match = line.match(/^\s*(\w+)\s*:\s*(\w+)\s*,\s*(\w+)\s*$/);
+                    if (match) {
+                        const relName = match[1];
+                        cardinalitiesMap[relName] = [match[2], match[3]];
+                    }
+                });
+            }
+
+            // Construir wordBank (como Array, no Set, para permitir duplicados)
+            const wordBank = [];
+            Object.keys(entitiesData).forEach(e => {
+                wordBank.push(e);
+                wordBank.push(entitiesData[e].key);
+                entitiesData[e].attrs.forEach(a => wordBank.push(a));
+            });
+            relationsData.forEach(r => {
+                wordBank.push(r.name);
+                r.attrs.forEach(a => wordBank.push(a));
+                // Usar cardinalidades especificadas o N,1 por defecto
+                const cards = cardinalitiesMap[r.name] || ['N', '1'];
+                wordBank.push(cards[0]);
+                wordBank.push(cards[1]);
+            });
+
+            const exerciseCode = generateExerciseCode(title, description, hint, wordBank, concept);
+            const analyzeDataCode = generateAnalyzeDataCode(description);
+            const configCode = `{ requireSubtypes: ${requireSubtypes} }`;
+            const htmlOptionCode = `<option value="${Object.keys(entitiesData).length - 1}">${title}</option>`;
+
+            const output = `
+<div class="space-y-6">
+    <div>
+        <h3 class="font-bold text-slate-900 mb-3">📝 Código del Ejercicio</h3>
+        <p class="text-xs text-slate-600 mb-2">Copiar al final de <code class="bg-slate-100 px-2 py-1 rounded">exercises = [...]</code> en <strong>script.js</strong> (antes del cierre <code>]</code>), separado por coma</p>
+        <div class="code-block">
+${escapeHtml(exerciseCode)}
+        </div>
+        <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(exerciseCode)}">📋 Copiar</button>
+    </div>
+
+    <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <p class="text-sm font-semibold text-amber-900 mb-2">📊 Análisis de Términos</p>
+        <p class="text-xs text-amber-800 mb-2">Copiar al final de <code class="bg-white px-2 py-1 rounded">analyzeData = [...]</code> (antes del cierre <code>]</code>), separado por coma</p>
+        <div class="code-block text-xs">
+${escapeHtml(analyzeDataCode)}
+        </div>
+        <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(analyzeDataCode)}">📋 Copiar</button>
+    </div>
+
+    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-sm font-semibold text-blue-900 mb-2">⚙️ Configuración</p>
+        <p class="text-xs text-blue-800 mb-2">Copiar al final de <code class="bg-white px-2 py-1 rounded">analyzeConfig = [...]</code> (antes del cierre <code>]</code>), separado por coma</p>
+        <div class="code-block text-xs">
+${escapeHtml(configCode)}
+        </div>
+        <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(configCode)}">📋 Copiar</button>
+    </div>
+
+    <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+        <p class="text-sm font-semibold text-green-900 mb-2">🎯 HTML (Dropdowns)</p>
+        <p class="text-xs text-green-800 mb-2">Agregar en los dos <code class="bg-white px-2 py-1 rounded">&lt;select&gt;</code> de <strong>er-designer.html</strong></p>
+        <div class="code-block text-xs">
+${escapeHtml(htmlOptionCode)}
+        </div>
+        <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(htmlOptionCode)}">📋 Copiar</button>
+    </div>
+</div>
+            `;
+
+            document.getElementById('generated-code').innerHTML = output;
+
+            // Agregar listeners a los botones de copiar
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const encoded = btn.dataset.text;
+                    const text = decodeURIComponent(encoded);
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('✓ ¡Código copiado al portapapeles!');
+                    }).catch(err => {
+                        alert('❌ Error al copiar. Intenta manualmente.');
+                        console.error(err);
+                    });
+                });
+            });
+        }
+
+        function generateExerciseCode(title, description, hint, wordBank, concept) {
+            const entities = Object.entries(entitiesData);
+            const numEntities = entities.length;
+            const numRelations = relationsData.length;
+
+            // Calcular espaciamiento horizontal
+            const entitySpacing = Math.max(20, 80 / numEntities);
+
+            let nodes = [];
+            let connections = [];
+            let nodeIdCounter = { e: 0, a: 0, r: 0, c: 0, s: 0 };
+
+            // === 1. GENERAR NODOS DE ENTIDADES ===
+            // Distribuir entidades uniformemente
+            const entityPositions = {};
+            const totalWidth = 80; // Espacio disponible (de 10% a 90%)
+            const entitySpacingUniform = totalWidth / Math.max(entities.length, 1);
+
+            entities.forEach((ent, idx) => {
+                // Distribuir uniformemente y centrar
+                const x = 10 + (idx * entitySpacingUniform) + (entitySpacingUniform / 2);
+                const entityId = `e_${idx}`;
+                nodes.push(`        { id: "${entityId}", type: "entity", correctValue: "${ent[0]}", x: ${Math.round(x * 10) / 10}, y: 50, w: 110, h: 52 }`);
+                entityPositions[ent[0]] = { x, idx, id: entityId };
+
+                // === 2. GENERAR ATRIBUTOS ===
+                const data = ent[1];
+                const totalAttrs = data.attrs.length;
+                const attrsPerRow = 3; // Máximo 3 atributos por fila
+
+                // Atributo clave - centrado sobre la entidad
+                const keyId = `a_${nodeIdCounter.a++}`;
+                nodes.push(`        { id: "${keyId}", type: "attribute", isKey: true, correctValue: "${data.key}", x: ${Math.round(x * 10) / 10}, y: 22, w: 92, h: 40 }`);
+                connections.push(`        { from: "${keyId}", to: "${entityId}" }`);
+
+                // Otros atributos - distribuidos en tres niveles: arriba (22), medio (72), abajo (107)
+                data.attrs.forEach((attr, aIdx) => {
+                    const attrType = data.attrTypes[attr];
+                    const col = aIdx % attrsPerRow;
+                    const row = Math.floor(aIdx / attrsPerRow);
+                    // Distribuir entre -15 y +15 alrededor de la entidad
+                    const attrX = x - 10 + (col * 10);
+                    // Distribuir en 3 niveles: 22 (arriba), 72 (medio), 107 (abajo)
+                    let attrY = 72;  // Por defecto, medio
+                    if (row === 0 && totalAttrs <= 3) attrY = 72;      // Si ≤3 attrs: nivel medio
+                    else if (row === 0) attrY = 22;                     // Si más de 3: primeros 3 arriba
+                    else if (row === 1) attrY = 72;                     // Segundos 3 en medio
+                    else attrY = 107;                                   // Resto abajo
+
+                    if (attrType === 'compuesto') {
+                        // Atributo compuesto
+                        const compId = `a_${nodeIdCounter.a++}`;
+                        nodes.push(`        { id: "${compId}", type: "attribute", correctValue: "${attr}", x: ${Math.round(attrX * 10) / 10}, y: ${attrY}, w: 92, h: 40 }`);
+                        connections.push(`        { from: "${compId}", to: "${entityId}" }`);
+
+                        // Sub-atributos - posicionados arriba del compuesto
+                        const components = data.attrComponents[attr] || [];
+                        const subAttrY = Math.max(6, attrY - 16);  // Arriba del compuesto, pero no menos de 6
+                        components.forEach((comp, cIdx) => {
+                            const subId = `a_${nodeIdCounter.a++}`;
+                            // Distribuir horizontalmente alrededor del compuesto
+                            const subX = attrX - 10 + (cIdx * 14);
+                            nodes.push(`        { id: "${subId}", type: "attribute", correctValue: "${comp}", x: ${Math.round(subX * 10) / 10}, y: ${subAttrY}, w: 65, h: 28 }`);
+                            connections.push(`        { from: "${subId}", to: "${compId}" }`);
+                        });
+                    } else {
+                        // Atributo simple, multivaluado o derivado
+                        const attrId = `a_${nodeIdCounter.a++}`;
+                        let nodeStr = `        { id: "${attrId}", type: "attribute"`;
+                        if (attrType === 'multivaluado') nodeStr += `, isMultivalued: true`;
+                        if (attrType === 'derivado') nodeStr += `, isDerived: true`;
+                        nodeStr += `, correctValue: "${attr}", x: ${attrX}, y: ${attrY}, w: 92, h: 40 }`;
+
+                        nodes.push(nodeStr);
+                        connections.push(`        { from: "${attrId}", to: "${entityId}" }`);
+                    }
+                });
+            });
+
+            // === 3. GENERAR RELACIONES Y CARDINALIDADES ===
+            relationsData.forEach((rel, idx) => {
+                const ent1Pos = entityPositions[rel.ent1];
+                const ent2Pos = entityPositions[rel.ent2];
+
+                if (!ent1Pos || !ent2Pos) return;
+
+                const relX = (ent1Pos.x + ent2Pos.x) / 2;
+                const relId = `r_${idx}`;
+
+                nodes.push(`        { id: "${relId}", type: "relation", correctValue: "${rel.name}", x: ${Math.round(relX * 10) / 10}, y: 50, w: 80, h: 80 }`);
+
+                // Conexiones relación-entidades
+                connections.push(`        { from: "${ent1Pos.id}", to: "${relId}" }`);
+                connections.push(`        { from: "${relId}", to: "${ent2Pos.id}" }`);
+
+                // Cardinalidades - distribuidas entre entidad y relación
+                const cardN = `c_${idx}_n`;
+                const card1 = `c_${idx}_1`;
+
+                // Posicionar cardinalidades: una cerca de ent1, otra cerca de ent2
+                const cardX1 = (ent1Pos.x + relX) / 2;  // Entre ent1 y relación
+                const cardXn = (relX + ent2Pos.x) / 2;  // Entre relación y ent2
+
+                nodes.push(`        { id: "${card1}", type: "cardinality", correctValue: "1", x: ${Math.round(cardX1 * 10) / 10}, y: 50, w: 30, h: 30 }`);
+                nodes.push(`        { id: "${cardN}", type: "cardinality", correctValue: "N", x: ${Math.round(cardXn * 10) / 10}, y: 50, w: 30, h: 30 }`);
+
+                connections.push(`        { from: "${cardN}", to: "${relId}" }`);
+                connections.push(`        { from: "${card1}", to: "${relId}" }`);
+
+                // Atributos de relación - distribuidos debajo de la relación
+                rel.attrs.forEach((attr, aIdx) => {
+                    const relAttrId = `a_${nodeIdCounter.a++}`;
+                    // Distribuir horizontalmente alrededor de la relación
+                    const relAttrX = relX - 10 + (aIdx * 20);
+                    // Colocar debajo de la relación (y > 50 + 40 = 90)
+                    const relAttrY = 107 + (aIdx * 35);
+                    nodes.push(`        { id: "${relAttrId}", type: "attribute", correctValue: "${attr}", x: ${Math.round(relAttrX * 10) / 10}, y: ${relAttrY}, w: 92, h: 40 }`);
+                    connections.push(`        { from: "${relAttrId}", to: "${relId}" }`);
+                });
+            });
+
+            // Convertir saltos de línea a <br> para HTML
+            const descriptionHTML = description.replace(/\n/g, '<br>');
+
+            let code = `{
+    title: "${title}",
+    description: \`${descriptionHTML}\`,
+    hint: "${hint}",
+    wordBank: [${Array.from(wordBank).map(w => `"${w}"`).join(', ')}],
+    nodes: [
+${nodes.join(',\n')}
+    ],
+    connections: [
+${connections.join(',\n')}
+    ],
+    // METADATOS
+    concept: "${concept}",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
+}`;
+            return code;
+        }
+
+        function generateAnalyzeDataCode(description) {
+            let segments = [];
+            const firstLine = description.split('\n')[0];
+
+            // Primera línea
+            segments.push(`"${firstLine}\\n\\n"`);
+
+            // Entidades con sus atributos
+            const entities = Object.keys(entitiesData);
+            entities.forEach((ent) => {
+                const data = entitiesData[ent];
+                const key = data.key;
+                const attrs = data.attrs;
+                const attrTypes = data.attrTypes || {};
+
+                // Línea de entidad
+                segments.push(`"• De cada "`);
+                segments.push(`{word:"${ent}",type:"entidad",entityType:"fuerte"}`);
+                segments.push(`" se guarda "`);
+
+                // Clave primaria
+                segments.push(`{word:"${key}",type:"atributo",attrType:"clave"}`);
+
+                // Otros atributos
+                attrs.forEach((attr, idx) => {
+                    const type = attrTypes[attr] || 'simple';
+                    segments.push(`", "`);
+                    segments.push(`{word:"${attr}",type:"atributo",attrType:"${type}"}`);
+                });
+
+                segments.push(`".\\n"`);
+            });
+
+            // Relaciones (solo el verbo/relación, no las entidades)
+            const relations = relationsData;
+            relations.forEach(rel => {
+                segments.push(`"• ${rel.ent1} puede "`);
+                segments.push(`{word:"${rel.name}",type:"relacion"}`);
+                segments.push(`" muchos(as) ${rel.ent2}.\\n"`);
+            });
+
+            // Formatear como array JavaScript
+            const formatted = segments.map(seg => {
+                if (seg.startsWith('{')) {
+                    return `    ${seg}`;
+                } else {
+                    return `    ${seg}`;
+                }
+            }).join(',\n');
+
+            return `[
+${formatted}
+]`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✓ ¡Código copiado!');
+            }).catch(() => {
+                alert('❌ Error. Intenta manualmente.');
+            });
+        }
+
+        function resetWizard() {
+            document.getElementById('title').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('hint').value = '';
+            document.getElementById('entities-input').value = '';
+            document.getElementById('relations-input').value = '';
+            document.getElementById('requireSubtypes').checked = false;
+            currentStep = 1;
+            updateSteps();
+            updatePreview();
+        }
+
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSteps();
+            updatePreview();
+        });
+
+        // Fallback por si DOMContentLoaded ya pasó
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updatePreview);
+        } else {
+            updatePreview();
+        }
+    </script>
+</body>
+</html>

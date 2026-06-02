@@ -1,0 +1,125 @@
+
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap');
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* ── Fondo de puntos para el canvas ── */
+        .canvas-grid {
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle, #c8d5e8 1.2px, transparent 1.2px);
+            background-size: 22px 22px;
+        }
+
+        /* ── Inputs en nodos ── */
+        .diagram-input {
+            background: transparent;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 700;
+            color: #1e293b;
+            transition: border-color 0.15s, background 0.15s;
+            cursor: pointer;
+        }
+        .diagram-input:not(:placeholder-shown) {
+            border: none !important;
+            background: transparent !important;
+        }
+        .diagram-input:placeholder-shown:hover {
+            border-color: #0284c7;
+            background: rgba(2,132,199,0.06);
+        }
+        .input-correct   { border: none !important; background: transparent !important; color: #059669 !important; }
+        .input-incorrect { border: none !important; background: transparent !important; color: #dc2626 !important; }
+
+        /* ── Banco de palabras (dark style) ── */
+        .word-tag {
+            border: 1.5px dashed #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .word-tag:hover {
+            border-color: #0284c7;
+            background-color: rgba(2,132,199,0.15);
+            color: #e0f2fe;
+        }
+        .word-tag-selected {
+            border-color: #0284c7 !important;
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(2,132,199,0.35);
+        }
+
+        /* ── Animaciones ── */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        #feedback-alert:not(.hidden) { animation: slideUp 0.25s ease forwards; }
+
+        /* ── Alto contraste ── */
+        .high-contrast-mode { background-color: #000 !important; color: #fff !important; }
+        .high-contrast-mode .canvas-grid { background: #111 !important; border-color: #fff !important; }
+        .high-contrast-mode .diagram-input { border-color: #fff !important; color: #fff !important; background: #222 !important; }
+        .high-contrast-mode svg line { stroke: #fff !important; stroke-width: 3px !important; }
+
+        /* ── Stage tabs ── */
+        .stage-tab { padding: 0.45rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; border: 1.5px solid transparent; color: #94a3b8; }
+        .stage-tab:hover:not(:disabled) { color: #e2e8f0; background: rgba(2,132,199,0.12); }
+        .stage-tab.active { background: #0284c7; color: #fff; border-color: #06b6d4; }
+        .stage-tab:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Analyze word chips ── */
+        .word-chip { display: inline-block !important; padding: 0.1rem 0.45rem !important; border-radius: 0.375rem !important; border: 1.5px dashed #d97706 !important; background: #334155 !important; color: #f59e0b !important; cursor: pointer !important; font-weight: 600 !important; transition: all 0.15s !important; line-height: 2 !important; }
+        .word-chip:hover { background: #faf8f6 !important; border-style: solid !important; }
+        .word-chip.classified-entidad  { border: 1.5px solid #3b82f6 !important; background: rgba(59,130,246,0.15) !important; color: #93c5fd !important; }
+        .word-chip.classified-atributo { border: 1.5px solid #10b981 !important; background: rgba(16,185,129,0.15) !important; color: #6ee7b7 !important; }
+        .word-chip.classified-relacion { border: 1.5px solid #ec4899 !important; background: rgba(236,72,153,0.15) !important; color: #f9a8d4 !important; }
+        .word-chip.correct   { border: 2px solid #059669 !important; background: rgba(5,150,105,0.25) !important; color: #34d399 !important; }
+        .word-chip.incorrect { border: 2px solid #dc2626 !important; background: rgba(220,38,38,0.25) !important; color: #fca5a5 !important; }
+        .word-chip.unclassified-fb { border: 1.5px solid #475569 !important; background: rgba(71,85,105,0.15) !important; color: #64748b !important; }
+
+        /* ── Modales ── */
+        .tutorial-step { animation: fadeUp 0.3s ease; }
+
+        /* ── Solo impresión ── */
+        .print-header { display: none; }
+        .handwritten  { font-family: 'Courier Prime', monospace; font-weight: 700; color: #1d4ed8; }
+
+        /* ══════════════ ESTILOS DE IMPRESIÓN ══════════════ */
+        @media print {
+            @page { size: A4 landscape; margin: 8mm 10mm; }
+
+            .no-print,
+            header, footer,
+            #left-panel, #resize-handle,
+            #feedback-alert, .legend-bar { display: none !important; }
+
+            body  { background: #ffffff !important; }
+            main  { display: block !important; padding: 0 !important; max-width: 100% !important; }
+
+            #right-panel {
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                min-height: auto !important;
+                background: white !important;
+            }
+
+            .print-header { display: block !important; }
+
+            #er-canvas {
+                overflow: visible !important;
+                height: 480px !important;
+                border: 1.5px solid #475569 !important;
+                border-radius: 4px !important;
+                background-color: #ffffff !important;
+                background-image: none !important;
+            }
+            #diagram-nodes  { min-width: 100% !important; }
+            #svg-connectors { overflow: visible !important; }
+
+            .diagram-input { border: none !important; background: transparent !important; }
+        }
+    

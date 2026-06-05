@@ -42,11 +42,10 @@ const exercises = [
             { from: "r2", to: "a_r2_1" }, { from: "r2", to: "a_r2_2" }
         ],
         // METADATOS
-        concept: "relaciones_complejas",  // Relación N:N + atributo de relación
+        concept: "atributos_especiales",  // Relación N:N + atributo de relación
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-
     // ── Ejercicio 2 ──────────────────────────────────────────────────────────
     {
         title: "📚 Biblioteca Escolar",
@@ -79,11 +78,10 @@ const exercises = [
             { from: "r1", to: "a_r1_1" }, { from: "r1", to: "a_r1_2" }
         ],
         // METADATOS
-        concept: "relaciones_complejas",  // Relación N:N + atributo de relación
+        concept: "atributos_especiales",  // Relación N:N + atributo de relación
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-
     // ── Ejercicio 3 ──────────────────────────────────────────────────────────
     {
         title: "🛒 Tienda Online",
@@ -116,7 +114,6 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-
     // ── Ejercicio 4 ──────────────────────────────────────────────────────────
     {
         title: "🌐 Red Social",
@@ -169,7 +166,6 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-
     // ── Ejercicio 5 ──────────────────────────────────────────────────────────
     {
         title: "Caso 5: Plataforma de Streaming",
@@ -241,8 +237,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-
-    // ── Ejercicio 5: Sistema Hospitalario ──────────────────────────────────
+    // ── Ejercicio 6: Sistema Hospitalario ──────────────────────────────────
     {
         title: "🏥 Sistema Hospitalario",
         description: `Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.<br><br>
@@ -285,7 +280,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-// ── Ejercicio 6: Institución educativa ──────────────────────────────────
+// ── Ejercicio 7: Institución educativa ──────────────────────────────────
 {
     title: "Institución educativa",
     description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br>De las materias nos interesa su código, nombre y año.<br>De los alumnos su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha nacimiento.<br>Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>Un alumno puede asistir a muchas materias y a una materia pueden asistir muchos alumnos.`,
@@ -334,20 +329,114 @@ const exercises = [
     concept: "atributos_especiales",  // Atributo compuesto + derivado + relación N:N
     availableFor: ["class", "home", "eval"],
     enabled: true
+},
+// Ejercicio 8 --Colegio
+   {
+    title: "Colegio",
+    description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac, AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• PROFESOR puede dictar muchas ASIGNATURAS.<br>• ALUMNO puede cursar muchas ASIGNATURAS.<br>• PROFESOR puede publicar un LIBRO.<br>`,
+    hint: "Recuerda que Colegio no es una entidad",
+    wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
+    nodes: [
+        { id: "e_0", type: "entity", correctValue: "PROFESOR", x: 20, y: 70, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "CédulaP", x: 5, y: 50, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "Nombre", x: 20, y: 92, w: 92, h: 40 },
+        { id: "a_2", type: "attribute", correctValue: "TeléfonoP", x: 5, y: 65, w: 92, h: 40 },
+        { id: "a_3", type: "attribute", correctValue: "FechaNac", x: 5, y: 80, w: 92, h: 40 },
+        { id: "a_4", type: "attribute", correctValue: "AñoIngreso", x: 10, y: 92, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", isDerived: true, correctValue: "Grado", x: 30, y: 92, w: 92, h: 40 },
+        
+        { id: "e_1", type: "entity", correctValue: "ASIGNATURA", x: 55, y: 70, w: 110, h: 52 },
+        { id: "a_6", type: "attribute", isKey: true, correctValue: "Código", x: 55, y: 52, w: 92, h: 40 },
+        { id: "a_7", type: "attribute", correctValue: "NombreAsisg", x: 55, y: 92, w: 92, h: 40 },
+        
+        { id: "e_2", type: "entity", correctValue: "ALUMNO", x: 90, y: 70, w: 110, h: 52 },
+        { id: "a_8", type: "attribute", isKey: true, correctValue: "CédulaA", x: 95, y: 52, w: 92, h: 40 },
+        { id: "a_9", type: "attribute", correctValue: "NombreCom", x: 85, y: 52, w: 92, h: 40 },
+        { id: "a_10", type: "attribute", correctValue: "Nom", x: 77, y: 36, w: 65, h: 28 },
+        { id: "a_11", type: "attribute", correctValue: "Ape1", x: 84, y: 36, w: 65, h: 28 },
+        { id: "a_12", type: "attribute", correctValue: "Ape2", x: 91, y: 36, w: 65, h: 28 },
+        { id: "a_13", type: "attribute", correctValue: "Teléfono", x: 75, y: 52, w: 92, h: 40 },
+        { id: "a_14", type: "attribute", correctValue: "FechaNac", x: 75, y: 92, w: 92, h: 40 },
+        { id: "a_15", type: "attribute", isDerived: true, correctValue: "Edad", x: 85, y: 92, w: 92, h: 40 },
+        { id: "a_16", type: "attribute", isMultivalued: true, correctValue: "Antecedentes", x: 95, y: 92, w: 92, h: 40 },
+        
+        { id: "e_3", type: "entity", correctValue: "LIBRO", x: 20, y: 10, w: 110, h: 52 },
+        { id: "a_17", type: "attribute", isKey: true, correctValue: "CódigoL", x: 32, y: 10, w: 92, h: 40 },
+        { id: "a_18", type: "attribute", correctValue: "Titulo", x: 32, y: 25, w: 92, h: 40 },
+        { id: "a_19", type: "attribute", correctValue: "Tema", x: 8, y: 10, w: 92, h: 40 },
+        { id: "a_20", type: "attribute", correctValue: "Fecha", x: 8, y: 25, w: 92, h: 40 },
+       
+        { id: "r_0", type: "relation", correctValue: "dicta", x: 37, y: 70, w: 80, h: 80, totalityRight: true },
+        { id: "c_0_1", type: "cardinality", correctValue: "N", x: 29, y: 70, w: 30, h: 30 },
+        { id: "c_0_n", type: "cardinality", correctValue: "N", x: 45, y: 70, w: 30, h: 30 },
+        
+        { id: "r_1", type: "relation", correctValue: "cursa", x: 73, y: 70, w: 80, h: 80, totalityRight: true },
+        { id: "c_1_1", type: "cardinality", correctValue: "N", x: 65, y: 70, w: 30, h: 30 },
+        { id: "c_1_n", type: "cardinality", correctValue: "N", x: 80, y: 70, w: 30, h: 30 },
+        
+        { id: "r_2", type: "relation", correctValue: "publica", x: 20, y: 40, w: 80, h: 80, totalityRight: true },
+        { id: "c_2_1", type: "cardinality", correctValue: "1", x: 20, y: 57, w: 30, h: 30 },
+        { id: "c_2_n", type: "cardinality", correctValue: "N", x: 20, y: 23, w: 30, h: 30 },
+
+        { id: "t_0_left", type: "totalidad", correctValue: "N", x: 32, y: 65, w: 28, h: 24 },
+        { id: "t_0_right", type: "totalidad", correctValue: "S", x: 42, y: 65, w: 28, h: 24 },
+
+        { id: "t_1_left", type: "totalidad", correctValue: "N", x: 69, y: 65, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "S", x: 77, y: 65, w: 28, h: 24 },
+
+        { id: "t_2_left", type: "totalidad", correctValue: "N", x: 24, y: 49, w: 28, h: 24 },
+        { id: "t_2_right", type: "totalidad", correctValue: "S", x: 24, y: 32, w: 28, h: 24 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_0" },
+        { from: "a_3", to: "e_0" },
+        { from: "a_4", to: "e_0" },
+        { from: "a_5", to: "e_0" },
+        { from: "a_6", to: "e_1" },
+        { from: "a_7", to: "e_1" },
+        { from: "a_8", to: "e_2" },
+        { from: "a_9", to: "e_2" },
+        { from: "a_10", to: "a_9" },
+        { from: "a_11", to: "a_9" },
+        { from: "a_12", to: "a_9" },
+        { from: "a_13", to: "e_2" },
+        { from: "a_14", to: "e_2" },
+        { from: "a_15", to: "e_2" },
+        { from: "a_16", to: "e_2" },
+        { from: "a_17", to: "e_3" },
+        { from: "a_18", to: "e_3" },
+        { from: "a_19", to: "e_3" },
+        { from: "a_20", to: "e_3" },
+        { from: "e_0", to: "r_0" },
+        { from: "r_0", to: "e_1" },
+        { from: "c_0_n", to: "r_0" },
+        { from: "c_0_1", to: "r_0" },
+        { from: "e_2", to: "r_1" },
+        { from: "r_1", to: "e_1" },
+        { from: "c_1_n", to: "r_1" },
+        { from: "c_1_1", to: "r_1" },
+        { from: "e_0", to: "r_2" },
+        { from: "r_2", to: "e_3" },
+        { from: "c_2_n", to: "r_2" },
+        { from: "c_2_1", to: "r_2" }
+    ],
+    // METADATOS
+    concept: "participacion",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
     // │ Reemplazar esta línea con el código del Paso 3                          │
     // └─────────────────────────────────────────────────────────────────────────┘
- 
 ];
-
-
 // ── Datos de análisis de texto por ejercicio ─────────────────────────────
 // Cada elemento es un array de segmentos: string = texto plano, objeto = palabra clickeable
 const analyzeData = [
-    // 0 ── Taller Mecánico
+    // 1 ── Taller Mecánico
     [
         "Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.\n\n",
         "• De cada ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " se guarda la ",
@@ -360,7 +449,7 @@ const analyzeData = [
         "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones y una reparación puede aplicarse a muchos autos.\n",
         "• Se registra la ", {word:"fecha_entrada",type:"atributo",attrType:"relacion"}, " y ", {word:"observación",type:"atributo",attrType:"relacion"}, " para cada reparación."
     ],
-    // 1 ── Biblioteca Escolar
+    // 2 ── Biblioteca Escolar
     [
         "Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.\n\n",
         "• Cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -370,7 +459,7 @@ const analyzeData = [
         "• Un socio puede ", {word:"solicitar",type:"relacion"}, " múltiples préstamos y un libro puede prestarse a diferentes socios.\n",
         "• El Préstamo registra la ", {word:"fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"devuelto",type:"atributo",attrType:"relacion"}, "."
     ],
-    // 2 ── Tienda Online
+    // 3 ── Tienda Online
     [
         "Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.\n\n",
         "• El ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -379,7 +468,7 @@ const analyzeData = [
         {word:"nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"total",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente."
     ],
-    // 3 ── Red Social
+    // 4 ── Red Social
     [
         "Una red social tiene ", {word:"Usuarios",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
         {word:"Creadores",type:"entidad",entityType:"fuerte"}, " o ", {word:"Espectadores",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n",
@@ -389,7 +478,7 @@ const analyzeData = [
         "Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"Contenidos",type:"entidad",entityType:"fuerte"}, ".\n",
         "El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
     ],
-    // 4 ── Plataforma Streaming
+    // 5 ── Plataforma Streaming
     [
         "Una plataforma de streaming desea administrar su catálogo de películas y sus socios.\n\n",
         "• De cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -405,7 +494,7 @@ const analyzeData = [
         {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, ".\n",
         "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador (N:1)."
     ],
-    // 5 ── Sistema Hospitalario
+    // 6 ── Sistema Hospitalario
     [
         "Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.\n\n",
         "• De cada ", {word:"Paciente",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -417,7 +506,7 @@ const analyzeData = [
         "• Un paciente puede ", {word:"realizar",type:"relacion"}, " muchas consultas; cada consulta es de un médico (1:N).\n",
         "• Un médico puede ", {word:"atender",type:"relacion"}, " muchos pacientes."
     ],
-    // 6 ── Institución educativa
+    // 7 ── Institución educativa
 [
     "Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.\n\n",
     "• De cada ",
@@ -445,17 +534,73 @@ const analyzeData = [
     "• ALUMNO puede ",
     {word:"cursa",type:"relacion"},
     " muchos(as) MATERIA.\n"
+],
+     // 8─Colegio
+   [
+    "Representar la siguiente realidad a través de un diagrama entidad relación. \n\n",
+    "• De cada ",
+    {word:"PROFESOR",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"Nombre",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"TeléfonoP",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"FechaNac",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"AñoIngreso",type:"atributo",attrType:"simple"},
+    ". El ",
+    {word:"Grado",type:"atributo",attrType:"derivado"},
+    ".\n",
+    "• De cada ",
+    {word:"ASIGNATURA",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"Código",type:"atributo",attrType:"clave"},
+    " y su ",
+    {word:"NombreAsisg",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• De cada ",
+    {word:"ALUMNO",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"CédulaA",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"NombreCom",type:"atributo",attrType:"compuesto"},
+    ", ",
+    {word:"Teléfono",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"FechaNac",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Edad",type:"atributo",attrType:"derivado"},
+    " y sus ",
+    {word:"Antecedentes",type:"atributo",attrType:"multivaluado"},
+    ".\n",
+    "• De cada ",
+    {word:"LIBRO",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"CódigoL",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"Titulo",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Tema",type:"atributo",attrType:"simple"},
+    " y ",
+    {word:"Fecha",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• PROFESOR puede ",
+    {word:"dictar",type:"relacion"},
+    " muchas ASIGNATURAS.\n",
+    "• ALUMNO puede ",
+    {word:"cursar",type:"relacion"},
+    " muchas ASIGNATURAS.\n",
+    "• PROFESOR puede ",
+    {word:"publicar",type:"relacion"},
+    " un LIBRO.\n"
 ]
-     // 7── x
-
+     //9--x
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
     // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
     // │ Reemplazar esta línea con el código del Paso 3                          │
     // └─────────────────────────────────────────────────────────────────────────┘
-
 ];
-
 const analyzeConfig = [
     { requireSubtypes: false }, // 0 Taller - básico
     { requireSubtypes: false }, // 1 Biblioteca - básico
@@ -463,14 +608,14 @@ const analyzeConfig = [
     { requireSubtypes: true  }, // 3 Red Social - ISA
     { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
     { requireSubtypes: false }, // 5 Hospital - básico
-    { requireSubtypes: false }  // 6 Institución educativa
+    { requireSubtypes: false }, // 6 Institución educativa
+    { requireSubtypes: false }  // 7 Colegio
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🔴 PEGAR AQUÍ: 3er BLOQUE (config) del asistente                        │
     // │ AGREGAR COMA después del config anterior (arriba ↑) y antes de esto     │
     // │ Reemplazar esta línea con el código del Paso 3 (la línea con { ... })   │
     // └─────────────────────────────────────────────────────────────────────────┘
 ];
-
 let activeExercise  = 0;
 let highlightedWord = null;
 let analysisAttempts = 0;
@@ -484,45 +629,36 @@ let activeWordIdx = null;
 let evalMode = false;  // false = ejercitación, true = evaluación
 let textZoom = 100;    // zoom level for consigna (tab análisis)
 let descZoom = 100;    // zoom level for descripción (tab diseño)
-
 // ── Control de zoom para la consigna (tab análisis) ──────
 function zoomText(direction) {
     const minZoom = 80;
     const maxZoom = 150;
     const step = 10;
-
     textZoom = Math.max(minZoom, Math.min(maxZoom, textZoom + (direction * step)));
-
     const textEl = document.getElementById('analyze-text');
     if (textEl) {
         textEl.style.fontSize = (textZoom / 100) + 'em';
     }
-
     const levelEl = document.getElementById('zoom-level');
     if (levelEl) {
         levelEl.textContent = textZoom + '%';
     }
 }
-
 // ── Control de zoom para la descripción (tab diseño) ─────
 function zoomDescription(direction) {
     const minZoom = 80;
     const maxZoom = 150;
     const step = 10;
-
     descZoom = Math.max(minZoom, Math.min(maxZoom, descZoom + (direction * step)));
-
     const descEl = document.getElementById('problem-description');
     if (descEl) {
         descEl.style.fontSize = (descZoom / 100) + 'em';
     }
-
     const levelEl = document.getElementById('desc-zoom-level');
     if (levelEl) {
         levelEl.textContent = descZoom + '%';
     }
 }
-
 window.addEventListener('DOMContentLoaded', () => {
     _initMode();
     document.addEventListener('click', hidePopup);
@@ -530,26 +666,20 @@ window.addEventListener('DOMContentLoaded', () => {
     const hoy = new Date().toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const dateEl = document.getElementById('exam-date');
     if (dateEl) dateEl.value = hoy;
-
     // Leer parámetro ?ejercicio=N de la URL (viene desde index.html)
     const params   = new URLSearchParams(window.location.search);
     const ejercicio = parseInt(params.get('ejercicio') ?? '0');
     const inicio    = isNaN(ejercicio) ? 0 : Math.max(0, Math.min(ejercicio, exercises.length - 1));
     loadExercise(inicio);
-
     window.addEventListener('resize', drawCrispConnectors);
-
     if (!localStorage.getItem('ert_tutorial_seen')) showTutorial();
 });
-
 // ── Divisor redimensionable ──────────────────────────────
 (function initResizer() {
     const handle    = document.getElementById('resize-handle');
     const leftPanel = document.getElementById('left-panel');
     if (!handle || !leftPanel) return;
-
     let dragging = false, startX = 0, startW = 0;
-
     handle.addEventListener('mousedown', e => {
         dragging = true;
         startX   = e.clientX;
@@ -558,13 +688,11 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.userSelect = 'none';
         e.preventDefault();
     });
-
     document.addEventListener('mousemove', e => {
         if (!dragging) return;
         const newW = Math.max(220, Math.min(startW + (e.clientX - startX), window.innerWidth * 0.55));
         leftPanel.style.width = newW + 'px';
     });
-
     document.addEventListener('mouseup', () => {
         if (!dragging) return;
         dragging = false;
@@ -573,22 +701,18 @@ window.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(drawCrispConnectors);
     });
 })();
-
 // ── Accesibilidad ────────────────────────────────────────
 function toggleAccessibility() {
     document.body.classList.toggle('high-contrast-mode');
 }
-
 function toggleHint() {
     document.getElementById('hint-box').classList.toggle('hidden');
 }
-
 // ── Cargar ejercicio ─────────────────────────────────────
 function loadExercise(index) {
     activeExercise  = parseInt(index);
     highlightedWord = null;
     usedWords.clear();  // Limpiar palabras usadas al cargar nuevo ejercicio
-
     document.getElementById('selection-status').innerText = "";
     document.getElementById('exercise-select').value = index;
     const asel = document.getElementById('analyze-select');
@@ -596,16 +720,19 @@ function loadExercise(index) {
     document.getElementById('progress-indicator').innerText = `${activeExercise + 1} de ${exercises.length}`;
     document.getElementById('hint-box').classList.add('hidden');
     document.getElementById('feedback-alert').classList.add('hidden');
-
     // Resetear calificación
     const gb = document.getElementById('grade-box');
     gb.innerText = "--";
     gb.className = "text-2xl font-black text-slate-400 italic";
-
     const cur = exercises[activeExercise];
     document.getElementById('problem-description').innerHTML = cur.description;
     document.getElementById('hint-box').innerHTML = `<strong>Guía del docente:</strong> ${cur.hint}`;
-
+    // Mostrar instrucciones de totalidad si el ejercicio tiene nodos de totalidad
+    const hasTotalityNodes = cur.nodes.some(n => n.type === 'totalidad');
+    const totalidadInstructions = document.getElementById('totalidad-instructions');
+    if (totalidadInstructions) {
+        totalidadInstructions.classList.toggle('hidden', !hasTotalityNodes);
+    }
     // Banco de palabras: mezclado, estilo dark
     const bank = document.getElementById('word-bank');
     bank.innerHTML = "";
@@ -617,24 +744,20 @@ function loadExercise(index) {
         btn.onclick = () => selectWord(word, btn);
         bank.appendChild(btn);
     });
-
     renderInteractiveCanvas(cur);
     updateWordBankVisuals();
     renderAnalysisPanel(activeExercise);
     _resetCorregirBtn();
     setStage('analyze');
 }
-
 // ── Actualizar estado visual de palabras usadas ──────────
 function updateWordBankVisuals() {
     const cur = exercises[activeExercise];
-
     // Contar cuántas veces aparece cada palabra en el word-bank
     const wordCounts = {};
     cur.wordBank.forEach(word => {
         wordCounts[word] = (wordCounts[word] || 0) + 1;
     });
-
     // Contar cuántas veces está cada palabra en inputs llenos
     const filledCounts = {};
     document.querySelectorAll('.diagram-input').forEach(inp => {
@@ -643,13 +766,11 @@ function updateWordBankVisuals() {
             filledCounts[word] = (filledCounts[word] || 0) + 1;
         }
     });
-
     // Marcar como gris solo si se usó la cantidad máxima de veces
     document.getElementById('word-bank').querySelectorAll('button').forEach(b => {
         const word = b.innerText;
         const maxAllowed = wordCounts[word] || 0;
         const used = filledCounts[word] || 0;
-
         if (used >= maxAllowed) {
             // Gris si se usó todas las veces disponibles
             b.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 text-slate-500 word-tag opacity-50";
@@ -661,34 +782,26 @@ function updateWordBankVisuals() {
         }
     });
 }
-
 // ── Seleccionar palabra del banco ────────────────────────
 function selectWord(word, el) {
     const cur = exercises[activeExercise];
-
     // Contar cuántas veces está permitida esta palabra
     const maxAllowed = cur.wordBank.filter(w => w === word).length;
-
     // Contar cuántas veces ya está usada
     const used = Array.from(document.querySelectorAll('.diagram-input'))
         .filter(inp => inp.value === word).length;
-
     // No permitir si ya se usó todas las veces
     if (used >= maxAllowed) return;
-
     highlightedWord = word;
     document.getElementById('selection-status').innerText = `📝 Pegarás: "${word}"`;
-
     // Quitar selección anterior y actualizar colores
     updateWordBankVisuals();
     el.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 text-white bg-emerald-600 word-tag-selected";
 }
-
 // ── Renderizar el canvas interactivo ─────────────────────
 function renderInteractiveCanvas(exercise) {
     const container = document.getElementById('diagram-nodes');
     container.innerHTML = "";
-
     exercise.nodes.forEach(node => {
         const el = document.createElement('div');
         el.id = node.id;
@@ -700,9 +813,7 @@ function renderInteractiveCanvas(exercise) {
             position: absolute;
             transform: translate(-50%, -50%);
         `;
-
         let html = "";
-
         if (node.type === "entity") {
             el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
             html = `
@@ -710,7 +821,6 @@ function renderInteractiveCanvas(exercise) {
                     class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
                     onclick="fillSlot('${node.id}')" readonly>
             `;
-
         } else if (node.type === "relation") {
             el.className = "relative flex justify-center items-center z-20";
             html = `
@@ -723,7 +833,6 @@ function renderInteractiveCanvas(exercise) {
                         onclick="fillSlot('${node.id}')" readonly>
                 </div>
             `;
-
         } else if (node.type === "attribute") {
             let borderClass, inputExtra;
             if (node.isKey) {
@@ -745,7 +854,6 @@ function renderInteractiveCanvas(exercise) {
                     class="diagram-input w-11/12 h-11/12 text-[10px] text-center leading-none border-none bg-transparent ${inputExtra}"
                     onclick="fillSlot('${node.id}')" readonly>
             `;
-
         } else if (node.type === "cardinality") {
             el.className = "bg-white border-2 border-slate-600 rounded-full flex items-center justify-center shadow-md z-30 overflow-hidden";
             html = `
@@ -753,7 +861,13 @@ function renderInteractiveCanvas(exercise) {
                     class="diagram-input w-full h-full text-sm font-extrabold text-center uppercase border-none bg-transparent"
                     onclick="fillSlot('${node.id}')" readonly>
             `;
-
+        } else if (node.type === "totalidad") {
+            el.className = "bg-white border-2 border-slate-600 rounded-lg flex items-center justify-center shadow-md z-30 overflow-hidden";
+            html = `
+                <input type="text" id="input-${node.id}" placeholder="S/N" maxlength="1"
+                    class="diagram-input w-full h-full text-xs font-bold text-center uppercase border-none bg-transparent"
+                    title="Escribir S (Sí) o N (No)">
+            `;
         } else if (node.type === "isa") {
             el.className = "relative z-20 pointer-events-none";
             html = `
@@ -765,28 +879,22 @@ function renderInteractiveCanvas(exercise) {
                 </div>
             `;
         }
-
         el.innerHTML = html;
         container.appendChild(el);
     });
-
     setTimeout(drawCrispConnectors, 150);
 }
-
 // ── Pegar palabra en un slot ──────────────────────────────
 function fillSlot(nodeId) {
     if (highlightedWord === null) return;
     const inp = document.getElementById(`input-${nodeId}`);
     if (!inp) return;
-
     inp.value = highlightedWord;
     inp.classList.remove('input-correct', 'input-incorrect');
-
     highlightedWord = null;
     document.getElementById('selection-status').innerText = "";
     updateWordBankVisuals();  // Actualizar colores del bank
 }
-
 // ── Dibujar conectores con recorte a bordes de figura ────
 function drawCrispConnectors() {
     const cur    = exercises[activeExercise];
@@ -794,11 +902,9 @@ function drawCrispConnectors() {
     const canvas = document.getElementById('er-canvas');
     svg.innerHTML = "";
     const cr = canvas.getBoundingClientRect();
-
     // Mapa id → tipo de nodo
     const typeMap = {};
     cur.nodes.forEach(n => { typeMap[n.id] = n.type; });
-
     // Centro del elemento en coordenadas del canvas
     function center(el) {
         const r = el.getBoundingClientRect();
@@ -809,7 +915,6 @@ function drawCrispConnectors() {
             hh: r.height / 2
         };
     }
-
     // Punto en el borde de la figura, en dirección al objetivo
     function edgePoint(c, tx, ty, type) {
         const dx  = tx - c.x;
@@ -833,30 +938,73 @@ function drawCrispConnectors() {
         }
         return { x: c.x + ndx * t, y: c.y + ndy * t };
     }
-
     cur.connections.forEach(({ from, to }) => {
         const a = document.getElementById(from);
         const b = document.getElementById(to);
         if (!a || !b) return;
-
         const ca = center(a);
         const cb = center(b);
         const p1 = edgePoint(ca, cb.x, cb.y, typeMap[from]);
         const p2 = edgePoint(cb, ca.x, ca.y, typeMap[to]);
-
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
         line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
-
         const isAttr = typeMap[from] === 'attribute' || typeMap[to] === 'attribute';
         line.setAttribute("stroke",         isAttr ? "#10b981" : "#94a3b8");
         line.setAttribute("stroke-width",   isAttr ? "1.5"     : "2");
         line.setAttribute("stroke-linecap", "round");
-
         svg.appendChild(line);
+
+        // Dibujar círculos de totalidad solo si no hay nodos de totalidad pendientes
+        // (si hay nodos de totalidad, el estudiante debe completarlos)
+        const toNode = cur.nodes.find(n => n.id === to);
+        const fromNode = cur.nodes.find(n => n.id === from);
+
+        // Verificar si hay nodos de totalidad en este ejercicio
+        const hasTotalityNodes = cur.nodes.some(n => n.type === 'totalidad');
+
+        if (!hasTotalityNodes) {
+            // Solo dibujar círculos si NO hay nodos de totalidad para completar
+            if (toNode?.type === 'relation' && fromNode?.type !== 'relation' && toNode.totalityLeft) {
+                // Totalidad en el lado izquierdo del rombo (donde viene ent1)
+                const relEl = document.getElementById(to);
+                const rel = center(relEl);
+                const entityEl = document.getElementById(from);
+                const entity = center(entityEl);
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                // Calcular vértice basado en dirección hacia la entidad
+                const dx = entity.x - rel.x;
+                const dy = entity.y - rel.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const ndx = len > 0 ? dx / len : 1;
+                const ndy = len > 0 ? dy / len : 0;
+                circle.setAttribute("cx", rel.x + ndx * rel.hw);
+                circle.setAttribute("cy", rel.y + ndy * rel.hh);
+                circle.setAttribute("r", "3.5");
+                circle.setAttribute("fill", "#000000");
+                svg.appendChild(circle);
+            } else if (fromNode?.type === 'relation' && toNode?.type !== 'relation' && fromNode.totalityRight) {
+                // Totalidad en el lado derecho del rombo (donde va ent2)
+                const relEl = document.getElementById(from);
+                const rel = center(relEl);
+                const entityEl = document.getElementById(to);
+                const entity = center(entityEl);
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                // Calcular vértice basado en dirección hacia la entidad
+                const dx = entity.x - rel.x;
+                const dy = entity.y - rel.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const ndx = len > 0 ? dx / len : 1;
+                const ndy = len > 0 ? dy / len : 0;
+                circle.setAttribute("cx", rel.x + ndx * rel.hw);
+                circle.setAttribute("cy", rel.y + ndy * rel.hh);
+                circle.setAttribute("r", "3.5");
+                circle.setAttribute("fill", "#000000");
+                svg.appendChild(circle);
+            }
+        }
     });
 }
-
 // ── Reiniciar ────────────────────────────────────────────
 function resetExercise() {
     exercises[activeExercise].nodes.forEach(n => {
@@ -864,29 +1012,24 @@ function resetExercise() {
         if (el) { el.value = ""; el.classList.remove('input-correct', 'input-incorrect'); }
     });
     document.getElementById('feedback-alert').classList.add('hidden');
-
     const gb = document.getElementById('grade-box');
     gb.innerText = "--";
     gb.className = "text-2xl font-black text-slate-400 italic";
 }
-
 // ── Siguiente ejercicio ──────────────────────────────────
 function nextExercise() {
     loadExercise((activeExercise + 1) % exercises.length);
 }
-
 // ── Corregir ─────────────────────────────────────────────
 function checkAnswers() {
     const cur   = exercises[activeExercise];
     const total = cur.nodes.filter(n => !!n.correctValue).length;
-
     // Map: attrId → parentId (from connections where the attr is the "from" side)
     const parentMap = {};
     cur.connections.forEach(({ from, to }) => {
         const fromNode = cur.nodes.find(n => n.id === from);
         if (fromNode?.type === 'attribute') parentMap[from] = to;
     });
-
     // Group attribute nodes by parent
     const attrGroups = {};
     cur.nodes.forEach(n => {
@@ -894,7 +1037,6 @@ function checkAnswers() {
         const parent = parentMap[n.id] ?? '__orphan__';
         (attrGroups[parent] = attrGroups[parent] ?? []).push(n.id);
     });
-
     // Build correctness map:
     // - key attributes (isKey:true): exact match required
     // - non-key attributes within same parent: order-independent
@@ -903,7 +1045,6 @@ function checkAnswers() {
         // Separate key nodes from non-key nodes
         const keyIds    = nodeIds.filter(id => cur.nodes.find(n => n.id === id).isKey);
         const nonKeyIds = nodeIds.filter(id => !cur.nodes.find(n => n.id === id).isKey);
-
         // Key attrs: exact match
         keyIds.forEach(id => {
             const node = cur.nodes.find(n => n.id === id);
@@ -911,7 +1052,6 @@ function checkAnswers() {
             const val  = el ? el.value.trim().toLowerCase() : '';
             correctMap[id] = val === node.correctValue.toLowerCase();
         });
-
         // Non-key attrs: order-independent pool
         const pool = nonKeyIds.map(id => cur.nodes.find(n => n.id === id).correctValue.toLowerCase());
         nonKeyIds.forEach(id => {
@@ -922,22 +1062,26 @@ function checkAnswers() {
             else correctMap[id] = false;
         });
     });
-
     // Non-attribute nodes: exact match OR flexible entity order
     const entities = cur.nodes.filter(n => n.type === 'entity' && n.correctValue);
     cur.nodes.forEach(n => {
         if (!n.correctValue || n.type === 'attribute') return;
         const el = document.getElementById(`input-${n.id}`);
         if (!el) return;
-        correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
-    });
 
+        if (n.type === 'totalidad') {
+            // Para totalidad: acepta "S" (Sí) o "N" (No) según lo definido en correctValue
+            const val = el.value.trim().toUpperCase();
+            correctMap[n.id] = val === n.correctValue;
+        } else {
+            correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
+        }
+    });
     // Si hay exactamente 2 entidades y ambas son incorrectas, intentar intercambiar
     if (entities.length === 2) {
         const [e1, e2] = entities;
         const e1_correct = correctMap[e1.id];
         const e2_correct = correctMap[e2.id];
-
         // Si ambas son incorrectas, intenta intercambiar valores
         if (!e1_correct && !e2_correct) {
             const el1 = document.getElementById(`input-${e1.id}`);
@@ -948,7 +1092,6 @@ function checkAnswers() {
                 if (v1 === e2.correctValue.toLowerCase() && v2 === e1.correctValue.toLowerCase()) {
                     correctMap[e1.id] = true;
                     correctMap[e2.id] = true;
-
                     // Revalidar atributos con padres intercambiados
                     const allKeyValues = [];
                     Object.entries(attrGroups).forEach(([parentId, nodeIds]) => {
@@ -958,17 +1101,14 @@ function checkAnswers() {
                             if (node?.isKey) allKeyValues.push(node.correctValue.toLowerCase());
                         });
                     });
-
                     Object.entries(attrGroups).forEach(([parentId, nodeIds]) => {
                         if (parentId !== e1.id && parentId !== e2.id) return; // solo padres entidades
                         const swappedParent = parentId === e1.id ? e2.id : e1.id;
                         const swappedAttrGroup = attrGroups[swappedParent] || [];
-
                         // Mezclar los dos grupos de atributos para validación flexible
                         const allAttrNodeIds = [...nodeIds, ...swappedAttrGroup];
                         const keyIds = allAttrNodeIds.filter(id => cur.nodes.find(n => n.id === id).isKey);
                         const nonKeyIds = allAttrNodeIds.filter(id => !cur.nodes.find(n => n.id === id).isKey);
-
                         // Revalidar claves como pool combinado
                         const keyPool = [...allKeyValues];
                         keyIds.forEach(id => {
@@ -978,7 +1118,6 @@ function checkAnswers() {
                             const idx = keyPool.indexOf(val);
                             if (idx !== -1) { keyPool.splice(idx, 1); correctMap[id] = true; }
                         });
-
                         // Revalidar no-claves como pool combinado
                         const nonKeyPool = nonKeyIds.map(id => cur.nodes.find(n => n.id === id).correctValue.toLowerCase());
                         nonKeyIds.forEach(id => {
@@ -993,7 +1132,6 @@ function checkAnswers() {
             }
         }
     }
-
     // Apply styles and count
     let hits = 0;
     cur.nodes.forEach(n => {
@@ -1006,13 +1144,37 @@ function checkAnswers() {
         if (ok) hits++;
     });
 
+    // Dibujar puntos en inputs correctos
+    setTimeout(function() {
+        const svg = document.getElementById('svg-connectors');
+        if (!svg) return;
+        cur.nodes.forEach(function(node) {
+            if (node.type !== 'totalidad') return;
+            const inp = document.getElementById('input-' + node.id);
+            if (!inp) return;
+            const val = inp.value.trim().toUpperCase();
+            if (val === node.correctValue) {
+                const rect = inp.getBoundingClientRect();
+                const svgRect = svg.getBoundingClientRect();
+                const x = rect.left - svgRect.left + rect.width / 2;
+                const y = rect.top - svgRect.top + rect.height / 2;
+                const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                c.setAttribute("cx", x);
+                c.setAttribute("cy", y);
+                c.setAttribute("r", "5");
+                c.setAttribute("fill", "black");
+                svg.appendChild(c);
+            }
+        });
+    }, 50);
+
+    drawCrispConnectors();
     // Calificación /10
     const grade     = Math.round((hits / total) * 10);
     const approved  = grade >= 6;
     const gb        = document.getElementById('grade-box');
     gb.innerText    = `${grade}/10`;
     gb.className    = `text-2xl font-black italic ${approved ? 'text-emerald-500' : 'text-rose-500'}`;
-
     // Feedback en pantalla
     const fb  = document.getElementById('feedback-alert');
     fb.classList.remove(
@@ -1020,12 +1182,10 @@ function checkAnswers() {
         'bg-emerald-950','text-emerald-300','border-emerald-700',
         'bg-amber-950', 'text-amber-300', 'border-amber-700'
     );
-
     const pct = Math.round((hits / total) * 100);
     const msg = hits === total
         ? `🎉 ¡Perfecto! Completaste el modelo E-R de <strong>"${cur.title}"</strong> — ${grade}/10`
         : `👀 <strong>${hits} de ${total}</strong> correctas (${pct}%) — Calificación: <strong>${grade}/10</strong>. Revisá las marcas rojas.`;
-
     fb.classList.add(
         ...(hits === total
             ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
@@ -1033,7 +1193,6 @@ function checkAnswers() {
     );
     fb.innerHTML = `<span class="text-sm">${msg}</span>`;
     requestAnimationFrame(drawCrispConnectors);
-
     if (evalMode) {
         const btn = document.querySelector('button[onclick="checkAnswers()"]');
         if (btn) {
@@ -1043,12 +1202,10 @@ function checkAnswers() {
         }
     }
 }
-
 // ── Guardar diagrama como PNG ────────────────────────────
 async function saveAsPNG() {
     const btn = document.getElementById('png-btn');
     const canvasEl = document.getElementById('er-canvas');
-
     // Avisar si el contenido está cortado
     if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
         const ok = confirm(
@@ -1060,23 +1217,18 @@ async function saveAsPNG() {
         );
         if (!ok) return;
     }
-
     if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
     canvasEl.scrollLeft = 0;
     canvasEl.scrollTop  = 0;
-
     const canvasRect = canvasEl.getBoundingClientRect();
     const overlays   = [];
-
     // html2canvas no lee texto de <input> → creamos divs temporales encima
     canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
         inp.style.opacity = '0';
         if (!inp.value) return;
-
         const nodeId = inp.id.replace('input-', '');
         const nodeEl = document.getElementById(nodeId) || inp.parentElement;
         const r      = nodeEl.getBoundingClientRect();
-
         const div = document.createElement('div');
         div.style.cssText = `
             position:absolute;
@@ -1097,9 +1249,7 @@ async function saveAsPNG() {
         canvasEl.appendChild(div);
         overlays.push(div);
     });
-
     await new Promise(r => requestAnimationFrame(r));
-
     try {
         const shot = await html2canvas(canvasEl, {
             scale: 2,
@@ -1107,13 +1257,11 @@ async function saveAsPNG() {
             logging: false,
             backgroundColor: '#f8fafc'
         });
-
         const link = document.createElement('a');
         const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_');
         link.download = `ER_${nombre}.png`;
         link.href = shot.toDataURL('image/png');
         link.click();
-
     } catch (err) {
         console.error('PNG error:', err);
         alert('No se pudo generar la imagen. Intentá nuevamente.');
@@ -1123,7 +1271,6 @@ async function saveAsPNG() {
         if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
     }
 }
-
 // ── Modo ejercitación / evaluación ───────────────────
 // Activado via ?ex=1 en la URL (no visible para estudiantes).
 // Se persiste en sessionStorage para sobrevivir un F5 sin el param.
@@ -1134,7 +1281,6 @@ function _initMode() {
     }
     evalMode = sessionStorage.getItem('ermode') === 'eval';
 }
-
 // ── Stage navigation ─────────────────────────────────
 function setStage(stage) {
     ['analyze', 'diagram', 'tables'].forEach(s => {
@@ -1146,7 +1292,6 @@ function setStage(stage) {
     hidePopup();
     if (stage === 'diagram') requestAnimationFrame(drawCrispConnectors);
 }
-
 // ── Render analysis panel ─────────────────────────────
 function renderAnalysisPanel(exerciseIndex) {
     wordClassifications = {};
@@ -1156,7 +1301,6 @@ function renderAnalysisPanel(exerciseIndex) {
     wordCompounds = {};
     selectedComponents = new Set();
     activeWordIdx = null;
-
     const btn = document.getElementById('btn-go-diagram');
     if (btn) {
         btn.disabled = false;
@@ -1172,9 +1316,7 @@ function renderAnalysisPanel(exerciseIndex) {
         vbtn.textContent = '📝 Validar clasificación';
     }
     document.getElementById('analyze-feedback').classList.add('hidden');
-
     const segments = analyzeData[exerciseIndex];
-
     // Texto completamente limpio (sin resaltados)
     const textContainer = document.getElementById('analyze-text');
     textContainer.innerHTML = '';
@@ -1187,7 +1329,6 @@ function renderAnalysisPanel(exerciseIndex) {
     segments.forEach(seg => {
         textContainer.appendChild(document.createTextNode(typeof seg === 'string' ? seg : seg.word));
     });
-
     // Fichas en el panel lateral
     const pool = document.getElementById('terms-pool');
     pool.innerHTML = '';
@@ -1201,10 +1342,8 @@ function renderAnalysisPanel(exerciseIndex) {
         chip.onclick = (e) => { e.stopPropagation(); showPopup(chip, idx); };
         pool.appendChild(chip);
     });
-
     updateClassificationPanels();
 }
-
 // ── Word popup ────────────────────────────────────────
 function showPopup(chipEl, wordIdx) {
     activeWordIdx = wordIdx;
@@ -1214,7 +1353,6 @@ function showPopup(chipEl, wordIdx) {
     popup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 260) + 'px';
     popup.classList.remove('hidden');
 }
-
 function hidePopup() {
     const p = document.getElementById('word-popup');
     if (p) {
@@ -1226,11 +1364,9 @@ function hidePopup() {
     activeWordIdx = null;
     selectedComponents = new Set();
 }
-
 function classifyWord(type) {
     if (activeWordIdx === null) return;
     wordClassifications[activeWordIdx] = type;
-
     if (type === 'atributo') { _showSubtypePopup('atributo'); return; }
     if (type === 'entidad')  { _showSubtypePopup('entidad');  return; }
     // relacion: clasificación directa
@@ -1240,10 +1376,8 @@ function classifyWord(type) {
     hidePopup();
     updateClassificationPanels();
 }
-
 function _showSubtypePopup(mainType) {
     wordClassifications[activeWordIdx] = mainType;
-
     // Si el ejercicio no requiere subtipos de atributo, clasificar directo
     if (mainType === 'atributo' && !analyzeConfig[activeExercise]?.requireSubtypes) {
         updateChipStyle(activeWordIdx);
@@ -1251,7 +1385,6 @@ function _showSubtypePopup(mainType) {
         updateClassificationPanels();
         return;
     }
-
     // Calcular qué subtipos existen en este ejercicio
     const segments = analyzeData[activeExercise] || [];
     const existing = new Set();
@@ -1262,7 +1395,6 @@ function _showSubtypePopup(mainType) {
             if (sub) existing.add(sub);
         }
     });
-
     // Entidad: si solo existe "fuerte", clasificar directo sin preguntar
     if (mainType === 'entidad') {
         const entOpts = [['fuerte','Fuerte'],['débil','Débil']].filter(([v]) => existing.has(v));
@@ -1277,7 +1409,6 @@ function _showSubtypePopup(mainType) {
         _renderStep2(mainType, entOpts);
         return;
     }
-
     // Atributo → siempre mostrar paso 2 con las opciones del ejercicio
     const attrOpts = [
         ['simple','Simple'], ['clave','Clave'], ['relacion','De relación'],
@@ -1285,7 +1416,6 @@ function _showSubtypePopup(mainType) {
     ].filter(([v]) => existing.has(v));
     _renderStep2(mainType, attrOpts);
 }
-
 function _renderStep2(mainType, opts) {
     document.getElementById('popup-step1').style.display = 'none';
     const step2 = document.getElementById('popup-step2');
@@ -1301,13 +1431,11 @@ function _renderStep2(mainType, opts) {
         `<button onclick="classifySubtype('${val}')" class="${btnClass} ${color}">${label}</button>`
     ).join('');
 }
-
 function classifySubtype(subtype) {
     if (activeWordIdx === null) return;
     const mainType = wordClassifications[activeWordIdx];
     if (mainType === 'atributo') wordAttrTypes[activeWordIdx]   = subtype;
     if (mainType === 'entidad')  wordEntityTypes[activeWordIdx] = subtype;
-
     if (mainType === 'atributo' && subtype === 'compuesto') {
         _showCompoundStep(); return;
     }
@@ -1315,7 +1443,6 @@ function classifySubtype(subtype) {
     hidePopup();
     updateClassificationPanels();
 }
-
 function _showCompoundStep() {
     document.getElementById('popup-step2').style.display = 'none';
     const step3 = document.getElementById('popup-step3');
@@ -1331,7 +1458,6 @@ function _showCompoundStep() {
         `<button onclick="toggleComponent(this,'${w}')" class="${btnCls}" data-word="${w}">${w}</button>`
     ).join('');
 }
-
 function toggleComponent(btn, word) {
     if (selectedComponents.has(word)) {
         selectedComponents.delete(word);
@@ -1341,19 +1467,15 @@ function toggleComponent(btn, word) {
         btn.className = 'comp-btn px-2 py-1 text-[10px] font-bold rounded-lg transition border border-emerald-500 bg-emerald-500/20 text-emerald-300';
     }
 }
-
 function confirmCompoundComponents() {
     if (activeWordIdx === null) return;
     wordCompounds[activeWordIdx] = [...selectedComponents];
     updateChipStyle(activeWordIdx);
-
     // Gregor visualmente los chips que son componentes
     _refreshComponentChips();
-
     hidePopup();
     updateClassificationPanels();
 }
-
 // Pone en gris los chips que ya fueron identificados como parte de un compuesto
 function _refreshComponentChips() {
     const componentWords = _getComponentWords();
@@ -1371,13 +1493,11 @@ function _refreshComponentChips() {
         }
     });
 }
-
 function _getComponentWords() {
     const s = new Set();
     Object.values(wordCompounds).forEach(comps => comps.forEach(w => s.add(w)));
     return s;
 }
-
 function updateChipStyle(idx) {
     const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
     if (!chip) return;
@@ -1412,7 +1532,6 @@ function updateChipStyle(idx) {
         }
     }
 }
-
 function updateClassificationPanels() {
     const segments = analyzeData[activeExercise] || [];
     const componentWords = _getComponentWords();
@@ -1441,7 +1560,6 @@ function updateClassificationPanels() {
         ).join('');
     });
 }
-
 function _resetCorregirBtn() {
     const btn = document.querySelector('button[onclick="checkAnswers()"]');
     if (btn) {
@@ -1450,7 +1568,6 @@ function _resetCorregirBtn() {
         btn.textContent = '📝 Corregir Diagrama';
     }
 }
-
 function validateAnalysis() {
     const segments = analyzeData[activeExercise] || [];
     const componentWords = _getComponentWords();
@@ -1463,7 +1580,6 @@ function validateAnalysis() {
         if (!chip) return;
         const userType    = wordClassifications[idx];
         const userAttrSub = wordAttrTypes[idx];
-
         let correct = false;
         if (userType === seg.type) {
             if (seg.type === 'atributo' && seg.attrType && analyzeConfig[activeExercise]?.requireSubtypes) {
@@ -1482,7 +1598,6 @@ function validateAnalysis() {
                 correct = true;
             }
         }
-
         const word = chip.dataset.word || chip.textContent;
         if (!userType) {
             chip.className = 'term-chip px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-600 bg-slate-700/30 text-slate-500';
@@ -1512,7 +1627,6 @@ function validateAnalysis() {
         ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
         : ['bg-amber-950','text-amber-300','border-amber-700']));
     fb.innerHTML = `<span class="text-sm">${msg}</span>`;
-
     // Rastrear intentos y comparar progreso
     analysisAttempts++;
     _saveScore(activeExercise, hits, total);
@@ -1524,96 +1638,19 @@ function validateAnalysis() {
     }
     // Mostrar "Ver respuestas" después de 2 intentos fallidos
     if (!evalMode && analysisAttempts >= 2 && hits < total) {
-        fb.innerHTML += `<button onclick="_revealCorrectAnswers()" class="mt-2 w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl text-xs transition">💡 Ver respuestas correctas</button>`;
-    }
-
     const goBtn = document.getElementById('btn-go-diagram');
     const vbtn  = document.getElementById('btn-validate-analysis');
-
     const tabDiagram = document.getElementById('tab-diagram');
     if (evalMode) {
         vbtn.disabled = true;
         vbtn.className = 'py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
         vbtn.textContent = '✓ Clasificación registrada';
-        goBtn.disabled = false;
-        goBtn.className = 'py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition';
-        goBtn.textContent = 'Ir al Diseño E-R →';
-        if (tabDiagram) tabDiagram.disabled = false;
+        goBtn.disabled = true;
+        goBtn.className = 'py-3 bg-sky-600/50 text-sky-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition border border-sky-600 cursor-not-allowed';
     } else {
-        if (hits / total >= 0.5) {
-            goBtn.disabled = false;
-            goBtn.className = 'py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition';
-            goBtn.textContent = 'Ir al Diseño E-R →';
-            if (tabDiagram) tabDiagram.disabled = false;
-        } else {
-            goBtn.disabled = true;
-            goBtn.className = 'py-3 bg-slate-700/50 text-slate-500 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
-            goBtn.textContent = '🔒 Necesitás al menos el 50% — intentá de nuevo';
-            if (tabDiagram) tabDiagram.disabled = true;
-        }
+        goBtn.textContent = '✓ Siguiente: Diseño E-R';
+        goBtn.classList.remove('hidden');
     }
 }
-
-// ── Score tracking ────────────────────────────────────────
-function _saveScore(exerciseIdx, hits, total) {
-    const key = `ert_s_${exerciseIdx}`;
-    const arr = JSON.parse(localStorage.getItem(key) || '[]');
-    arr.push({ hits, total, date: new Date().toLocaleDateString('es-UY') });
-    localStorage.setItem(key, JSON.stringify(arr.slice(-10)));
 }
-function _getPrevScore(exerciseIdx) {
-    const key = `ert_s_${exerciseIdx}`;
-    const arr = JSON.parse(localStorage.getItem(key) || '[]');
-    return arr.length >= 2 ? arr[arr.length - 2] : null;
-}
-
-// ── Revelar respuestas correctas ──────────────────────────
-function _revealCorrectAnswers() {
-    const segments = analyzeData[activeExercise] || [];
-    const componentWords = _getComponentWords();
-    segments.forEach((seg, idx) => {
-        if (typeof seg === 'string') return;
-        if (componentWords.has(seg.word)) return;
-        const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
-        if (!chip) return;
-        const word = chip.dataset.word || seg.word;
-        const label = seg.type === 'entidad'  ? (seg.entityType || 'entidad') :
-                      seg.type === 'atributo' ? (analyzeConfig[activeExercise]?.requireSubtypes ? (seg.attrType || 'atributo') : 'atributo') :
-                      'relación';
-        chip.className = 'term-chip px-2.5 py-1 rounded-lg text-xs font-bold border-2 border-indigo-400 bg-indigo-500/20 text-indigo-200 flex flex-col items-center leading-tight';
-        chip.innerHTML = `${word}<span class="text-[9px] font-extrabold text-indigo-300/80 uppercase tracking-wide">${label}</span>`;
-    });
-}
-
-// ── Glosario ──────────────────────────────────────────────
-function showGlossary() { document.getElementById('glossary-modal').classList.remove('hidden'); }
-function closeGlossary() { document.getElementById('glossary-modal').classList.add('hidden'); }
-function showConcepts() { document.getElementById('concepts-modal').classList.remove('hidden'); }
-function closeConcepts() { document.getElementById('concepts-modal').classList.add('hidden'); }
-
-// ── Tutorial ──────────────────────────────────────────────
-let _tutorialStep = 0;
-function showTutorial() {
-    _tutorialStep = 0;
-    _renderTutorialStep();
-    document.getElementById('tutorial-modal').classList.remove('hidden');
-}
-function closeTutorial() {
-    document.getElementById('tutorial-modal').classList.add('hidden');
-    localStorage.setItem('ert_tutorial_seen', '1');
-}
-function nextTutorialStep() {
-    const steps = document.querySelectorAll('.tutorial-step');
-    if (_tutorialStep >= steps.length - 1) { closeTutorial(); return; }
-    _tutorialStep++;
-    _renderTutorialStep();
-}
-function _renderTutorialStep() {
-    const steps = document.querySelectorAll('.tutorial-step');
-    const dots  = document.querySelectorAll('[data-dot]');
-    steps.forEach((s, i) => s.classList.toggle('hidden', i !== _tutorialStep));
-    dots.forEach((d, i)  => d.className = `w-2 h-2 rounded-full ${i === _tutorialStep ? 'bg-indigo-500' : 'bg-slate-600'}`);
-    const btn = document.getElementById('tutorial-next-btn');
-    btn.textContent = _tutorialStep === steps.length - 1 ? '¡Comenzar! 🚀' : 'Siguiente →';
-}
-
+}}

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>DB-Lab — Entrenador Conceptual</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -69,6 +72,9 @@
                         <option value="4">🎬 Plataforma Streaming</option>
                         <option value="5">🏥 Sistema Hospitalario</option>
                         <option value="6">🏫 Institución educativa</option>
+                        <option value="7">🏫 Colegio</option>
+                        <option value="8">📚 Biblioteca (Prueba: Débil+Totalidad)</option>
+                        <option value="9">👔 Empleados (Prueba: Autorelación)</option>
                         <!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
                     </select>
                 </div>
@@ -138,6 +144,9 @@
                     <option value="4">🎬 Plataforma Streaming</option>
                     <option value="5">🏥 Sistema Hospitalario</option>
                     <option value="6">🏫 Institución educativa</option>
+                    <option value="7">🏫 Colegio</option>
+                    <option value="8">📚 Biblioteca (Prueba: Débil+Totalidad)</option>
+                    <option value="9">👔 Empleados (Prueba: Autorelación)</option>
                 </select>
             </div>
 
@@ -164,6 +173,17 @@
                 <div id="hint-box"
                     class="hidden text-xs bg-amber-950/40 text-amber-300 border border-amber-800/50 p-3 rounded-xl leading-relaxed">
                 </div>
+            </div>
+
+            <!-- Instrucciones de totalidad -->
+            <div id="totalidad-instructions" class="hidden bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-md flex flex-col gap-2">
+                <p class="text-[10px] font-extrabold text-violet-400 uppercase tracking-widest">📌 Totalidad (Participación)</p>
+                <p class="text-xs text-slate-300 leading-relaxed">En los vértices de los rombos (relaciones), completá con:</p>
+                <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+                    <li><strong>S</strong> = Sí, hay participación total</li>
+                    <li><strong>N</strong> = No, participación parcial</li>
+                </ul>
+                <p class="text-xs text-slate-400 italic mt-1">Analiza el enunciado para identificar dónde.</p>
             </div>
 
             <!-- Botones de acción -->
@@ -328,7 +348,7 @@
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT (importado desde script.js) -->
-    <script src="script.js"></script>
+    <script src="script.js?t=1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->

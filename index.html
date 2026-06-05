@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>DB-Lab — UTU 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -54,49 +57,33 @@
         <div class="w-full max-w-4xl space-y-8">
 
             <!-- 1. ENTIDADES, ATRIBUTOS Y RELACIONES -->
-            <section class="fade-up delay-2">
+            <section class="fade-up delay-2" data-concept="relaciones_simples">
                 <h2 class="text-2xl font-extrabold text-sky-400 mb-4">Entidades, atributos y relaciones</h2>
                 <p class="text-slate-400 text-sm mb-3">Fundamentos: identificar entidades, atributos y modelar relaciones simples.</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="er-designer.html?ejercicio=2" class="px-4 py-3 bg-sky-600/20 border border-sky-500/40 hover:bg-sky-600/40 hover:border-sky-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🛒</span> Tienda Online
-                    </a>
-                    <a href="er-designer.html?ejercicio=5" class="px-4 py-3 bg-sky-600/20 border border-sky-500/40 hover:bg-sky-600/40 hover:border-sky-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🏥</span> Hospital
-                    </a>
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
             <!-- 2. ATRIBUTOS ESPECIALES -->
-            <section class="fade-up delay-2">
+            <section class="fade-up delay-2" data-concept="atributos_especiales">
                 <h2 class="text-2xl font-extrabold text-teal-400 mb-4">Atributos especiales</h2>
                 <p class="text-slate-400 text-sm mb-3">Compuesto, multivaluado, derivado y de relación.</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="er-designer.html?ejercicio=0" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 hover:border-teal-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🔧</span> Taller Mecánico
-                    </a>
-                    <a href="er-designer.html?ejercicio=1" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 hover:border-teal-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>📚</span> Biblioteca Escolar
-                    </a>
-                    <a href="er-designer.html?ejercicio=4" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 hover:border-teal-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🎬</span> Plataforma Streaming
-                    </a>
-                    <a href="er-designer.html?ejercicio=6" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 hover:border-teal-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🏫</span> Institución educativa
-                    </a>
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
             <!-- 3. TOTALIDAD / PARTICIPACIÓN -->
-            <section class="fade-up delay-3">
+            <section class="fade-up delay-3" data-concept="participacion">
                 <h2 class="text-2xl font-extrabold text-violet-400 mb-4">Totalidad (participación)</h2>
                 <p class="text-slate-400 text-sm mb-3">Participación total y parcial en relaciones.</p>
-                <div class="px-4 py-3 bg-slate-700/40 border border-slate-600/50 rounded-xl text-sm font-semibold text-slate-400 flex items-center gap-2.5">
-                    <span>🔒</span> Ejercicio pendiente
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
-            <!-- 4. ENTIDADES DÉBILES -->
+            <!-- 5. ENTIDADES DÉBILES -->
             <section class="fade-up delay-3">
                 <h2 class="text-2xl font-extrabold text-slate-400 mb-4">Entidades débiles</h2>
                 <p class="text-slate-400 text-sm mb-3">Entidades que dependen de otras para su identificación.</p>
@@ -106,22 +93,20 @@
             </section>
 
             <!-- 5. AUTORELACIÓN -->
-            <section class="fade-up delay-3">
+            <section class="fade-up delay-3" data-concept="autorelacion">
                 <h2 class="text-2xl font-extrabold text-cyan-400 mb-4">Autorelación</h2>
                 <p class="text-slate-400 text-sm mb-3">Relación de una entidad consigo misma.</p>
-                <div class="px-4 py-3 bg-slate-700/40 border border-slate-600/50 rounded-xl text-sm font-semibold text-slate-400 flex items-center gap-2.5">
-                    <span>🔒</span> Ejercicio pendiente
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
             <!-- 6. GENERALIZACIÓN / ISA -->
-            <section class="fade-up delay-3">
+            <section class="fade-up delay-3" data-concept="generalizacion">
                 <h2 class="text-2xl font-extrabold text-purple-400 mb-4">Generalización/Categorización (ISA)</h2>
                 <p class="text-slate-400 text-sm mb-3">Especialización y entidades heredadas.</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="er-designer.html?ejercicio=3" class="px-4 py-3 bg-purple-600/20 border border-purple-500/40 hover:bg-purple-600/40 hover:border-purple-500/80 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-                        <span>🌐</span> Red Social
-                    </a>
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
@@ -174,6 +159,62 @@
            class="underline hover:text-slate-200 transition">Licencia CC BY-SA</a>
     </footer>
 
+    <script src="script.js"></script>
+    <script>
+        // Generar botones de ejercicios dinámicamente desde el array exercises
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof exercises === 'undefined') return;
+
+            const sections = {
+                'relaciones_simples': { container: null, color: 'sky', concept: 'relaciones_simples' },
+                'atributos_especiales': { container: null, color: 'teal', concept: 'atributos_especiales' },
+                'participacion': { container: null, color: 'violet', concept: 'participacion' },
+                'autorelacion': { container: null, color: 'cyan', concept: 'autorelacion' },
+                'generalizacion': { container: null, color: 'purple', concept: 'generalizacion' }
+            };
+
+            // Encontrar/crear contenedores para cada sección
+            Object.keys(sections).forEach(concept => {
+                const section = document.querySelector(`[data-concept="${concept}"]`);
+                if (section) {
+                    sections[concept].container = section.querySelector('.grid') || section;
+                }
+            });
+
+            // Generar botones para cada ejercicio
+            const colorMap = {
+                'sky': { bg: 'rgb(2, 132, 199, 0.2)', border: 'rgb(2, 132, 199, 0.4)' },
+                'teal': { bg: 'rgb(13, 148, 136, 0.2)', border: 'rgb(13, 148, 136, 0.4)' },
+                'indigo': { bg: 'rgb(79, 70, 229, 0.2)', border: 'rgb(79, 70, 229, 0.4)' },
+                'violet': { bg: 'rgb(139, 92, 246, 0.2)', border: 'rgb(139, 92, 246, 0.4)' },
+                'cyan': { bg: 'rgb(6, 182, 212, 0.2)', border: 'rgb(6, 182, 212, 0.4)' },
+                'purple': { bg: 'rgb(168, 85, 247, 0.2)', border: 'rgb(168, 85, 247, 0.4)' },
+                'amber': { bg: 'rgb(217, 119, 6, 0.2)', border: 'rgb(217, 119, 6, 0.4)' }
+            };
+
+            exercises.forEach((exercise, idx) => {
+                if (!exercise.enabled || !exercise.concept) return;
+
+                const section = sections[exercise.concept];
+                if (!section || !section.container) return;
+
+                const btn = document.createElement('a');
+                btn.href = `er-designer.html?ejercicio=${idx}`;
+                const colors = colorMap[section.color];
+                btn.className = 'px-4 py-3 border rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5 hover:opacity-80';
+                btn.style.backgroundColor = colors.bg;
+                btn.style.borderColor = colors.border;
+
+                // Extraer emoji del título si existe
+                const emojiMatch = exercise.title.match(/^([\p{Emoji}]+)\s/u);
+                const emoji = emojiMatch ? emojiMatch[1] : '📝';
+                const title = exercise.title.replace(/^[\p{Emoji}]+\s/u, '');
+
+                btn.innerHTML = `<span>${emoji}</span> ${title}`;
+                section.container.appendChild(btn);
+            });
+        });
+    </script>
 
 </body>
 </html>

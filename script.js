@@ -1143,31 +1143,6 @@ function checkAnswers() {
         el.classList.toggle('input-incorrect', !ok);
         if (ok) hits++;
     });
-
-    // Dibujar puntos en inputs correctos
-    setTimeout(function() {
-        const svg = document.getElementById('svg-connectors');
-        if (!svg) return;
-        cur.nodes.forEach(function(node) {
-            if (node.type !== 'totalidad') return;
-            const inp = document.getElementById('input-' + node.id);
-            if (!inp) return;
-            const val = inp.value.trim().toUpperCase();
-            if (val === node.correctValue) {
-                const rect = inp.getBoundingClientRect();
-                const svgRect = svg.getBoundingClientRect();
-                const x = rect.left - svgRect.left + rect.width / 2;
-                const y = rect.top - svgRect.top + rect.height / 2;
-                const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                c.setAttribute("cx", x);
-                c.setAttribute("cy", y);
-                c.setAttribute("r", "5");
-                c.setAttribute("fill", "black");
-                svg.appendChild(c);
-            }
-        });
-    }, 50);
-
     drawCrispConnectors();
     // Calificación /10
     const grade     = Math.round((hits / total) * 10);
@@ -1653,4 +1628,3 @@ function validateAnalysis() {
     }
 }
 }
-}}

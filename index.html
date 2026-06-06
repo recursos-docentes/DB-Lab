@@ -84,11 +84,11 @@
             </section>
 
             <!-- 5. ENTIDADES DÉBILES -->
-            <section class="fade-up delay-3">
-                <h2 class="text-2xl font-extrabold text-slate-400 mb-4">Entidades débiles</h2>
+            <section class="fade-up delay-3" data-concept="entidad_debil">
+                <h2 class="text-2xl font-extrabold text-orange-400 mb-4">Entidades débiles</h2>
                 <p class="text-slate-400 text-sm mb-3">Entidades que dependen de otras para su identificación.</p>
-                <div class="px-4 py-3 bg-slate-700/40 border border-slate-600/50 rounded-xl text-sm font-semibold text-slate-400 flex items-center gap-2.5">
-                    <span>🔒</span> Ejercicio pendiente
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
@@ -170,7 +170,8 @@
                 'atributos_especiales': { container: null, color: 'teal', concept: 'atributos_especiales' },
                 'participacion': { container: null, color: 'violet', concept: 'participacion' },
                 'autorelacion': { container: null, color: 'cyan', concept: 'autorelacion' },
-                'generalizacion': { container: null, color: 'purple', concept: 'generalizacion' }
+                'generalizacion': { container: null, color: 'purple', concept: 'generalizacion' },
+                'entidad_debil': { container: null, color: 'amber', concept: 'entidad_debil' }
             };
 
             // Encontrar/crear contenedores para cada sección

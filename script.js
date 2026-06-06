@@ -426,7 +426,98 @@ const exercises = [
     concept: "participacion",
     availableFor: ["class", "home", "eval"],
     enabled: true
+},
+
+// EJER 9- Peliculas
+
+{
+    title: "Película",
+    description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br><br>• De cada CLIENTE se guarda CédulaC, NombreC, Dirección, Teléfono.<br>• De cada EJEMPLAR! se guarda Número, Estado.<br>• De cada PELICULA se guarda Título, Productora, Fecha, NacionalidadP.<br>• De cada DIRECTOR se guarda CédulaD, NombreD, NacionalidadD.<br>• De cada ACTOR se guarda CédulaA, Principal, Sexo, NacionalidadA, NombreA.<br><br>• CLIENTE puede alquila muchas EJEMPLAR y un EJEMPLAR puede ser alquilado por muchos CLIENTES<br>• PELICULA puede tener muchos EJEMPLARES pero un EJEMPLAR solo es de una PELICULA<br>• ACTOR puede participar en  muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES<br>• DIRECTOR puede dirigir una PELICULA y una PELICULA solo es dirigida por un DIRECTOR<br>`,
+    hint: "",
+    wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
+               "EJEMPLAR", "Número", "Estado",
+               "PELICULA", "Título", "Productora", "Fecha", "NacionalidadP",
+               "DIRECTOR", "CédulaD", "NombreD", "NacionalidadD",
+               "ACTOR", "CédulaA", "Principal", "Sexo", "NacionalidadA", "NombreA",
+               "alquila", "FechaComienzo", "FechaDevolución", "N", "N",
+               "tiene", "1", "N",
+               "participa", "N", "N",
+               "dirige", "N", "1"],
+    nodes: [
+        { id: "e_0", type: "entity", correctValue: "CLIENTE", x: 18, y: 50, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "CédulaC", x: 18, y: 22, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "NombreC", x: 8, y: 72, w: 92, h: 40 },
+        { id: "a_2", type: "attribute", correctValue: "Dirección", x: 18, y: 72, w: 92, h: 40 },
+        { id: "a_3", type: "attribute", correctValue: "Teléfono", x: 28, y: 72, w: 92, h: 40 },
+        { id: "e_1", type: "entity", isWeak: true, correctValue: "EJEMPLAR", x: 34, y: 50, w: 110, h: 52 },
+        { id: "a_4", type: "attribute", isKey: true, isDashed: true, correctValue: "Número", x: 34, y: 22, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", correctValue: "Estado", x: 24, y: 72, w: 92, h: 40 },
+        { id: "e_2", type: "entity", correctValue: "PELICULA", x: 50, y: 50, w: 110, h: 52 },
+        { id: "a_6", type: "attribute", isKey: true, correctValue: "Título", x: 50, y: 22, w: 92, h: 40 },
+        { id: "a_7", type: "attribute", correctValue: "Productora", x: 40, y: 72, w: 92, h: 40 },
+        { id: "a_8", type: "attribute", correctValue: "Fecha", x: 50, y: 72, w: 92, h: 40 },
+        { id: "a_9", type: "attribute", correctValue: "NacionalidadP", x: 60, y: 72, w: 92, h: 40 },
+        { id: "e_3", type: "entity", correctValue: "DIRECTOR", x: 66, y: 50, w: 110, h: 52 },
+        { id: "a_10", type: "attribute", isKey: true, correctValue: "CédulaD", x: 66, y: 22, w: 92, h: 40 },
+        { id: "a_11", type: "attribute", correctValue: "NombreD", x: 56, y: 72, w: 92, h: 40 },
+        { id: "a_12", type: "attribute", correctValue: "NacionalidadD", x: 66, y: 72, w: 92, h: 40 },
+        { id: "e_4", type: "entity", correctValue: "ACTOR", x: 82, y: 50, w: 110, h: 52 },
+        { id: "a_13", type: "attribute", isKey: true, correctValue: "CédulaA", x: 82, y: 22, w: 92, h: 40 },
+        { id: "a_14", type: "attribute", correctValue: "Principal", x: 72, y: 22, w: 92, h: 40 },
+        { id: "a_15", type: "attribute", correctValue: "Sexo", x: 82, y: 22, w: 92, h: 40 },
+        { id: "a_16", type: "attribute", correctValue: "NacionalidadA", x: 92, y: 22, w: 92, h: 40 },
+        { id: "a_17", type: "attribute", correctValue: "NombreA", x: 72, y: 72, w: 92, h: 40 },
+        { id: "r_0", type: "relation",                          correctValue: "alquila",   x: 20, y: 50, w: 80, h: 80 },
+        { id: "c_0_l", type: "cardinality", correctValue: "N", x: 14, y: 50, w: 30, h: 30 },
+        { id: "c_0_r", type: "cardinality", correctValue: "N", x: 26, y: 50, w: 30, h: 30 },
+        { id: "a_18", type: "attribute", correctValue: "FechaComienzo",   x: 15, y: 72, w: 100, h: 40 },
+        { id: "a_19", type: "attribute", correctValue: "FechaDevolución", x: 25, y: 72, w: 100, h: 40 },
+        { id: "r_1", type: "relation", isDoubleRelation: true, correctValue: "tiene",     x: 40, y: 50, w: 80, h: 80 },
+        { id: "c_1_l", type: "cardinality", correctValue: "1", x: 34, y: 50, w: 30, h: 30 },
+        { id: "c_1_r", type: "cardinality", correctValue: "N", x: 46, y: 50, w: 30, h: 30 },
+        { id: "r_2", type: "relation",                          correctValue: "participa", x: 70, y: 50, w: 80, h: 80 },
+        { id: "c_2_l", type: "cardinality", correctValue: "N", x: 63, y: 50, w: 30, h: 30 },
+        { id: "c_2_r", type: "cardinality", correctValue: "N", x: 77, y: 50, w: 30, h: 30 },
+        { id: "r_3", type: "relation",                          correctValue: "dirige",    x: 80, y: 50, w: 80, h: 80 },
+        { id: "c_3_l", type: "cardinality", correctValue: "N", x: 74, y: 50, w: 30, h: 30 },
+        { id: "c_3_r", type: "cardinality", correctValue: "1", x: 86, y: 50, w: 30, h: 30 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_0" },
+        { from: "a_3", to: "e_0" },
+        { from: "a_4", to: "e_1" },
+        { from: "a_5", to: "e_1" },
+        { from: "a_6", to: "e_2" },
+        { from: "a_7", to: "e_2" },
+        { from: "a_8", to: "e_2" },
+        { from: "a_9", to: "e_2" },
+        { from: "a_10", to: "e_3" },
+        { from: "a_11", to: "e_3" },
+        { from: "a_12", to: "e_3" },
+        { from: "a_13", to: "e_4" },
+        { from: "a_14", to: "e_4" },
+        { from: "a_15", to: "e_4" },
+        { from: "a_16", to: "e_4" },
+        { from: "a_17", to: "e_4" },
+        { from: "e_0",  to: "r_0" }, { from: "r_0",  to: "e_1" },
+        { from: "c_0_l", to: "r_0" }, { from: "c_0_r", to: "r_0" },
+        { from: "a_18", to: "r_0" }, { from: "a_19", to: "r_0" },
+        { from: "e_2",  to: "r_1" }, { from: "r_1",  to: "e_1" },
+        { from: "c_1_l", to: "r_1" }, { from: "c_1_r", to: "r_1" },
+        { from: "e_4",  to: "r_2" }, { from: "r_2",  to: "e_2" },
+        { from: "c_2_l", to: "r_2" }, { from: "c_2_r", to: "r_2" },
+        { from: "e_3",  to: "r_3" }, { from: "r_3",  to: "e_2" },
+        { from: "c_3_l", to: "r_3" }, { from: "c_3_r", to: "r_3" }
+    ],
+    // METADATOS
+    concept: "entidad_debil",  // aparece en sección Entidades débiles de index.html
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
+
+//10   x
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
@@ -593,8 +684,75 @@ const analyzeData = [
     "• PROFESOR puede ",
     {word:"publicar",type:"relacion"},
     " un LIBRO.\n"
+],
+     //9--Peliculas
+[
+    "Representar la siguiente realidad a través de un diagrama entidad relación. \n\n",
+    "• De cada ",
+    {word:"CLIENTE",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"CédulaC",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"NombreC",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Dirección",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Teléfono",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• De cada ",
+    {word:"EJEMPLAR",type:"entidad",entityType:"débil"},
+    " se guarda ",
+    {word:"Número",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"Estado",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• De cada ",
+    {word:"PELICULA",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"Título",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"Productora",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Fecha",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"NacionalidadP",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• De cada ",
+    {word:"DIRECTOR",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"CédulaD",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"NombreD",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"NacionalidadD",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• De cada ",
+    {word:"ACTOR",type:"entidad",entityType:"fuerte"},
+    " se guarda ",
+    {word:"CédulaA",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"Principal",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"Sexo",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"NacionalidadA",type:"atributo",attrType:"simple"},
+    ", ",
+    {word:"NombreA",type:"atributo",attrType:"simple"},
+    ".\n",
+    "• CLIENTE puede ",
+    {word:"alquila",type:"relacion"},
+    " muchos EJEMPLARES y un EJEMPLAR puede ser alquilado por muchos CLIENTES.\n",
+    "• Una PELICULA puede ",
+    {word:"tiene",type:"relacion"},
+    " muchos EJEMPLARES pero un EJEMPLAR solo pertenece a una PELICULA.\n",
+    "• Un ACTOR puede ",
+    {word:"participa",type:"relacion"},
+    " en muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES.\n",
+    "• Un DIRECTOR puede ",
+    {word:"dirige",type:"relacion"},
+    " muchas PELICULAS pero una PELICULA solo es dirigida por un DIRECTOR.\n"
 ]
-     //9--x
+     //10XX
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
     // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
@@ -609,7 +767,8 @@ const analyzeConfig = [
     { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
     { requireSubtypes: false }, // 5 Hospital - básico
     { requireSubtypes: false }, // 6 Institución educativa
-    { requireSubtypes: false }  // 7 Colegio
+    { requireSubtypes: false }, // 7 Colegio
+    { requireSubtypes: false }  // 9 Peliculas
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🔴 PEGAR AQUÍ: 3er BLOQUE (config) del asistente                        │
     // │ AGREGAR COMA después del config anterior (arriba ↑) y antes de esto     │
@@ -818,24 +977,50 @@ function renderInteractiveCanvas(exercise) {
         `;
         let html = "";
         if (node.type === "entity") {
-            el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
-            html = `
-                <input type="text" id="input-${node.id}" placeholder="?"
-                    class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
-                    onclick="fillSlot('${node.id}')" readonly>
-            `;
+            // Entidad débil: doble borde (borde exterior + borde interior)
+            if (node.isWeak) {
+                el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
+                html = `
+                    <div class="absolute inset-[3px] border-2 border-blue-500 pointer-events-none"></div>
+                    <input type="text" id="input-${node.id}" placeholder="?"
+                        class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent relative z-10"
+                        onclick="fillSlot('${node.id}')" readonly>
+                `;
+            } else {
+                el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
+                html = `
+                    <input type="text" id="input-${node.id}" placeholder="?"
+                        class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
+                        onclick="fillSlot('${node.id}')" readonly>
+                `;
+            }
         } else if (node.type === "relation") {
             el.className = "relative flex justify-center items-center z-20";
-            html = `
-                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
-                </svg>
-                <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
-                    <input type="text" id="input-${node.id}" placeholder="?"
-                        class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
-                        onclick="fillSlot('${node.id}')" readonly>
-                </div>
-            `;
+            // Relación identificadora (entidad débil): doble rombo
+            if (node.isDoubleRelation) {
+                html = `
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                        <polygon points="50,12 88,50 50,88 12,50" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
+                        <input type="text" id="input-${node.id}" placeholder="?"
+                            class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
+                            onclick="fillSlot('${node.id}')" readonly>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
+                        <input type="text" id="input-${node.id}" placeholder="?"
+                            class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
+                            onclick="fillSlot('${node.id}')" readonly>
+                    </div>
+                `;
+            }
         } else if (node.type === "attribute") {
             let borderClass, inputExtra;
             if (node.isKey) {

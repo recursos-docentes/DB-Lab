@@ -82,13 +82,23 @@
                         <h2 class="text-2xl font-bold text-slate-900 mb-6">Paso 1: Información General</h2>
 
                         <div class="space-y-5">
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">📌 Título/Nombre</label>
-                                <input type="text" id="title" class="input-field"
-                                       placeholder="ej: Farmacia Online"
-                                       value=""
-                                       oninput="updatePreview()"
-                                       style="background-color: #fef3c7; border: 2px solid #f59e0b;">
+                            <div class="grid grid-cols-[80px_1fr] gap-3 items-end">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Emoji</label>
+                                    <input type="text" id="emoji" class="input-field text-center text-xl"
+                                           placeholder="🏪"
+                                           value=""
+                                           oninput="updatePreview()"
+                                           style="background-color: #fef3c7; border: 2px solid #f59e0b;">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">📌 Título/Nombre</label>
+                                    <input type="text" id="title" class="input-field"
+                                           placeholder="ej: Farmacia Online"
+                                           value=""
+                                           oninput="updatePreview()"
+                                           style="background-color: #fef3c7; border: 2px solid #f59e0b;">
+                                </div>
                             </div>
 
                             <div>
@@ -139,6 +149,7 @@
                                     <p class="text-slate-700">⭕ Multivaluado: <code class="bg-white px-1">*Teléfono</code></p>
                                     <p class="text-slate-700">📊 Derivado: <code class="bg-white px-1">#Edad</code></p>
                                     <p class="text-slate-700 pt-2 border-t border-slate-300"><strong>Entidad débil:</strong> <code class="bg-white px-1">~EJEMPLAR</code> (prefijo ~)</p>
+                                    <p class="text-slate-700 text-[11px] text-slate-500">⚠️ Marcar la relación identificadora con <code class="bg-white px-1">^</code> (ver campo Relaciones)</p>
                                     <p class="text-slate-700 pt-2 border-t border-slate-300">ℹ️ Primer atributo = clave primaria</p>
                                 </div>
                                 <textarea id="entities-input" class="input-field" rows="8"
@@ -154,9 +165,12 @@
                                 </p>
                                 <div class="text-xs bg-slate-100 border border-slate-300 rounded p-3 mb-3 space-y-1">
                                     <p class="text-slate-700"><strong>Ejemplo:</strong> <code class="bg-white px-1">realiza | PACIENTE | CONSULTA | Fecha_consulta</code></p>
-                                    <p class="text-slate-700"><strong>Totalidad:</strong> Agregá <code class="bg-white px-1">!</code> al final de la entidad</p>
+                                    <p class="text-slate-700"><strong>Totalidad:</strong> Agregar <code class="bg-white px-1">!</code> al final de la entidad</p>
                                     <p class="text-slate-700">📌 <code class="bg-white px-1">trabaja | Empleado! | Empresa</code></p>
-                                    <p class="text-slate-700"><strong>Agregación:</strong> Prefijo <code class="bg-white px-1">@</code> en el nombre</p>
+                                    <p class="text-slate-700"><strong>Relación identificadora</strong> (doble rombo): Prefijo <code class="bg-white px-1">^</code></p>
+                                    <p class="text-slate-700">📌 <code class="bg-white px-1">^pertenece | LIBRO | ~EJEMPLAR</code></p>
+                                    <p class="text-slate-500 text-[11px]">Sin ^ todas las relaciones son simples, aunque haya entidad débil</p>
+                                    <p class="text-slate-700 pt-1 border-t border-slate-300"><strong>Agregación:</strong> Prefijo <code class="bg-white px-1">@</code> en el nombre</p>
                                     <p class="text-slate-700">📌 <code class="bg-white px-1">@ubicada | PROYECTO | asigna</code></p>
                                     <p class="text-slate-700"><strong>Atributos especiales:</strong></p>
                                     <p class="text-slate-700">🔹 Compuestos: <code class="bg-white px-1">Dirección(Calle, Nro, Esquina)</code></p>
@@ -199,16 +213,15 @@
                                 <p class="text-xs text-slate-600 mb-2">Selecciona qué concepto enseña este ejercicio</p>
                                 <select id="concept-select" class="input-field" style="width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;">
                                     <option value="">-- Seleccionar concepto --</option>
-                                    <option value="entidades_atributos_simples">Entidades y atributos simples</option>
-                                    <option value="relaciones_simples">Relaciones 1:N (uno a muchos)</option>
-                                    <option value="relaciones_complejas">Relaciones N:N (muchos a muchos)</option>
-                                    <option value="atributos_especiales">Atributos especiales (compuesto, multivaluado, derivado)</option>
-                                    <option value="totalidad">Totalidad/Participación</option>
-                                    <option value="entidad_debil">Entidades débiles</option>
+                                    <option value="relaciones_simples">Relaciones simples (1:N)</option>
+                                    <option value="atributos_especiales">Atributos especiales / Relaciones N:N</option>
+                                    <option value="participacion">Totalidad / Participación</option>
+                                    <option value="generalizacion">Generalización / ISA</option>
                                     <option value="autorelacion">Autorelación</option>
-                                    <option value="agregacion">Agregación</option>
-                                    <option value="generalizacion">Generalización/Herencia (ISA)</option>
+                                    <option value="entidad_debil">Entidades débiles 🔒</option>
+                                    <option value="agregacion">Agregación 🔒</option>
                                 </select>
+                                <p class="text-xs text-slate-500 mt-1">Los conceptos con 🔒 aparecen como "pendiente" en el inicio hasta que se agregue su sección.</p>
                             </div>
 
                             <div class="flex gap-2">
@@ -278,7 +291,7 @@
         function nextStep(from) {
             if (from === 1) {
                 if (!document.getElementById('title').value.trim()) {
-                    alert('❌ Por favor, completa el título');
+                    alert('❌ Por favor, completa el nombre del ejercicio.');
                     return;
                 }
                 if (!document.getElementById('description').value.trim()) {
@@ -457,6 +470,9 @@
                         isWeak = true;
                         name = name.substring(1);
                     }
+                    // Quitar ! del nombre si el usuario lo puso por error
+                    // (! solo es válido en el campo de Relaciones para marcar totalidad)
+                    name = name.replace(/!/g, '').trim();
 
                     const key = parts[1];
                     const attrs = [];
@@ -523,16 +539,21 @@
                     let ent2 = parts[2];
                     const attrs = parts.slice(3);
 
+                    // Detectar relación identificadora de entidad débil (^)
+                    let isDoubleRelation = false;
+                    if (name.startsWith('^')) {
+                        isDoubleRelation = true;
+                        name = name.substring(1);
+                    }
+
                     // Detectar agregación (@)
                     let isAggregate = false;
-                    let aggregateRelation = null; // Relación/entidad que se agrupa
+                    let aggregateRelation = null;
 
                     if (name.startsWith('@')) {
                         isAggregate = true;
                         name = name.substring(1);
-                        // La agregación usa ent2 como la relación que se agrupa
                         aggregateRelation = ent2;
-                        // ent2 se reemplaza con el nombre de lo que se está agrupando
                     }
 
                     // Detectar totalidad (!)
@@ -551,7 +572,7 @@
                     // Obtener cardinalidades
                     const card = cardinalities[name] || { card1: 'N', card2: '1' };
 
-                    relationsData.push({ name, ent1, ent2, attrs, idx, totalityLeft, totalityRight, isAggregate, aggregateRelation, card1: card.card1, card2: card.card2 });
+                    relationsData.push({ name, ent1, ent2, attrs, idx, totalityLeft, totalityRight, isAggregate, aggregateRelation, isDoubleRelation, card1: card.card1, card2: card.card2 });
                 }
             });
             return relationsData;
@@ -906,7 +927,8 @@
         }
 
         function generateCode() {
-            const title = document.getElementById('title').value;
+            const emoji = document.getElementById('emoji').value.trim() || '🏫';
+            const title = `${emoji} ${document.getElementById('title').value.trim()}`;
             // Leer la descripción del preview editable (lo que el usuario modificó)
             // Si no existe, usar el campo original
             const previewEl = document.getElementById('preview-description-step2');
@@ -951,13 +973,31 @@
             const exerciseCode = generateExerciseCode(title, description, hint, wordBank, concept);
             const analyzeDataCode = generateAnalyzeDataCode(description);
             const configCode = `{ requireSubtypes: ${requireSubtypes} }`;
-            const htmlOptionCode = `<option value="N"><!-- Reemplazar N con el índice real en exercises[] -->\n  🏫 ${title}</option>`;
+
+            // Mapa de concepts a secciones del index.html
+            const conceptSections = {
+                'relaciones_simples':   'Entidades, atributos y relaciones',
+                'atributos_especiales': 'Atributos especiales',
+                'participacion':        'Totalidad (participación)',
+                'generalizacion':       'Generalización/Categorización (ISA)',
+                'autorelacion':         'Autorelación',
+                'entidad_debil':        null,
+                'agregacion':           null
+            };
+            const sectionName = conceptSections[concept];
+            const indexInfo = sectionName
+                ? `✅ Aparecerá automáticamente en la sección <strong>"${sectionName}"</strong> del inicio — no se requiere código adicional en <code>index.html</code>.`
+                : `⚠️ El concepto <strong>"${concept}"</strong> aún no tiene sección activa en <code>index.html</code> (aparece como 🔒 pendiente). El ejercicio funciona desde <code>er-designer.html</code> directamente.`;
+
+            // Opción HTML para el select de er-designer.html
+            const titleNoEmoji = title.replace(/^[\p{Emoji}\s]+/u, '').trim();
+            const htmlOptionCode = `<option value="N">${title}</option>\n<!-- Reemplazar N con el índice real del ejercicio en el array exercises[] de script.js -->`;
 
             const output = `
 <div class="space-y-6">
     <div>
-        <h3 class="font-bold text-slate-900 mb-3">📝 Código del Ejercicio</h3>
-        <p class="text-xs text-slate-600 mb-2">Copiar al final de <code class="bg-slate-100 px-2 py-1 rounded">exercises = [...]</code> en <strong>script.js</strong> (antes del cierre <code>]</code>), separado por coma</p>
+        <h3 class="font-bold text-slate-900 mb-3">📝 1. Código del Ejercicio</h3>
+        <p class="text-xs text-slate-600 mb-2">Pegar al final de <code class="bg-slate-100 px-2 py-1 rounded">exercises = [...]</code> en <strong>script.js</strong>, antes del cierre <code>]</code> y separado por coma.</p>
         <div class="code-block">
 ${escapeHtml(exerciseCode)}
         </div>
@@ -965,8 +1005,8 @@ ${escapeHtml(exerciseCode)}
     </div>
 
     <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-        <p class="text-sm font-semibold text-amber-900 mb-2">📊 Análisis de Términos</p>
-        <p class="text-xs text-amber-800 mb-2">Copiar al final de <code class="bg-white px-2 py-1 rounded">analyzeData = [...]</code> (antes del cierre <code>]</code>), separado por coma</p>
+        <p class="text-sm font-semibold text-amber-900 mb-2">📊 2. Análisis de Términos</p>
+        <p class="text-xs text-amber-800 mb-2">Pegar al final de <code class="bg-white px-2 py-1 rounded">analyzeData = [...]</code>, antes del cierre <code>]</code> y separado por coma.</p>
         <div class="code-block text-xs">
 ${escapeHtml(analyzeDataCode)}
         </div>
@@ -974,8 +1014,8 @@ ${escapeHtml(analyzeDataCode)}
     </div>
 
     <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p class="text-sm font-semibold text-blue-900 mb-2">⚙️ Configuración</p>
-        <p class="text-xs text-blue-800 mb-2">Copiar al final de <code class="bg-white px-2 py-1 rounded">analyzeConfig = [...]</code> (antes del cierre <code>]</code>), separado por coma</p>
+        <p class="text-sm font-semibold text-blue-900 mb-2">⚙️ 3. Configuración</p>
+        <p class="text-xs text-blue-800 mb-2">Pegar al final de <code class="bg-white px-2 py-1 rounded">analyzeConfig = [...]</code>, antes del cierre <code>]</code> y separado por coma.</p>
         <div class="code-block text-xs">
 ${escapeHtml(configCode)}
         </div>
@@ -983,12 +1023,17 @@ ${escapeHtml(configCode)}
     </div>
 
     <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p class="text-sm font-semibold text-green-900 mb-2">🎯 HTML (Dropdowns)</p>
-        <p class="text-xs text-green-800 mb-2">Agregar en los dos <code class="bg-white px-2 py-1 rounded">&lt;select&gt;</code> de <strong>er-designer.html</strong></p>
+        <p class="text-sm font-semibold text-green-900 mb-2">🔽 4. Selector en er-designer.html</p>
+        <p class="text-xs text-green-800 mb-2">Agregar en los dos <code class="bg-white px-2 py-1 rounded">&lt;select&gt;</code> de <strong>er-designer.html</strong> (reemplazar N con el índice real).</p>
         <div class="code-block text-xs">
 ${escapeHtml(htmlOptionCode)}
         </div>
         <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(htmlOptionCode)}">📋 Copiar</button>
+    </div>
+
+    <div class="p-4 bg-slate-50 border border-slate-300 rounded-lg">
+        <p class="text-sm font-semibold text-slate-800 mb-2">🏠 5. Página de inicio (index.html)</p>
+        <p class="text-xs text-slate-700">${indexInfo}</p>
     </div>
 </div>
             `;
@@ -1112,13 +1157,8 @@ ${escapeHtml(htmlOptionCode)}
                 const relX = (ent1Pos.x + ent2Pos.x) / 2;
                 const relId = `r_${idx}`;
 
-                // Detectar si cualquiera de las entidades es débil (relación doble)
-                const ent1Data = entitiesData[rel.ent1];
-                const ent2Data = entitiesData[rel.ent2];
-                const isDoubleRelation = ent1Data.isWeak || ent2Data.isWeak;
-
                 let relStr = `        { id: "${relId}", type: "relation"`;
-                if (isDoubleRelation) relStr += `, isDoubleRelation: true`;
+                if (rel.isDoubleRelation) relStr += `, isDoubleRelation: true`;
                 if (rel.totalityLeft) relStr += `, totalityLeft: true`;
                 if (rel.totalityRight) relStr += `, totalityRight: true`;
                 if (rel.isAggregate) {
@@ -1288,6 +1328,7 @@ ${formatted}
         }
 
         function resetWizard() {
+            document.getElementById('emoji').value = '';
             document.getElementById('title').value = '';
             document.getElementById('description').value = '';
             document.getElementById('hint').value = '';

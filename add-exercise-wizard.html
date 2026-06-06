@@ -880,10 +880,10 @@
                 cardText1.setAttribute('fill', '#000');
                 cardText1.setAttribute('font-weight', '700');
                 cardText1.setAttribute('font-size', '12');
-                cardText1.textContent = 'N';
+                cardText1.textContent = rel.card1 || 'N';
                 svg.appendChild(cardText1);
 
-                // Cardinalidad 1 (derecha)
+                // Cardinalidad derecha
                 const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle2.setAttribute('cx', ent2Pos.x - 45);
                 circle2.setAttribute('cy', ent2Pos.y - 15);
@@ -900,7 +900,7 @@
                 cardText2.setAttribute('fill', '#000');
                 cardText2.setAttribute('font-weight', '700');
                 cardText2.setAttribute('font-size', '12');
-                cardText2.textContent = '1';
+                cardText2.textContent = rel.card2 || '1';
                 svg.appendChild(cardText2);
             });
         }
@@ -951,7 +951,7 @@
             const exerciseCode = generateExerciseCode(title, description, hint, wordBank, concept);
             const analyzeDataCode = generateAnalyzeDataCode(description);
             const configCode = `{ requireSubtypes: ${requireSubtypes} }`;
-            const htmlOptionCode = `<option value="${Object.keys(entitiesData).length - 1}">${title}</option>`;
+            const htmlOptionCode = `<option value="N"><!-- Reemplazar N con el índice real en exercises[] -->\n  🏫 ${title}</option>`;
 
             const output = `
 <div class="space-y-6">
@@ -1133,18 +1133,39 @@ ${escapeHtml(htmlOptionCode)}
                 connections.push(`        { from: "${relId}", to: "${ent2Pos.id}" }`);
 
                 // Cardinalidades - distribuidas entre entidad y relación
-                const cardN = `c_${idx}_n`;
-                const card1 = `c_${idx}_1`;
+                const cardLeftId = `c_${idx}_left`;
+                const cardRightId = `c_${idx}_right`;
+                const cardLeftVal  = rel.card1 || 'N';
+                const cardRightVal = rel.card2 || '1';
 
                 // Posicionar cardinalidades: una cerca de ent1, otra cerca de ent2
                 const cardX1 = (ent1Pos.x + relX) / 2;  // Entre ent1 y relación
                 const cardXn = (relX + ent2Pos.x) / 2;  // Entre relación y ent2
 
-                nodes.push(`        { id: "${card1}", type: "cardinality", correctValue: "1", x: ${Math.round(cardX1 * 10) / 10}, y: 50, w: 30, h: 30 }`);
-                nodes.push(`        { id: "${cardN}", type: "cardinality", correctValue: "N", x: ${Math.round(cardXn * 10) / 10}, y: 50, w: 30, h: 30 }`);
+                nodes.push(`        { id: "${cardLeftId}", type: "cardinality", correctValue: "${cardLeftVal}", x: ${Math.round(cardX1 * 10) / 10}, y: 50, w: 30, h: 30 }`);
+                nodes.push(`        { id: "${cardRightId}", type: "cardinality", correctValue: "${cardRightVal}", x: ${Math.round(cardXn * 10) / 10}, y: 50, w: 30, h: 30 }`);
 
-                connections.push(`        { from: "${cardN}", to: "${relId}" }`);
-                connections.push(`        { from: "${card1}", to: "${relId}" }`);
+                connections.push(`        { from: "${cardLeftId}", to: "${relId}" }`);
+                connections.push(`        { from: "${cardRightId}", to: "${relId}" }`);
+
+                // Nodos de totalidad (si la relación tiene !)
+                if (rel.totalityLeft || rel.totalityRight) {
+                    const tLeftId  = `t_${idx}_left`;
+                    const tRightId = `t_${idx}_right`;
+                    // Posicionar entre cardinality y relación, ligeramente desplazados en Y
+                    const tLeftX  = cardX1 + (relX - cardX1) * 0.6;
+                    const tRightX = cardXn + (ent2Pos.x - cardXn) * 0.4;
+                    if (rel.totalityLeft) {
+                        nodes.push(`        { id: "${tLeftId}", type: "totalidad", correctValue: "S", x: ${Math.round(tLeftX * 10) / 10}, y: 45, w: 28, h: 24 }`);
+                    } else {
+                        nodes.push(`        { id: "${tLeftId}", type: "totalidad", correctValue: "N", x: ${Math.round(tLeftX * 10) / 10}, y: 45, w: 28, h: 24 }`);
+                    }
+                    if (rel.totalityRight) {
+                        nodes.push(`        { id: "${tRightId}", type: "totalidad", correctValue: "S", x: ${Math.round(tRightX * 10) / 10}, y: 45, w: 28, h: 24 }`);
+                    } else {
+                        nodes.push(`        { id: "${tRightId}", type: "totalidad", correctValue: "N", x: ${Math.round(tRightX * 10) / 10}, y: 45, w: 28, h: 24 }`);
+                    }
+                }
 
                 // Atributos de relación - distribuidos debajo de la relación
                 rel.attrs.forEach((attr, aIdx) => {
@@ -1272,6 +1293,8 @@ ${formatted}
             document.getElementById('hint').value = '';
             document.getElementById('entities-input').value = '';
             document.getElementById('relations-input').value = '';
+            document.getElementById('cardinalities-input').value = '';
+            document.getElementById('concept-select').value = '';
             document.getElementById('requireSubtypes').checked = false;
             currentStep = 1;
             updateSteps();

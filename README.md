@@ -57,10 +57,9 @@ er-designer.html?ejercicio=2&ex=1
 
 | Función | Descripción |
 |---------|-------------|
-| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad y más. Accesible con el botón `📖` en el nav. |
+| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad, totalidad y más. Accesible con el botón `📖` en el nav (sticky, siempre visible). |
 | 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. Accesible desde las instrucciones. |
-| ? **Tutorial** | Modal de 4 pasos que se muestra automáticamente en el primer uso. Se puede reabrir con el botón `?` en el nav. |
-| ⊙ **Alto contraste** | Botón visible en la barra de navegación para activar modo alto contraste. |
+| ? **Tutorial** | Modal de 4 pasos que se muestra automáticamente en el primer uso. Se puede reabrir con el botón `?` en el nav (sticky, siempre visible). |
 | 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación para desbloquear al estudiante. |
 | ⬆️ **Comparación de intentos** | Al validar, muestra si mejoró, empeoró o se mantuvo respecto al intento anterior. |
 
@@ -86,7 +85,10 @@ En `er-designer.html`, agregá un objeto al array `exercises`:
         { id: "mv", type: "attribute",   isMultivalued: true, correctValue: "Tags", x: 30, y: 22, w: 90, h: 42 },
         { id: "c1", type: "cardinality", correctValue: "1",  x: 35, y: 50, w: 30, h: 30 },
         { id: "c2", type: "cardinality", correctValue: "N",  x: 65, y: 50, w: 30, h: 30 },
-        { id: "isa1", type: "isa",                           x: 28, y: 62, w: 70, h: 56 }
+        { id: "isa1", type: "isa",                           x: 28, y: 62, w: 70, h: 56 },
+        // Totalidad (participación): S = total, N = parcial. Sin DOM en canvas — usa panel de botones.
+        { id: "t_0_left",  type: "totalidad", correctValue: "N", x: 32, y: 65, w: 28, h: 24 },
+        { id: "t_0_right", type: "totalidad", correctValue: "S", x: 42, y: 65, w: 28, h: 24 }
     ],
     connections: [
         { from: "pk", to: "e1" }, { from: "a1", to: "e1" },
@@ -114,6 +116,7 @@ y ≈ 72%  →  atributos de relación / multivaluados
 - **Atributo clave (`isKey: true`):** match exacto en su slot.
 - **Atributos no-clave:** orden libre dentro del mismo nodo padre.
 - **Cardinalidades:** match exacto. Solo se usa `N` (no `M`).
+- **Totalidad:** el estudiante marca S o N en el panel de botones (no en el canvas). Al validar, los círculos se dibujan automáticamente sobre el vértice del rombo correspondiente a las participaciones totales correctas. Posicionar los nodos `totalidad` entre la relación y la entidad que representan (en coordenadas %) para que la detección visual sea correcta.
 
 ---
 
@@ -193,6 +196,7 @@ DB-Lab/
 | 4 | Plataforma Streaming | Atributos especiales | Intermedio |
 | 5 | Sistema Hospitalario | Relaciones simples | Básico |
 | 6 | Institución educativa | Atributos especiales | Intermedio |
+| 7 | Colegio | Totalidad / Participación | Avanzado |
 
 ---
 

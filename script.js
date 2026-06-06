@@ -627,6 +627,7 @@ let wordCompounds = {};        // idx → [component words]
 let selectedComponents = new Set();
 let activeWordIdx = null;
 let evalMode = false;  // false = ejercitación, true = evaluación
+let _totalidadCorrectMap = null; // establecido por checkAnswers, leído por drawCrispConnectors
 let textZoom = 100;    // zoom level for consigna (tab análisis)
 let descZoom = 100;    // zoom level for descripción (tab diseño)
 // ── Control de zoom para la consigna (tab análisis) ──────
@@ -745,6 +746,7 @@ function loadExercise(index) {
         bank.appendChild(btn);
     });
     renderInteractiveCanvas(cur);
+    renderTotalidadPanel(cur);
     updateWordBankVisuals();
     renderAnalysisPanel(activeExercise);
     _resetCorregirBtn();
@@ -803,6 +805,7 @@ function renderInteractiveCanvas(exercise) {
     const container = document.getElementById('diagram-nodes');
     container.innerHTML = "";
     exercise.nodes.forEach(node => {
+        if (node.type === 'totalidad') return;
         const el = document.createElement('div');
         el.id = node.id;
         el.style.cssText = `
@@ -891,9 +894,21 @@ function fillSlot(nodeId) {
     if (!inp) return;
     inp.value = highlightedWord;
     inp.classList.remove('input-correct', 'input-incorrect');
+
+    // Cardinalidades: ocultar borde del círculo al llenarlo
+    const cur  = exercises[activeExercise];
+    const node = cur?.nodes.find(n => n.id === nodeId);
+    if (node?.type === 'cardinality') {
+        const container = document.getElementById(nodeId);
+        if (container) {
+            container.classList.remove('border-slate-600', 'border-emerald-500', 'border-rose-500');
+            container.classList.add('border-transparent');
+        }
+    }
+
     highlightedWord = null;
     document.getElementById('selection-status').innerText = "";
-    updateWordBankVisuals();  // Actualizar colores del bank
+    updateWordBankVisuals();
 }
 // ── Dibujar conectores con recorte a bordes de figura ────
 function drawCrispConnectors() {
@@ -1004,23 +1019,164 @@ function drawCrispConnectors() {
             }
         }
     });
+
+    // ── Círculos de totalidad post-validación ──────────────
+    if (_totalidadCorrectMap) {
+        svg.querySelectorAll('.totalidad-circle').forEach(c => c.remove());
+        cur.nodes.forEach(n => {
+            if (n.type !== 'totalidad') return;
+            const userVal   = (n.userValue || '').toUpperCase();
+            const isCorrect = _totalidadCorrectMap[n.id] === true;
+            if (userVal !== 'S' || !isCorrect) return;
+
+            const match = n.id.match(/t_(\d+)_(left|right)/);
+            if (!match) return;
+            const relId = `r_${match[1]}`;
+
+            const relEl = document.getElementById(relId);
+            if (!relEl) return;
+            const rel = center(relEl);
+
+            // Encontrar la entidad conectada a esta relación que sea
+            // la más cercana al nodo de totalidad (en coordenadas %).
+            // Esto evita depender de la dirección from/to de la conexión,
+            // que puede estar invertida según el ejercicio.
+            let entityEl = null;
+            let minDist  = Infinity;
+            cur.connections.forEach(conn => {
+                const otherId = conn.from === relId ? conn.to : (conn.to === relId ? conn.from : null);
+                if (!otherId) return;
+                const otherNode = cur.nodes.find(nd => nd.id === otherId);
+                if (otherNode?.type !== 'entity') return;
+                const dist = Math.hypot(otherNode.x - n.x, otherNode.y - n.y);
+                if (dist < minDist) { minDist = dist; entityEl = document.getElementById(otherId); }
+            });
+            if (!entityEl) return;
+
+            const entity = center(entityEl);
+            const dx = entity.x - rel.x;
+            const dy = entity.y - rel.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len < 0.5) return;
+            const ndx = dx / len;
+            const ndy = dy / len;
+            const t = 1 / (Math.abs(ndx) / rel.hw + Math.abs(ndy) / rel.hh);
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", rel.x + ndx * t);
+            circle.setAttribute("cy", rel.y + ndy * t);
+            circle.setAttribute("r", "5");
+            circle.setAttribute("fill", "#1e293b");
+            circle.classList.add('totalidad-circle');
+            svg.appendChild(circle);
+        });
+    }
 }
 // ── Reiniciar ────────────────────────────────────────────
 function resetExercise() {
-    exercises[activeExercise].nodes.forEach(n => {
+    const cur = exercises[activeExercise];
+    cur.nodes.forEach(n => {
+        // Limpiar inputs del diagrama
         const el = document.getElementById(`input-${n.id}`);
         if (el) { el.value = ""; el.classList.remove('input-correct', 'input-incorrect'); }
+        // Restaurar borde de cardinalidad
+        if (n.type === 'cardinality') {
+            const container = document.getElementById(n.id);
+            if (container) {
+                container.classList.remove('border-emerald-500', 'border-rose-500', 'border-transparent');
+                container.classList.add('border-slate-600');
+            }
+        }
+        // Limpiar userValue de totalidad
+        if (n.type === 'totalidad') { n.userValue = undefined; }
     });
+    _totalidadCorrectMap = null; // limpiar mapa para que drawCrispConnectors no redibuje
+    // Eliminar círculos de totalidad del SVG
+    document.querySelectorAll('.totalidad-circle').forEach(c => c.remove());
     document.getElementById('feedback-alert').classList.add('hidden');
     const gb = document.getElementById('grade-box');
     gb.innerText = "--";
     gb.className = "text-2xl font-black text-slate-400 italic";
+    // Resetear colores de botones del panel de totalidad
+    document.querySelectorAll('.totalidad-btn').forEach(btn => {
+        btn.className = 'totalidad-btn px-3 py-1 text-xs font-bold bg-slate-700 border border-slate-600 rounded';
+    });
 }
 // ── Siguiente ejercicio ──────────────────────────────────
 function nextExercise() {
     loadExercise((activeExercise + 1) % exercises.length);
 }
 // ── Corregir ─────────────────────────────────────────────
+
+// Seleccionar opción en totalidad
+function selectTotalidad(nodeId, value) {
+    const cur = exercises[activeExercise];
+    const node = cur.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    node.userValue = value;
+    // Mostrar selección visual (azul cuando seleccionado)
+    document.querySelectorAll(`.totalidad-btn[data-nodeid="${nodeId}"]`).forEach(btn => {
+        const isSelected = btn.getAttribute('data-value') === value;
+        btn.classList.toggle('bg-blue-600', isSelected);
+        btn.classList.toggle('border-blue-500', isSelected);
+        btn.classList.toggle('bg-slate-700', !isSelected);
+        btn.classList.toggle('border-slate-600', !isSelected);
+    });
+}
+
+// Renderizar panel de totalidad
+// Layout por relación: [S][N]  ◆ relación ◆  [S][N]
+function renderTotalidadPanel(exercise) {
+    const panel = document.getElementById('totalidad-panel');
+    const questions = document.getElementById('totalidad-questions');
+    if (!panel || !questions) return;
+
+    const totalidadByRelation = {};
+    exercise.nodes.forEach(n => {
+        if (n.type === 'totalidad') {
+            const match = n.id.match(/t_([0-9]+)_(left|right)/);
+            if (match) {
+                const relIndex = match[1], side = match[2];
+                if (!totalidadByRelation[relIndex]) totalidadByRelation[relIndex] = {};
+                totalidadByRelation[relIndex][side] = n;
+            }
+        }
+    });
+
+    if (Object.keys(totalidadByRelation).length === 0) {
+        panel.classList.add('hidden');
+        return;
+    }
+
+    panel.classList.remove('hidden');
+    questions.innerHTML = '';
+
+    function btnGroup(node) {
+        if (!node) return '<div class="w-20"></div>';
+        return `
+            <div class="flex gap-1">
+                <button class="totalidad-btn w-9 py-1 text-xs font-bold bg-slate-700 border border-slate-600 rounded hover:bg-violet-800 hover:border-violet-500 transition"
+                    onclick="selectTotalidad('${node.id}','S')" data-nodeid="${node.id}" data-value="S">S</button>
+                <button class="totalidad-btn w-9 py-1 text-xs font-bold bg-slate-700 border border-slate-600 rounded hover:bg-slate-600 hover:border-slate-500 transition"
+                    onclick="selectTotalidad('${node.id}','N')" data-nodeid="${node.id}" data-value="N">N</button>
+            </div>`;
+    }
+
+    Object.entries(totalidadByRelation).forEach(([relIndex, sides]) => {
+        const rel = exercise.nodes.find(n => n.type === 'relation' && n.id === `r_${relIndex}`);
+        if (!rel) return;
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-center gap-3 bg-slate-800/50 px-4 py-2.5 rounded-lg border border-violet-700/40';
+        row.innerHTML = `
+            ${btnGroup(sides.left)}
+            <span class="text-sm font-bold text-violet-300 whitespace-nowrap">◆ ${rel.correctValue} ◆</span>
+            ${btnGroup(sides.right)}
+        `;
+        questions.appendChild(row);
+    });
+}
+
 function checkAnswers() {
     const cur   = exercises[activeExercise];
     const total = cur.nodes.filter(n => !!n.correctValue).length;
@@ -1066,16 +1222,17 @@ function checkAnswers() {
     const entities = cur.nodes.filter(n => n.type === 'entity' && n.correctValue);
     cur.nodes.forEach(n => {
         if (!n.correctValue || n.type === 'attribute') return;
+
+        // Totalidad: no tiene input en el DOM, se valida por userValue (botones S/N del panel)
+        if (n.type === 'totalidad') {
+            const val = n.userValue?.toUpperCase() || '';
+            correctMap[n.id] = val === n.correctValue;
+            return;
+        }
+
         const el = document.getElementById(`input-${n.id}`);
         if (!el) return;
-
-        if (n.type === 'totalidad') {
-            // Para totalidad: acepta "S" (Sí) o "N" (No) según lo definido en correctValue
-            const val = el.value.trim().toUpperCase();
-            correctMap[n.id] = val === n.correctValue;
-        } else {
-            correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
-        }
+        correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
     });
     // Si hay exactamente 2 entidades y ambas son incorrectas, intentar intercambiar
     if (entities.length === 2) {
@@ -1136,13 +1293,40 @@ function checkAnswers() {
     let hits = 0;
     cur.nodes.forEach(n => {
         if (!n.correctValue) return;
+        const ok = correctMap[n.id] ?? false;
+        if (ok) hits++;
+
+        // Totalidad: feedback visual en los botones del panel
+        if (n.type === 'totalidad') {
+            document.querySelectorAll(`.totalidad-btn[data-nodeid="${n.id}"]`).forEach(btn => {
+                const isSelected = btn.getAttribute('data-value') === (n.userValue || '');
+                if (isSelected) {
+                    btn.classList.toggle('bg-emerald-700', ok);
+                    btn.classList.toggle('border-emerald-500', ok);
+                    btn.classList.toggle('bg-rose-700', !ok);
+                    btn.classList.toggle('border-rose-500', !ok);
+                }
+            });
+            return;
+        }
+
         const el = document.getElementById(`input-${n.id}`);
         if (!el) return;
-        const ok = correctMap[n.id] ?? false;
         el.classList.toggle('input-correct',   ok);
         el.classList.toggle('input-incorrect', !ok);
-        if (ok) hits++;
+
+        // Cardinalidad: colorear también el borde del círculo contenedor
+        if (n.type === 'cardinality') {
+            const container = document.getElementById(n.id);
+            if (container) {
+                container.classList.toggle('border-emerald-500', ok);
+                container.classList.toggle('border-rose-500',   !ok);
+                container.classList.remove('border-slate-600');
+            }
+        }
     });
+
+    _totalidadCorrectMap = correctMap; // drawCrispConnectors lo leerá para pintar círculos
     drawCrispConnectors();
     // Calificación /10
     const grade     = Math.round((hits / total) * 10);
@@ -1179,58 +1363,73 @@ function checkAnswers() {
 }
 // ── Guardar diagrama como PNG ────────────────────────────
 async function saveAsPNG() {
-    const btn = document.getElementById('png-btn');
+    const btn      = document.getElementById('png-btn');
     const canvasEl = document.getElementById('er-canvas');
-    // Avisar si el contenido está cortado
-    if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
-        const ok = confirm(
-            '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
-            '📐 Para que salga completo:\n' +
-            '  • Reducí el zoom del navegador (Ctrl + −)\n' +
-            '  • O ampliá la ventana\n\n' +
-            '¿Querés guardar igualmente?'
-        );
-        if (!ok) return;
-    }
+
     if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
     canvasEl.scrollLeft = 0;
     canvasEl.scrollTop  = 0;
-    const canvasRect = canvasEl.getBoundingClientRect();
-    const overlays   = [];
-    // html2canvas no lee texto de <input> → creamos divs temporales encima
-    canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
+
+    // Dimensiones reales del canvas en pantalla
+    const W = canvasEl.offsetWidth;
+    const H = canvasEl.offsetHeight;
+
+    // Fijar ancho explícito para que el layout del clone sea idéntico al original
+    const prevWidth = canvasEl.style.width;
+    canvasEl.style.width = W + 'px';
+
+    // Crear overlays de texto posicionados con las coordenadas % del nodo
+    // (evita getBoundingClientRect y problemas de clip en el clone)
+    const cur      = exercises[activeExercise];
+    const overlays = [];
+    cur.nodes.forEach(node => {
+        if (!node.correctValue) return;
+        const inp = document.getElementById(`input-${node.id}`);
+        if (!inp || !inp.value) return;
+
         inp.style.opacity = '0';
-        if (!inp.value) return;
-        const nodeId = inp.id.replace('input-', '');
-        const nodeEl = document.getElementById(nodeId) || inp.parentElement;
-        const r      = nodeEl.getBoundingClientRect();
-        const div = document.createElement('div');
-        div.style.cssText = `
+
+        const left = (node.x / 100) * W - node.w / 2;
+        const top  = (node.y / 100) * H - node.h / 2;
+        const isCorrect   = inp.classList.contains('input-correct');
+        const isIncorrect = inp.classList.contains('input-incorrect');
+        const color = isCorrect ? '#059669' : isIncorrect ? '#dc2626' : '#1e293b';
+
+        const ov = document.createElement('div');
+        ov.style.cssText = `
             position:absolute;
-            left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
-            top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
-            width:${r.width}px; height:${r.height}px;
+            left:${left}px; top:${top - 5}px;
+            width:${node.w}px; height:${node.h}px;
             display:flex; align-items:center; justify-content:center;
-            font-size:11px; font-weight:700;
+            font-size:${node.type === 'cardinality' ? '13' : '11'}px;
+            font-weight:700; text-align:center; line-height:1.2;
             font-family:'Plus Jakarta Sans',sans-serif;
-            pointer-events:none; z-index:9999; background:transparent;
-            color:${
-                inp.classList.contains('input-correct')   ? '#059669' :
-                inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
-            };
+            color:${color};
             text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
+            background:transparent; pointer-events:none; z-index:9999;
+            white-space:nowrap;
         `;
-        div.textContent = inp.value;
-        canvasEl.appendChild(div);
-        overlays.push(div);
+        ov.textContent = inp.value;
+        canvasEl.appendChild(ov);
+        overlays.push(ov);
     });
+
     await new Promise(r => requestAnimationFrame(r));
+
     try {
         const shot = await html2canvas(canvasEl, {
             scale: 2,
             useCORS: true,
             logging: false,
-            backgroundColor: '#f8fafc'
+            backgroundColor: '#f8fafc',
+            width:  W,
+            height: H,
+            onclone: (clonedDoc) => {
+                const cc = clonedDoc.getElementById('er-canvas');
+                const cn = clonedDoc.getElementById('diagram-nodes');
+                if (cc) { cc.style.width = W + 'px'; cc.style.height = H + 'px'; }
+                if (cn) { cn.style.width = W + 'px'; cn.style.height = H + 'px'; }
+            }
         });
         const link = document.createElement('a');
         const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_');
@@ -1239,10 +1438,12 @@ async function saveAsPNG() {
         link.click();
     } catch (err) {
         console.error('PNG error:', err);
-        alert('No se pudo generar la imagen. Intentá nuevamente.');
+        alert('No se pudo generar la imagen. Intentar nuevamente.');
     } finally {
+        // Restaurar inputs y limpiar overlays
         canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
-        overlays.forEach(d => d.remove());
+        overlays.forEach(ov => ov.remove());
+        canvasEl.style.width = prevWidth;
         if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
     }
 }
@@ -1543,13 +1744,15 @@ function _resetCorregirBtn() {
         btn.textContent = '📝 Corregir Diagrama';
     }
 }
+
+// ── Validar etapa Analizar ────────────────────────────────────────────────────
 function validateAnalysis() {
     const segments = analyzeData[activeExercise] || [];
     const componentWords = _getComponentWords();
     let total = 0, hits = 0;
     segments.forEach((seg, idx) => {
         if (typeof seg === 'string') return;
-        if (componentWords.has(seg.word)) return; // excluir componentes del compuesto
+        if (componentWords.has(seg.word)) return;
         total++;
         const chip = document.querySelector(`#terms-pool [data-word-idx="${idx}"]`);
         if (!chip) return;
@@ -1584,7 +1787,6 @@ function validateAnalysis() {
             chip.innerHTML = `${word}${label}`;
             hits++;
         } else {
-            // Mostrar qué era correcto
             const correctLabel = seg.type === 'atributo' && seg.attrType ? `atributo (${seg.attrType})`
                                : seg.type === 'entidad'  && seg.entityType ? `entidad (${seg.entityType})`
                                : seg.type;
@@ -1602,7 +1804,6 @@ function validateAnalysis() {
         ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
         : ['bg-amber-950','text-amber-300','border-amber-700']));
     fb.innerHTML = `<span class="text-sm">${msg}</span>`;
-    // Rastrear intentos y comparar progreso
     analysisAttempts++;
     _saveScore(activeExercise, hits, total);
     const prev = _getPrevScore(activeExercise);
@@ -1611,20 +1812,60 @@ function validateAnalysis() {
         const arrow = diff > 0 ? `⬆️ +${diff} respuestas más que la vez anterior` : diff < 0 ? `⬇️ ${Math.abs(diff)} menos que la vez anterior` : '↔️ Igual que la vez anterior';
         fb.innerHTML += `<div class="mt-2 text-xs font-semibold text-slate-300">${arrow}</div>`;
     }
-    // Mostrar "Ver respuestas" después de 2 intentos fallidos
     if (!evalMode && analysisAttempts >= 2 && hits < total) {
-    const goBtn = document.getElementById('btn-go-diagram');
-    const vbtn  = document.getElementById('btn-validate-analysis');
-    const tabDiagram = document.getElementById('tab-diagram');
-    if (evalMode) {
-        vbtn.disabled = true;
-        vbtn.className = 'py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
-        vbtn.textContent = '✓ Clasificación registrada';
-        goBtn.disabled = true;
-        goBtn.className = 'py-3 bg-sky-600/50 text-sky-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition border border-sky-600 cursor-not-allowed';
-    } else {
-        goBtn.textContent = '✓ Siguiente: Diseño E-R';
-        goBtn.classList.remove('hidden');
+        const goBtn = document.getElementById('btn-go-diagram');
+        const vbtn  = document.getElementById('btn-validate-analysis');
+        if (evalMode) {
+            vbtn.disabled = true;
+            vbtn.className = 'py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+            vbtn.textContent = '✓ Clasificación registrada';
+            goBtn.disabled = true;
+            goBtn.className = 'py-3 bg-sky-600/50 text-sky-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition border border-sky-600 cursor-not-allowed';
+        } else {
+            goBtn.textContent = '✓ Siguiente: Diseño E-R';
+            goBtn.classList.remove('hidden');
+        }
     }
 }
+
+// ── Conceptos E-R modal ───────────────────────────────────────────────────────
+function showConcepts() {
+    document.getElementById('concepts-modal').classList.remove('hidden');
+}
+function closeConcepts() {
+    document.getElementById('concepts-modal').classList.add('hidden');
+}
+
+// ── Glosario modal ────────────────────────────────────────────────────────────
+function showGlossary() {
+    document.getElementById('glossary-modal').classList.remove('hidden');
+}
+function closeGlossary() {
+    document.getElementById('glossary-modal').classList.add('hidden');
+}
+
+// ── Tutorial modal ────────────────────────────────────────────────────────────
+let _tutorialStep = 0;
+function showTutorial() {
+    _tutorialStep = 0;
+    _renderTutorialStep();
+    document.getElementById('tutorial-modal').classList.remove('hidden');
+}
+function closeTutorial() {
+    document.getElementById('tutorial-modal').classList.add('hidden');
+    localStorage.setItem('ert_tutorial_seen', '1');
+}
+function nextTutorialStep() {
+    const steps = document.querySelectorAll('.tutorial-step');
+    if (_tutorialStep >= steps.length - 1) { closeTutorial(); return; }
+    _tutorialStep++;
+    _renderTutorialStep();
+}
+function _renderTutorialStep() {
+    const steps = document.querySelectorAll('.tutorial-step');
+    const dots  = document.querySelectorAll('[data-dot]');
+    steps.forEach((s, i) => s.classList.toggle('hidden', i !== _tutorialStep));
+    dots.forEach((d, i)  => d.className = `w-2 h-2 rounded-full ${i === _tutorialStep ? 'bg-indigo-500' : 'bg-slate-600'}`);
+    const btn = document.getElementById('tutorial-next-btn');
+    if (btn) btn.textContent = _tutorialStep === steps.length - 1 ? '¡Comenzar! 🚀' : 'Siguiente →';
 }

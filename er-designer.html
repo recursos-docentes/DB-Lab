@@ -174,12 +174,12 @@
             <!-- Instrucciones de totalidad -->
             <div id="totalidad-instructions" class="hidden bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-md flex flex-col gap-2">
                 <p class="text-[10px] font-extrabold text-violet-400 uppercase tracking-widest">📌 Totalidad (Participación)</p>
-                <p class="text-xs text-slate-300 leading-relaxed">En los vértices de los rombos (relaciones), completá con:</p>
+                <p class="text-xs text-slate-300 leading-relaxed">Para cada relación, indicar si cada entidad tiene participación total o parcial:</p>
                 <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
-                    <li><strong>S</strong> = Sí, hay participación total</li>
-                    <li><strong>N</strong> = No, participación parcial</li>
+                    <li><strong>S</strong> = participación total (todas las instancias participan)</li>
+                    <li><strong>N</strong> = participación parcial (algunas pueden no participar)</li>
                 </ul>
-                <p class="text-xs text-slate-400 italic mt-1">Analiza el enunciado para identificar dónde.</p>
+                <p class="text-xs text-slate-400 italic mt-1">Usar el panel de abajo para marcar cada relación.</p>
             </div>
 
             <!-- Botones de acción -->
@@ -322,6 +322,15 @@
                     class="text-xs font-extrabold text-yellow-400 min-h-[1.25rem] mt-1">
                 </div>
             </div>
+
+            <!-- ── Panel de Totalidad/Participación ── -->
+            <div id="totalidad-panel" class="no-print hidden mt-4 p-4 bg-violet-950/40 rounded-xl border border-violet-800/40 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-extrabold text-violet-400 uppercase tracking-wider">📌 Totalidad (Participación)</span>
+                </div>
+                <div id="totalidad-questions" class="space-y-2"></div>
+            </div>
+
         </section>
 
     </main>
@@ -386,6 +395,22 @@
                 <div class="bg-slate-800 rounded-xl p-4">
                     <p class="text-teal-300 font-extrabold text-sm mb-2">Atributo de Relación</p>
                     <p class="text-slate-300 text-xs leading-relaxed">Atributo que describe información del vínculo entre entidades, no de las entidades mismas. Se conecta al rombo de relación. Ej: fecha_compra en "cliente compra producto".</p>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-4 border border-violet-700/50">
+                    <p class="text-violet-300 font-extrabold text-sm mb-2">⬤ Totalidad (Participación)</p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-3">Indica si <strong>todas</strong> las instancias de una entidad deben participar en una relación.</p>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 flex-shrink-0">
+                                <svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#1e293b"/></svg>
+                            </span>
+                            <p class="text-xs text-slate-300"><strong class="text-violet-300">S — Participación total:</strong> todas las instancias de esa entidad participan en la relación. El círculo se dibuja sobre la línea. Ej: todo ALUMNO cursa al menos una ASIGNATURA.</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 text-slate-500 text-base leading-none flex-shrink-0">—</span>
+                            <p class="text-xs text-slate-300"><strong class="text-slate-400">N — Participación parcial:</strong> algunas instancias pueden no participar. Sin círculo. Ej: no toda ASIGNATURA es dictada (podría no tener docente asignado).</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

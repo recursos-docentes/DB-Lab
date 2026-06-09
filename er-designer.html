@@ -70,6 +70,8 @@
                         <option value="6">🏫 Institución educativa</option>
                         <option value="7">🏫 Colegio</option>
                         <option value="8">🎬 Película</option>
+                        <option value="9">🏫 Fútbol</option>
+
                         <!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
                     </select>
                 </div>
@@ -141,6 +143,8 @@
                     <option value="6">🏫 Institución educativa</option>
                     <option value="7">🏫 Colegio</option>
                     <option value="8">🎬 Película</option>
+                    <option value="9">🏫 Fútbol</option>
+<!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
                 </select>
             </div>
 
@@ -297,6 +301,9 @@
                 <div id="diagram-nodes"
                     class="absolute inset-0 z-10"
                     style="min-width:100%;min-height:100%;width:100%;height:100%;"></div>
+                <svg id="svg-top"
+                    class="absolute inset-0 pointer-events-none z-20"
+                    style="width:100%;height:100%;overflow:visible;"></svg>
             </div>
 
             <!-- ── Feedback de corrección ── -->
@@ -350,8 +357,11 @@
            class="underline hover:text-slate-300 transition">licencia CC BY-SA</a>
     </footer>
 
-    <!-- ══════════════════════════════════════════ SCRIPT (importado desde script.js) -->
-    <script src="script.js?t=1"></script>
+    <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
+    <script src="exercises.js?t=2"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
+    <script src="script.js?t=2"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="diagram.js?t=2"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
+    <script src="analysis.js?t=2"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->

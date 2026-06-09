@@ -1,249 +1,247 @@
-# 📚 Guía: Agregar Nuevos Ejercicios a merTutor
+# 📚 Guía: Agregar Nuevos Ejercicios a DB-Lab
 
-## Estructura del Proyecto (Refactorizado)
-
-Ahora el código está separado en 3 archivos para mayor mantenibilidad:
+## Estructura del proyecto
 
 ```
 merTutor-main/
-├── er-designer.html          ← HTML puro (estructura)
-├── styles.css                ← CSS puro (estilos)
-├── script.js                 ← JavaScript puro (lógica)
-├── add-exercise-wizard.html  ← 🆕 Asistente para agregar ejercicios
-├── index.html                ← Página de bienvenida
-└── README.md
+├── index.html               ← Página de inicio (ejercicios por concepto)
+├── er-designer.html         ← Aplicación principal
+├── exercises.js             ← ⭐ DATOS: exercises[], analyzeData[], analyzeConfig[]
+├── script.js                ← UI: loadExercise(), canvas render
+├── diagram.js               ← Diagrama: conectores, validación, PNG
+├── analysis.js              ← Análisis: clasificación de términos
+├── styles.css               ← Estilos personalizados
+└── add-exercise-wizard.html ← Asistente para crear ejercicios
 ```
 
-## Método 1: Usar el Asistente Interactivo 🧙 (Recomendado)
-
-### Paso 1: Abrir el Asistente
-Abre `add-exercise-wizard.html` en tu navegador.
-
-### Paso 2: Completar 3 pasos simples
-
-#### **Paso 1️⃣: Información General**
-- **Título**: "🏥 Sistema Hospitalario" 
-- **Descripción**: Describe el caso (puedes usar HTML: `<strong>`, `<em>`, etc.)
-- **Pista**: Consejo para resolver el ejercicio
-- **Requisitos**: Marca si necesita subtipos (compuestos/multivaluados/ISA)
-
-#### **Paso 2️⃣: Entidades y Atributos**
-
-**Formato de Entidades:**
-```
-NOMBRE_ENTIDAD | clave_primaria | atributo1 | atributo2 | ...
-```
-
-Ejemplo:
-```
-PACIENTE | Cédula | Nombre | Teléfono
-MÉDICO | Matrícula | Nombre | Especialidad
-CONSULTA | Número | Fecha | Diagnóstico
-```
-
-**Formato de Relaciones:**
-```
-nombre_relacion | Entidad1 | Entidad2 | attr1 | attr2
-```
-
-Ejemplo:
-```
-realiza | PACIENTE | CONSULTA | Fecha_consulta
-atiende | MÉDICO | PACIENTE
-```
-
-#### **Paso 3️⃣: Copiar Código Generado**
-
-El asistente genera 3 bloques de código:
-
-1. **`exercises.push({...})`** → Copiar al **final de `exercises[]`** en `script.js`
-2. **`analyzeData.push([...])`** → Copiar al **final de `analyzeData[]`** en `script.js`
-3. **`{requireSubtypes: ...}`** → Copiar al **final de `analyzeConfig[]`** en `script.js`
-
-### Paso 3: Actualizar el HTML
-
-Abre `er-designer.html` y busca los `<select>` (hay 2):
-
-1. **En el nav de "Analizar el problema"** (búsqueda: `analyze-select`)
-```html
-<select id="analyze-select">
-    <option value="0">🔧 Taller Mecánico</option>
-    ...
-    <option value="5">🏥 Sistema Hospitalario</option>  ← AGREGAR
-</select>
-```
-
-2. **En el panel izquierdo de "Diseño E-R"** (búsqueda: `exercise-select`)
-```html
-<select id="exercise-select">
-    <option value="0">🔧 Taller Mecánico (N:M con atributos)</option>
-    ...
-    <option value="5">🏥 Sistema Hospitalario</option>  ← AGREGAR
-</select>
-```
-
-**Importante:** Usa el **índice correcto** (en este ejemplo: 5, porque ya hay 5 ejercicios con índices 0-4)
-
-### Paso 4: Probar
-
-1. Abre `er-designer.html` en el navegador
-2. Selecciona tu nuevo ejercicio en el dropdown
-3. ¡Debería funcionar! 🎉
+> **Todos los datos de ejercicios van en `exercises.js`**, no en `script.js`.
 
 ---
 
-## Método 2: Editar Manualmente (Avanzado)
+## Método 1: Asistente visual (recomendado)
 
-Si prefieres no usar el asistente, puedes editar directamente `script.js`.
+Abrir `add-exercise-wizard.html` en el navegador y completar los 3 pasos.
 
-### Estructura de un Ejercicio Completo
+### Paso 1 — Información general
+- **Título**, **descripción**, **pista**, **concepto**
+- **Casilla "Ejercicio activo"**: desmarcada → `enabled: false` (no aparece en inicio)
+- **Subtipos**: marcar si el ejercicio tiene atributos compuestos, multivaluados, derivados o ISA
 
-```javascript
+### Paso 2 — Entidades y relaciones
+
+**Formato de entidades:**
+```
+ENTIDAD | clave_pk | atributo1 | atributo2 | ...
+```
+Marcar `(débil)` al final si es entidad débil. Marcar `(clave!)` después de un atributo para indicar clave compuesta.
+
+**Formato de relaciones (normal):**
+```
+nombre_relacion | Entidad1 | Entidad2 | attr_relacion1
+```
+
+**Formato de autorelación** (entidad1 = entidad2, roles con `>`):
+```
+juega_con | CLUB | CLUB | >locatario | >visitante | FechaPartido
+```
+
+**Totalidad** (participación total): agregar `!` al nombre de la entidad en la relación:
+```
+trabaja_en | EMPLEADO! | DEPARTAMENTO | Fecha_inicio
+```
+
+### Paso 3 — Código generado
+
+El asistente genera 4 bloques para copiar:
+
+| Bloque | Dónde pegar |
+|--------|-------------|
+| 📝 Código del ejercicio | Al final de `exercises[]` en `exercises.js` |
+| 📊 Análisis de términos | Al final de `analyzeData[]` en `exercises.js` |
+| ⚙️ Configuración | Al final de `analyzeConfig[]` en `exercises.js` |
+| 🔽 Opción HTML | En los dos `<select>` de `er-designer.html` |
+
+> **Importante al pegar:** separar con coma del bloque anterior y **no dejar comas sueltas** entre entradas. Una coma extra o faltante crea un "agujero" en el array sin error visible.
+
+---
+
+## Método 2: Manual
+
+### 1. Agregar el ejercicio en `exercises.js`
+
+Al final del array `exercises[]`, antes del `];`, separado por coma:
+
+```js
 {
     title: "🏥 Sistema Hospitalario",
-    description: `Un hospital desea gestionar...<br><br>
-        • De cada <strong>Paciente</strong>...`,
-    hint: "Recuerda que Cédula es la clave primaria...",
-    wordBank: ["PACIENTE", "MÉDICO", "Cédula", "Nombre", ...],
+    description: `Enunciado en HTML. Usar <strong> para destacar conceptos.`,
+    hint: "Sugerencia visible al pulsar 'Ver pista'.",
+    wordBank: ["PACIENTE", "MÉDICO", "atiende", "Cédula", "Nombre", "1", "N"],
     nodes: [
-        // Entidades (rectangulares)
-        { id: "e_0", type: "entity", correctValue: "PACIENTE", x: 10, y: 45, w: 110, h: 52 },
-        { id: "e_1", type: "entity", correctValue: "MÉDICO",   x: 25, y: 45, w: 110, h: 52 },
-        
-        // Relaciones (diamantes)
-        { id: "r_0", type: "relation", correctValue: "realiza", x: 40, y: 45, w: 80, h: 80 },
-        
-        // Cardinalidades (círculos)
-        { id: "c_0", type: "cardinality", correctValue: "N", x: 20, y: 45, w: 30, h: 30 },
-        { id: "c_1", type: "cardinality", correctValue: "1", x: 35, y: 45, w: 30, h: 30 },
-        
-        // Atributos (óvalos)
-        { id: "a_0", type: "attribute", isKey: true, 
-          correctValue: "Cédula", x: 8, y: 25, w: 92, h: 40 },
-        { id: "a_1", type: "attribute", isKey: false,
-          correctValue: "Nombre", x: 15, y: 25, w: 78, h: 40 },
+        // Entidades
+        { id: "e_0", type: "entity", correctValue: "PACIENTE", x: 20, y: 50, w: 110, h: 52 },
+        { id: "e_1", type: "entity", correctValue: "MÉDICO",   x: 75, y: 50, w: 110, h: 52 },
+
+        // Relación normal
+        { id: "r_0", type: "relation", correctValue: "atiende", x: 50, y: 50, w: 80, h: 80 },
+
+        // Cardinalidades
+        { id: "c_0", type: "cardinality", correctValue: "N", x: 35, y: 50, w: 30, h: 30 },
+        { id: "c_1", type: "cardinality", correctValue: "1", x: 65, y: 50, w: 30, h: 30 },
+
+        // Atributos
+        { id: "a_0", type: "attribute", isKey: true,  correctValue: "Cédula",  x: 10, y: 25, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", isKey: false, correctValue: "Nombre",  x: 20, y: 25, w: 92, h: 40 },
+
+        // Atributo multivaluado
+        { id: "a_2", type: "attribute", isMultivalued: true, correctValue: "Teléfonos", x: 30, y: 72, w: 92, h: 40 },
+
+        // Atributo derivado
+        { id: "a_3", type: "attribute", isDerived: true, correctValue: "Edad", x: 40, y: 25, w: 92, h: 40 },
+
+        // Totalidad (S = participación total, N = parcial)
+        { id: "t_0_left",  type: "totalidad", correctValue: "S", x: 32, y: 45, w: 28, h: 24 },
+        { id: "t_0_right", type: "totalidad", correctValue: "N", x: 62, y: 45, w: 28, h: 24 },
     ],
     connections: [
-        { from: "a_0", to: "e_0" },  // Cédula → PACIENTE
-        { from: "a_1", to: "e_0" },  // Nombre → PACIENTE
-        { from: "e_0", to: "r_0" },  // PACIENTE → realiza
-        { from: "r_0", to: "e_1" },  // realiza → MÉDICO
-    ]
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "e_0", to: "r_0" },
+        { from: "r_0", to: "e_1" },
+        { from: "c_0", to: "r_0" },
+        { from: "c_1", to: "r_0" },
+    ],
+    // METADATOS
+    concept: "relaciones_simples",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
 ```
 
-### Tipos de Nodos
+#### Tipos de nodo
 
-| Tipo | Forma | Campos Especiales |
-|------|-------|-------------------|
-| `entity` | Rectángulo | — |
-| `relation` | Diamante | — |
+| `type` | Forma visual | Propiedades especiales |
+|--------|-------------|----------------------|
+| `entity` | Rectángulo | `isWeak: true` para entidad débil |
+| `relation` | Diamante | `isDoubleRelation: true`, `totalityLeft/Right: true` |
 | `attribute` | Óvalo | `isKey`, `isMultivalued`, `isDerived` |
 | `cardinality` | Círculo | — |
+| `totalidad` | Botón S/N | `correctValue: "S"` o `"N"` |
+| `isa` | Triángulo ISA | — |
 
-### Posicionamiento (%)
+#### Posicionamiento
 
-- **x**: 0-100% (de izquierda a derecha del canvas)
-- **y**: 0-100% (de arriba a abajo del canvas)
-- **w, h**: pixels (ancho y alto del elemento)
+| `y` aprox. | Zona |
+|------------|------|
+| 6% | Sub-atributos de compuesto |
+| 22% | Atributos principales (PK, etc.) |
+| **45–50%** | **Fila principal: entidades y relaciones** |
+| 72% | Atributos de relación / multivaluados |
 
-**Guía de Y:**
-- ~6%: sub-atributos (dentro de atributos compuestos)
-- ~22%: atributos superiores
-- ~45%: fila principal (entidades, relaciones, cardinalidades)
-- ~72%: atributos inferiores, multivaluados
+- `x` e `y` son porcentajes del canvas (1060 × 540 px).
+- `w` / `h` en px: entidad 110, relación 80 (autorelación 100), atributo 92, cardinalidad 30.
+
+#### Autorelación
+
+Entidad y relación comparten la misma `y`. Rombo con `w: 100, h: 100`. Conexiones con `role`. Cardinalidades en `y: 20` (superior) y `y: 40` (inferior):
+
+```js
+{ id: "e_0",   type: "entity",      correctValue: "CLUB",      x: 30, y: 30, w: 110, h: 52 },
+{ id: "r_1",   type: "relation",    correctValue: "juega_con", x: 60, y: 30, w: 100, h: 100 },
+{ id: "c_top", type: "cardinality", correctValue: "N",         x: 43, y: 20, w: 30,  h: 30 },
+{ id: "c_bot", type: "cardinality", correctValue: "N",         x: 43, y: 40, w: 30,  h: 30 },
+// Conexiones con roles
+{ from: "e_0", to: "r_1", role: "locatario" },
+{ from: "r_1", to: "e_0", role: "visitante" },
+```
 
 ---
 
-## Análisis de Texto (analyzeData)
+### 2. Agregar en `analyzeData[]`
 
-Estructura de segmentos:
+En la **misma posición** que el ejercicio en `exercises[]`. Cada elemento es un string de texto o un objeto término clickeable:
 
-```javascript
-analyzeData[index] = [
-    "Texto plano inicial.\n\n",
-    { word: "Paciente", type: "entidad", entityType: "fuerte" },
-    " tiene ",
-    { word: "Cédula", type: "atributo", attrType: "clave" },
-    " y ",
-    { word: "Nombre", type: "atributo", attrType: "simple" },
-    "."
+```js
+[
+    "Texto introductorio del enunciado.\n\n",
+    "• De cada ", {word:"PACIENTE", type:"entidad", entityType:"fuerte"}, " se guarda ",
+    {word:"Cédula", type:"atributo", attrType:"clave"}, ", ",
+    {word:"Nombre", type:"atributo", attrType:"simple"}, ".\n",
+    "• Un paciente puede ", {word:"atiende", type:"relacion"}, " muchos médicos.\n"
 ]
 ```
 
-### Tipos Disponibles
+**Campos de cada objeto:**
 
-**Para Entidades:**
-```javascript
-{ word: "PACIENTE", type: "entidad", entityType: "fuerte" }
-// entityType: "fuerte" | "débil"
-```
+| Campo | Valores posibles |
+|-------|-----------------|
+| `type` | `"entidad"`, `"atributo"`, `"relacion"` |
+| `entityType` | `"fuerte"`, `"débil"` (obligatorio si `type:"entidad"`) |
+| `attrType` | `"simple"`, `"clave"`, `"compuesto"`, `"multivaluado"`, `"derivado"`, `"relacion"` (obligatorio si `type:"atributo"`) |
 
-**Para Atributos:**
-```javascript
-{ word: "Cédula", type: "atributo", attrType: "clave" }
-// attrType: "simple" | "clave" | "compuesto" | "multivaluado" | "derivado" | "relacion"
+> ⚠️ `exercises[]`, `analyzeData[]` y `analyzeConfig[]` deben tener **exactamente el mismo número de entradas**. Una coma faltante entre entradas rompe el array sin error visible — verificar con la consola del navegador (`F12 → Console`) si algo no carga.
 
-// Si es compuesto, incluir componentes:
-{ 
-    word: "Nombre_completo", 
-    type: "atributo", 
-    attrType: "compuesto",
-    components: ["Primer_nom", "Primer_ape"]
-}
-```
+---
 
-**Para Relaciones:**
-```javascript
-{ word: "realiza", type: "relacion" }
+### 3. Agregar en `analyzeConfig[]`
+
+En la misma posición:
+
+```js
+{ requireSubtypes: false }
+// true  → el analizador pide subtipo de atributo (simple/clave/compuesto/etc.)
+// false → solo pide Entidad / Atributo / Relación
 ```
 
 ---
 
-## Configuración (analyzeConfig)
+### 4. Actualizar los selectores en `er-designer.html`
 
-```javascript
-analyzeConfig[index] = {
-    requireSubtypes: false  // true si hay atributos especiales o ISA
-}
+Agregar la misma opción en **los dos `<select>`** del archivo (`exercise-select` y `analyze-select`), con el índice correcto:
+
+```html
+<option value="10">🏥 Sistema Hospitalario</option>
 ```
 
 ---
 
-## Ejemplo Completo: Sistema de Biblioteca 📚
+### 5. Página de inicio (`index.html`)
 
-### Ejercicio Original (#1)
-```javascript
-{
-    title: "📚 Biblioteca Escolar",
-    description: `Se desea diseñar el esquema para el control de los libros prestados...
-        • Cada <strong>Socio</strong> tiene...`,
-    hint: "Un socio puede solicitar múltiples préstamos...",
-    wordBank: ["SOCIO", "LIBRO", "PRÉSTAMO", "id_socio", "isbn", ...],
-    // ... nodes y connections
-}
+Si `enabled: true` y `concept` tiene una sección activa, el botón aparece automáticamente. No se requiere código adicional.
+
+| `concept` | Sección en index.html |
+|-----------|----------------------|
+| `relaciones_simples` | Entidades, atributos y relaciones |
+| `atributos_especiales` | Atributos especiales |
+| `participacion` | Totalidad (participación) |
+| `autorelacion` | Autorelación |
+| `generalizacion` | Generalización/Categorización (ISA) |
+| `entidad_debil` | Entidades débiles |
+
+---
+
+## Activar / desactivar ejercicios
+
+```js
+// METADATOS del ejercicio en exercises.js
+concept: "entidad_debil",
+enabled: true    // ← true: visible en index.html | false: oculto
 ```
 
----
-
-## Troubleshooting
-
-| Problema | Solución |
-|----------|----------|
-| El ejercicio no aparece en el dropdown | Verificar que el índice en `<option>` sea correcto |
-| Los nodos se superponen | Ajustar `x` e `y` (aumentar separación) |
-| Las líneas de conexión no se ven | Verificar que `connections` sea válido |
-| Respuestas no se validan | Asegurar que `correctValue` coincida exactamente |
+- `enabled: false` → no aparece en `index.html` pero sigue accesible desde `er-designer.html` por el selector.
+- Útil para preparar ejercicios sin que los estudiantes los vean.
 
 ---
 
-## 🎯 Próximas Mejoras
+## Solución de problemas
 
-- [ ] Generador visual de posiciones (drag-and-drop)
-- [ ] Preview del ejercicio en el asistente
-- [ ] Importar/exportar ejercicios en JSON
-- [ ] Sistema de plantillas para ejercicios comunes
-
----
-
-**¿Preguntas?** Revisa el archivo `README.md` principal o consulta los ejercicios existentes como referencia.
+| Síntoma | Causa probable | Solución |
+|---------|---------------|----------|
+| El ejercicio no aparece en el selector | `<option>` no agregado en `er-designer.html` | Agregar en los dos `<select>` |
+| No aparece en `index.html` | `enabled: false` o `concept` no definido | Verificar metadatos |
+| El analizador muestra el ejercicio anterior | Coma faltante o extra en `analyzeData[]` | Abrir consola (`F12`), buscar SyntaxError |
+| Diseño muestra el ejercicio anterior | Coma faltante o extra en `exercises[]` | Ídem |
+| Los nodos se superponen | `x`/`y` muy cercanos | Aumentar separación entre nodos |
+| Las líneas de conexión no aparecen | `id` incorrecto en `connections` | Verificar que los `id` coincidan |
+| Respuestas no se validan | `correctValue` no coincide | Comparar exactamente con `wordBank` |
+| Cambios no se reflejan en el navegador | Caché del navegador | Incrementar `?t=N` en los `<script>` de `er-designer.html` e `index.html` |

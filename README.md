@@ -44,12 +44,12 @@ er-designer.html?ejercicio=2&ex=1
 - **Dos pasos** para atributos: primero elegir "Atributo", luego el subtipo.
   - Subtipos disponibles: Simple, Clave, De relación, Compuesto, Multivaluado, Derivado.
   - Los subtipos se muestran **solo si existen en ese ejercicio** (opciones dinámicas).
-  - En ejercicios básicos (0–2) **no se pregunta subtipo**: solo Entidad / Atributo / Relación, para reducir la carga cognitiva.
-- **Tres pasos** para atributos compuestos: identifica el tipo, luego selecciona los atributos que lo componen. Los componentes quedan grises y se excluyen de la validación individual.
-- **Entidades:** si el ejercicio solo tiene entidades fuertes, se clasifican directo sin preguntar.
+  - En ejercicios básicos (0–2) **no se pregunta subtipo**: solo Entidad / Atributo / Relación.
+- **Tres pasos** para atributos compuestos: identifica el tipo, luego selecciona los componentes.
+- **Entidades:** si el ejercicio solo tiene entidades fuertes, se clasifican directo sin preguntar subtipo.
 - **Estado persistente:** al cambiar al tab de Diseño E-R y volver, la clasificación se mantiene.
-- **Rastreo de progreso:** compara el resultado actual con el intento anterior (guardado en `localStorage`).
-- **Ver respuestas:** después de 2 intentos fallidos en modo ejercitación aparece el botón "💡 Ver respuestas correctas".
+- **Rastreo de progreso:** compara el resultado con el intento anterior (`localStorage`).
+- **Ver respuestas:** después de 2 intentos fallidos en modo ejercitación.
 
 ---
 
@@ -57,53 +57,107 @@ er-designer.html?ejercicio=2&ex=1
 
 | Función | Descripción |
 |---------|-------------|
-| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad, totalidad y más. Accesible con el botón `📖` en el nav (sticky, siempre visible). |
-| 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. Accesible desde las instrucciones. |
-| ? **Tutorial** | Modal de 4 pasos que se muestra automáticamente en el primer uso. Se puede reabrir con el botón `?` en el nav (sticky, siempre visible). |
-| 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación para desbloquear al estudiante. |
-| ⬆️ **Comparación de intentos** | Al validar, muestra si mejoró, empeoró o se mantuvo respecto al intento anterior. |
+| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad, totalidad y más. |
+| 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. |
+| ? **Tutorial** | Modal de 4 pasos automático en el primer uso, reabrble con `?`. |
+| 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación. |
+| ⬆️ **Comparación de intentos** | Muestra si mejoró, empeoró o se mantuvo respecto al intento anterior. |
+
+---
+
+## Estructura de archivos
+
+```
+merTutor-main/
+├── index.html               ← Página de inicio con ejercicios por concepto
+├── er-designer.html         ← Aplicación principal (Analizar → Diseño E-R → Tablas)
+├── exercises.js             ← Datos: exercises[], analyzeData[], analyzeConfig[]
+├── script.js                ← UI: variables globales, loadExercise(), canvas render
+├── diagram.js               ← Diagrama: drawCrispConnectors(), validación, PNG
+├── analysis.js              ← Análisis: modo eval, panel de clasificación
+├── styles.css               ← Estilos personalizados
+├── add-exercise-wizard.html ← Asistente para crear nuevos ejercicios
+└── README.md                ← Este archivo
+```
+
+> **Nota sobre caché:** Los archivos JS se cargan con `?t=2` en `er-designer.html` e `index.html`. Al subir cambios que los estudiantes no ven reflejados, incrementar ese número.
+
+---
+
+## Ejercicios disponibles
+
+| Índice | Caso | Concepto | Estado |
+|--------|------|---------|--------|
+| 0 | 🔧 Taller Mecánico | Atributos especiales (relación) | ✅ |
+| 1 | 📚 Biblioteca Escolar | Atributos especiales (relación) | ✅ |
+| 2 | 🛒 Tienda Online | Relaciones simples | ✅ |
+| 3 | 🌐 Red Social | Generalización/ISA | ✅ |
+| 4 | Plataforma Streaming | Atributos especiales | ✅ |
+| 5 | 🏥 Sistema Hospitalario | Relaciones simples | ✅ |
+| 6 | Institución educativa | Atributos especiales | ✅ |
+| 7 | Colegio | Totalidad / Participación | ✅ |
+| 8 | Película | Entidad débil | ✅ |
+| 9 | Fútbol | Autorelación | ✅ |
 
 ---
 
 ## Agregar un nuevo ejercicio
 
-### Paso 1 — Datos del diagrama
+### Método rápido: Asistente visual
 
-En `er-designer.html`, agregá un objeto al array `exercises`:
+Abrir `add-exercise-wizard.html` en el navegador. Genera automáticamente el código para los 4 bloques que hay que pegar.
+
+Para autorelación, la sintaxis en el campo de relaciones es:
+```
+juega_con | CLUB | CLUB | >locatario | >visitante | FechaPartido
+```
+(entidad1 = entidad2, roles con prefijo `>`, atributos de relación al final)
+
+---
+
+### Método manual
+
+#### Paso 1 — Código del ejercicio (`exercises.js`)
+
+Agregar al final del array `exercises[]` en `exercises.js`, antes del `];` y separado por coma:
 
 ```js
 {
-    title: "Caso N: Nombre del ejercicio",
-    description: `HTML con el enunciado. Usá <strong> para resaltar conceptos.`,
-    hint: "Sugerencia pedagógica visible al pulsar 'Ver pista de diseño'.",
-    wordBank: ["ENTIDAD_A", "ENTIDAD_B", "relacion", "Atrib1", "Atrib2", "1", "N"],
+    title: "Nombre del ejercicio",
+    description: `HTML con el enunciado.`,
+    hint: "Sugerencia pedagógica.",
+    wordBank: ["ENTIDAD_A", "ENTIDAD_B", "relacion", "Atrib1", "1", "N"],
     nodes: [
-        { id: "e1", type: "entity",      correctValue: "ENTIDAD_A",  x: 20, y: 50, w: 120, h: 52 },
-        { id: "r1", type: "relation",    correctValue: "relacion",   x: 50, y: 50, w: 85,  h: 85 },
-        { id: "a1", type: "attribute",   isKey: false, correctValue: "Atrib1",   x: 20, y: 22, w: 85, h: 40 },
-        { id: "pk", type: "attribute",   isKey: true,  correctValue: "Id",       x: 10, y: 22, w: 75, h: 40 },
-        { id: "mv", type: "attribute",   isMultivalued: true, correctValue: "Tags", x: 30, y: 22, w: 90, h: 42 },
+        { id: "e1", type: "entity",      correctValue: "ENTIDAD_A",  x: 20, y: 50, w: 110, h: 52 },
+        { id: "r1", type: "relation",    correctValue: "relacion",   x: 50, y: 50, w: 80,  h: 80 },
+        { id: "a1", type: "attribute",   isKey: false, correctValue: "Atrib1", x: 20, y: 22, w: 92, h: 40 },
+        { id: "pk", type: "attribute",   isKey: true,  correctValue: "Id",     x: 10, y: 22, w: 92, h: 40 },
+        { id: "mv", type: "attribute",   isMultivalued: true, correctValue: "Tags", x: 30, y: 22, w: 92, h: 40 },
+        { id: "dv", type: "attribute",   isDerived: true,     correctValue: "Edad", x: 40, y: 22, w: 92, h: 40 },
         { id: "c1", type: "cardinality", correctValue: "1",  x: 35, y: 50, w: 30, h: 30 },
         { id: "c2", type: "cardinality", correctValue: "N",  x: 65, y: 50, w: 30, h: 30 },
-        { id: "isa1", type: "isa",                           x: 28, y: 62, w: 70, h: 56 },
-        // Totalidad (participación): S = total, N = parcial. Sin DOM en canvas — usa panel de botones.
-        { id: "t_0_left",  type: "totalidad", correctValue: "N", x: 32, y: 65, w: 28, h: 24 },
-        { id: "t_0_right", type: "totalidad", correctValue: "S", x: 42, y: 65, w: 28, h: 24 }
+        { id: "t1", type: "totalidad",   correctValue: "S",  x: 32, y: 45, w: 28, h: 24 }
     ],
     connections: [
-        { from: "pk", to: "e1" }, { from: "a1", to: "e1" },
-        { from: "e1", to: "r1" }, { from: "r1", to: "e2" }
-    ]
+        { from: "pk", to: "e1" },
+        { from: "a1", to: "e1" },
+        { from: "e1", to: "r1" },
+        { from: "r1", to: "e2" }
+    ],
+    // METADATOS
+    concept: "relaciones_simples",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
 ```
 
-#### Posicionamiento de nodos
+##### Posicionamiento de nodos
 
 | Propiedad | Descripción |
 |-----------|-------------|
-| `x` | Centro horizontal en **%** del canvas (mín. 1060 px). |
-| `y` | Centro vertical en **%** del canvas (540 px). |
-| `w` / `h` | Tamaño en px. Guía: entidad 110–120 · relación 80–90 · atributo 75–110 · cardinalidad 30. |
+| `x` | Centro horizontal en **%** del canvas (canvas = 1060 px). |
+| `y` | Centro vertical en **%** del canvas (canvas = 540 px). |
+| `w` / `h` | Tamaño en px. Guía: entidad 110 · relación 80 (autorelación 100) · atributo 92 · cardinalidad 30. |
 
 ```
 y ≈  6%  →  sub-atributos de compuesto
@@ -112,91 +166,93 @@ y ≈ 45%  →  entidades y relaciones  ← fila principal
 y ≈ 72%  →  atributos de relación / multivaluados
 ```
 
-#### Reglas de validación
-- **Atributo clave (`isKey: true`):** match exacto en su slot.
-- **Atributos no-clave:** orden libre dentro del mismo nodo padre.
-- **Cardinalidades:** match exacto. Solo se usa `N` (no `M`).
-- **Totalidad:** el estudiante marca S o N en el panel de botones (no en el canvas). Al validar, los círculos se dibujan automáticamente sobre el vértice del rombo correspondiente a las participaciones totales correctas. Posicionar los nodos `totalidad` entre la relación y la entidad que representan (en coordenadas %) para que la detección visual sea correcta.
+##### Autorelación
+
+Entidad y relación comparten la misma `y`. El rombo usa `w: 100, h: 100`. Las conexiones llevan `role`. Las cardinalidades van en `y: 20` (superior) y `y: 40` (inferior):
+
+```js
+{ id: "e_0",   type: "entity",      correctValue: "CLUB",      x: 30, y: 30, w: 110, h: 52 },
+{ id: "r_1",   type: "relation",    correctValue: "juega_con", x: 60, y: 30, w: 100, h: 100 },
+{ id: "c_top", type: "cardinality", correctValue: "N",         x: 43, y: 20, w: 30,  h: 30 },
+{ id: "c_bot", type: "cardinality", correctValue: "N",         x: 43, y: 40, w: 30,  h: 30 },
+// Conexiones
+{ from: "e_0", to: "r_1", role: "locatario" },
+{ from: "r_1", to: "e_0", role: "visitante" },
+```
+
+##### Totalidad (participación)
+
+Nodos `type: "totalidad"` con `correctValue: "S"` (total) o `"N"` (parcial). Posicionar entre la entidad y la relación. El diagrama dibuja el círculo doble automáticamente al validar.
+
+##### Visibilidad (`enabled`)
+
+- `enabled: true` → aparece en `index.html`
+- `enabled: false` → accesible desde `er-designer.html` pero no en la página de inicio
 
 ---
 
-### Paso 2 — Datos de análisis de texto
+#### Paso 2 — Análisis de términos (`exercises.js`)
 
-En el array `analyzeData`, agregá un array en la posición del índice del nuevo ejercicio.  
-Cada elemento es un **string** (texto plano) o un **objeto** (término clickeable):
+Agregar al array `analyzeData[]` en la **misma posición** que el ejercicio. Cada elemento es un string o un objeto término:
 
 ```js
-{ word: "término", type: "entidad|atributo|relacion", entityType: "fuerte|débil", attrType: "simple|clave|compuesto|multivaluado|derivado|relacion", components: ["comp1","comp2"] }
+{ word: "término", type: "entidad|atributo|relacion", entityType: "fuerte|débil", attrType: "simple|clave|compuesto|multivaluado|derivado|relacion" }
 ```
 
-- `entityType` → siempre incluirlo en entidades (`"fuerte"` o `"débil"`).
-- `attrType` → siempre incluirlo en atributos.
-- `components` → solo en atributos con `attrType:"compuesto"`, lista de palabras que lo componen.
+**Reglas:**
+- `entityType` → siempre en entidades (`"fuerte"` o `"débil"`).
+- `attrType` → siempre en atributos.
 
-**Ejemplo:**
 ```js
 [
     "Un hospital desea registrar sus médicos y pacientes.\n\n",
-    "• Datos de ", { word:"Médico", type:"entidad", entityType:"fuerte" }, ": ",
+    "• De cada ", { word:"Médico", type:"entidad", entityType:"fuerte" }, " se guarda ",
     { word:"matricula", type:"atributo", attrType:"clave" }, ", ",
     { word:"nombre",    type:"atributo", attrType:"simple" }, ".\n",
-    "• Un médico puede ", { word:"atender", type:"relacion" }, " muchos pacientes."
+    "• Un médico puede ", { word:"atender", type:"relacion" }, " muchos pacientes.\n"
 ]
 ```
 
+> ⚠️ **Importante:** `exercises[]`, `analyzeData[]` y `analyzeConfig[]` deben tener exactamente el mismo número de entradas alineadas por índice. Una **coma faltante** entre entradas rompe el array en JavaScript sin error visible — verificar con la consola del navegador si algo no carga.
+
 ---
 
-### Paso 3 — Selectores del designer
+#### Paso 3 — Configuración (`exercises.js`)
 
-En `er-designer.html`, agregá la misma opción en **ambos** `<select>`:
+Agregar al array `analyzeConfig[]` en la misma posición:
+
+```js
+{ requireSubtypes: true }   // true → pide subtipo de atributo | false → no pide
+```
+
+---
+
+#### Paso 4 — Selectores en `er-designer.html`
+
+Agregar la misma opción en **los dos** `<select>` del archivo (`exercise-select` y `analyze-select`):
 
 ```html
-<option value="5">🏥 Hospital</option>
+<option value="9">⚽ Fútbol</option>
 ```
+
+El `value` debe ser el índice del ejercicio en `exercises[]`.
 
 ---
 
-### Paso 4 — Página de inicio
+#### Paso 5 — Página de inicio (`index.html`)
 
-En `index.html`, agregá un enlace dentro de la sección de concepto correspondiente:
+Si `enabled: true` y `concept` está definido con una sección activa, el botón aparece automáticamente. No se requiere código adicional.
 
-```html
-<a href="er-designer.html?ejercicio=5" class="px-4 py-3 bg-teal-600/20 border border-teal-500/40 hover:bg-teal-600/40 rounded-xl text-sm font-semibold text-white transition flex items-center gap-2.5">
-    <span>🏥</span> Hospital
-</a>
-```
+Secciones activas en `index.html`:
 
-El enlace debe usar el parámetro `?ejercicio=X` donde X es el índice del ejercicio en el array `exercises` de `script.js`.
-
----
-
-## Estructura de archivos
-
-```
-DB-Lab/
-├── index.html        ← Página de inicio con ejercicios por concepto
-├── er-designer.html  ← Aplicación principal con 3 etapas (Analizar, Diseño E-R, etc.)
-├── script.js         ← Lógica de ejercicios, validación, canvas
-├── styles.css        ← Estilos personalizados
-├── add-exercise-wizard.html ← Asistente para crear nuevos ejercicios
-├── serve.pl          ← Servidor local para desarrollo (Perl)
-└── README.md         ← Este archivo
-```
-
----
-
-## Ejercicios disponibles
-
-| Índice | Caso | Concepto | Dificultad |
-|--------|------|---------|-----------|
-| 0 | Taller Mecánico | Atributos especiales (relación) | Intermedio |
-| 1 | Biblioteca Escolar | Atributos especiales (relación) | Intermedio |
-| 2 | Tienda Online | Relaciones simples | Básico |
-| 3 | Red Social | Generalización/ISA | Avanzado |
-| 4 | Plataforma Streaming | Atributos especiales | Intermedio |
-| 5 | Sistema Hospitalario | Relaciones simples | Básico |
-| 6 | Institución educativa | Atributos especiales | Intermedio |
-| 7 | Colegio | Totalidad / Participación | Avanzado |
+| `concept` | Sección visible |
+|-----------|----------------|
+| `relaciones_simples` | Entidades, atributos y relaciones |
+| `atributos_especiales` | Atributos especiales |
+| `participacion` | Totalidad (participación) |
+| `autorelacion` | Autorelación |
+| `generalizacion` | Generalización/Categorización (ISA) |
+| `entidad_debil` | Entidades débiles |
 
 ---
 
@@ -205,41 +261,6 @@ DB-Lab/
 - **Tailwind CSS** (CDN) — estilos
 - **html2canvas 1.4.1** (CDN) — exportación PNG
 - JavaScript vanilla — sin frameworks ni dependencias de build
-
----
-
----
-
-## 🚀 Planes Futuros
-
-### **Migración a Firebase** (próximas fases)
-
-#### Fase 1: Preparación
-- [x] Agregar metadatos a ejercicios (concepto, disponibilidad)
-- [ ] Reorganizar index por conceptos E-R (en lugar de niveles)
-- [ ] Diseñar estructura de BD Firestore
-
-#### Fase 2: Configurar Firebase
-- [ ] Crear proyecto Firebase
-- [ ] Configurar Firestore con ejercicios
-- [ ] Agregar autenticación profesor/estudiante
-- [ ] Migrar a Firebase Hosting
-
-#### Fase 3: Integración
-- [ ] Reescribir carga de ejercicios desde Firestore
-- [ ] Crear **Panel de Profesor** para habilitar/deshabilitar ejercicios
-- [ ] Control de disponibilidad: clase, casa, evaluación
-- [ ] Cargar dinámicamente qué ejercicios ve cada usuario
-
-#### Fase 4: Seguridad
-- [ ] Reglas Firestore para proteger evaluaciones
-- [ ] Tests de seguridad
-
-#### Beneficios
-- Ejercicios configurables sin editar código
-- Disponibilidad controlada (algunos solo para evaluaciones)
-- Separación profesor/estudiante
-- Escalable para múltiples aulas
 
 ---
 

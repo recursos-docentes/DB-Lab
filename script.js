@@ -324,3 +324,111 @@ function fillSlot(nodeId) {
     document.getElementById('selection-status').innerText = "";
     updateWordBankVisuals();
 }
+
+// ── Modales: Conceptos ────────────────────────────────────
+function showConcepts() { document.getElementById('concepts-modal').classList.remove('hidden'); }
+function closeConcepts() { document.getElementById('concepts-modal').classList.add('hidden'); }
+
+// ── Modales: Glosario ─────────────────────────────────────
+function showGlossary() { document.getElementById('glossary-modal').classList.remove('hidden'); }
+function closeGlossary() { document.getElementById('glossary-modal').classList.add('hidden'); }
+
+// ── Tutorial ──────────────────────────────────────────────
+let _tutorialStep = 0;
+function showTutorial() {
+    _tutorialStep = 0;
+    _renderTutorialStep();
+    document.getElementById('tutorial-modal').classList.remove('hidden');
+}
+function closeTutorial() {
+    document.getElementById('tutorial-modal').classList.add('hidden');
+    localStorage.setItem('ert_tutorial_seen', '1');
+}
+function nextTutorialStep() {
+    const steps = document.querySelectorAll('.tutorial-step');
+    if (_tutorialStep >= steps.length - 1) { closeTutorial(); return; }
+    _tutorialStep++;
+    _renderTutorialStep();
+}
+function _renderTutorialStep() {
+    const steps = document.querySelectorAll('.tutorial-step');
+    const dots  = document.querySelectorAll('[data-dot]');
+    steps.forEach((s, i) => s.classList.toggle('hidden', i !== _tutorialStep));
+    dots.forEach((d, i)  => d.className = `w-2 h-2 rounded-full ${i === _tutorialStep ? 'bg-indigo-500' : 'bg-slate-600'}`);
+    const btn = document.getElementById('tutorial-next-btn');
+    if (btn) btn.textContent = _tutorialStep === steps.length - 1 ? '¡Comenzar! 🚀' : 'Siguiente →';
+}
+
+// ── Guardar diagrama como PNG ─────────────────────────────
+async function saveAsPNG() {
+    const btn = document.getElementById('png-btn');
+    const canvasEl = document.getElementById('er-canvas');
+
+    if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
+        const ok = confirm(
+            '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
+            '📐 Para que salga completo:\n' +
+            '  • Reducir el zoom del navegador (Ctrl + −)\n' +
+            '  • O ampliar la ventana\n\n' +
+            '¿Guardar igualmente?'
+        );
+        if (!ok) return;
+    }
+
+    if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
+    canvasEl.scrollLeft = 0;
+    canvasEl.scrollTop  = 0;
+
+    const canvasRect = canvasEl.getBoundingClientRect();
+    const overlays   = [];
+
+    canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
+        inp.style.opacity = '0';
+        if (!inp.value) return;
+        const nodeId = inp.id.replace('input-', '');
+        const nodeEl = document.getElementById(nodeId) || inp.parentElement;
+        const r      = nodeEl.getBoundingClientRect();
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position:absolute;
+            left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
+            top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
+            width:${r.width}px; height:${r.height}px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:700;
+            font-family:'Plus Jakarta Sans',sans-serif;
+            pointer-events:none; z-index:9999; background:transparent;
+            color:${
+                inp.classList.contains('input-correct')   ? '#059669' :
+                inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
+            };
+            text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
+        `;
+        div.textContent = inp.value;
+        canvasEl.appendChild(div);
+        overlays.push(div);
+    });
+
+    await new Promise(r => requestAnimationFrame(r));
+
+    try {
+        const shot = await html2canvas(canvasEl, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#f8fafc'
+        });
+        const link = document.createElement('a');
+        const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_');
+        link.download = `ER_${nombre}.png`;
+        link.href = shot.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error('PNG error:', err);
+        alert('No se pudo generar la imagen. Intentar nuevamente.');
+    } finally {
+        canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
+        overlays.forEach(d => d.remove());
+        if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
+    }
+}

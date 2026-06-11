@@ -200,17 +200,24 @@ function renderInteractiveCanvas(exercise) {
         `;
         let html = "";
         if (node.type === "entity") {
-            el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
-            html = `
+            el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20 relative";
+            const innerRect = node.isWeak
+                ? `<div class="absolute inset-[3px] border-2 border-blue-500 pointer-events-none"></div>`
+                : '';
+            html = innerRect + `
                 <input type="text" id="input-${node.id}" placeholder="?"
-                    class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
+                    class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent relative z-10"
                     onclick="fillSlot('${node.id}')" readonly>
             `;
         } else if (node.type === "relation") {
             el.className = "relative flex justify-center items-center z-20";
+            const innerDiamond = node.isDoubleRelation
+                ? `<polygon points="50,10 90,50 50,90 10,50" fill="none" stroke="#db2777" stroke-width="3" stroke-linejoin="round"/>`
+                : '';
             html = `
                 <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                    ${innerDiamond}
                 </svg>
                 <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
                     <input type="text" id="input-${node.id}" placeholder="?"
@@ -222,7 +229,7 @@ function renderInteractiveCanvas(exercise) {
             let borderClass, inputExtra;
             if (node.isKey) {
                 borderClass = "border-2 border-emerald-500";
-                inputExtra  = "underline";
+                inputExtra  = node.isDashed ? "underline decoration-dashed" : "underline";
             } else if (node.isMultivalued) {
                 borderClass = "border-double border-[4px] border-emerald-600";
                 inputExtra  = "";

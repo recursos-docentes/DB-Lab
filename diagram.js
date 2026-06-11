@@ -506,66 +506,207 @@ function checkAnswers() {
 async function saveAsPNG() {
     const btn = document.getElementById('png-btn');
     const canvasEl = document.getElementById('er-canvas');
-    // Avisar si el contenido está cortado
-    if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
-        const ok = confirm(
-            '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
-            '📐 Para que salga completo:\n' +
-            '  • Reducir el zoom del navegador (Ctrl + −)\n' +
-            '  • O ampliar la ventana\n\n' +
-            '¿Guardar igualmente?'
-        );
-        if (!ok) return;
-    }
+    const cur = exercises[activeExercise];
     if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
-    canvasEl.scrollLeft = 0;
-    canvasEl.scrollTop  = 0;
-    const canvasRect = canvasEl.getBoundingClientRect();
-    const overlays   = [];
-    // html2canvas no lee texto de <input> → creamos divs temporales encima
-    canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
-        inp.style.opacity = '0';
-        if (!inp.value) return;
-        const r   = inp.getBoundingClientRect();
-        const div = document.createElement('div');
-        div.style.cssText = `
-            position:absolute;
-            left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
-            top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
-            width:${r.width}px; height:${r.height}px;
-            display:flex; align-items:center; justify-content:center;
-            font-size:11px; font-weight:700;
-            font-family:'Plus Jakarta Sans',sans-serif;
-            pointer-events:none; z-index:9999; background:transparent;
-            color:${
-                inp.classList.contains('input-correct')   ? '#059669' :
-                inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
-            };
-            text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
-        `;
-        div.textContent = inp.value;
-        canvasEl.appendChild(div);
-        overlays.push(div);
+
+    const SCALE = 2;
+    const cr = canvasEl.getBoundingClientRect();
+    const W  = cr.width;
+    const H  = cr.height;
+
+    const off = document.createElement('canvas');
+    off.width  = W * SCALE;
+    off.height = H * SCALE;
+    const ctx = off.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+
+    // Fondo con puntos
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#c8d5e8';
+    for (let x = 11; x < W; x += 22)
+        for (let y = 11; y < H; y += 22) {
+            ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill();
+        }
+
+    const typeMap = {};
+    cur.nodes.forEach(n => typeMap[n.id] = n.type);
+
+    function elC(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.left-cr.left+r.width/2, y: r.top-cr.top+r.height/2,
+                 hw: r.width/2, hh: r.height/2,
+                 l: r.left-cr.left, t: r.top-cr.top, w: r.width, h: r.height };
+    }
+    function edgePt(c, tx, ty, type) {
+        const dx=tx-c.x, dy=ty-c.y, len=Math.sqrt(dx*dx+dy*dy);
+        if (len<0.5) return {x:c.x,y:c.y};
+        const nx=dx/len, ny=dy/len;
+        let t;
+        if (type==='attribute'||type==='cardinality')
+            t = 1/Math.sqrt((nx/c.hw)**2+(ny/c.hh)**2);
+        else if (type==='relation')
+            t = 1/(Math.abs(nx)/c.hw+Math.abs(ny)/c.hh);
+        else
+            t = Math.min(c.hw/Math.abs(nx||1e-9), c.hh/Math.abs(ny||1e-9));
+        return {x:c.x+nx*t, y:c.y+ny*t};
+    }
+
+    // ── Conectores ────────────────────────────────────────
+    ctx.lineCap = 'round';
+    cur.connections.forEach(({from, to}) => {
+        const aEl=document.getElementById(from), bEl=document.getElementById(to);
+        if (!aEl||!bEl) return;
+        const ca=elC(aEl), cb=elC(bEl);
+        const p1=edgePt(ca,cb.x,cb.y,typeMap[from]);
+        const p2=edgePt(cb,ca.x,ca.y,typeMap[to]);
+        const isAttr = typeMap[from]==='attribute'||typeMap[to]==='attribute';
+        ctx.strokeStyle = isAttr ? '#10b981' : '#94a3b8';
+        ctx.lineWidth   = isAttr ? 1.5 : 2;
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
     });
-    await new Promise(r => requestAnimationFrame(r));
+
+    // ── Nodos ─────────────────────────────────────────────
+    cur.nodes.forEach(n => {
+        if (n.type==='totalidad') return;
+        const el=document.getElementById(n.id); if (!el) return;
+        const c=elC(el);
+        const inp=document.getElementById('input-'+n.id);
+        const val=inp?inp.value:'';
+        const ok=inp&&inp.classList.contains('input-correct');
+        const bad=inp&&inp.classList.contains('input-incorrect');
+        const tc = ok?'#059669': bad?'#dc2626':'#1e293b';
+
+        ctx.save();
+        if (n.type==='entity') {
+            ctx.fillStyle='#eff6ff'; ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.rect(c.l,c.t,c.w,c.h); ctx.fill(); ctx.stroke();
+            if (n.isWeak) {
+                ctx.beginPath(); ctx.rect(c.l+3,c.t+3,c.w-6,c.h-6); ctx.stroke();
+            }
+        } else if (n.type==='relation') {
+            ctx.fillStyle='#fdf2f8'; ctx.strokeStyle='#db2777'; ctx.lineWidth=3.5;
+            ctx.beginPath();
+            ctx.moveTo(c.x,c.t); ctx.lineTo(c.l+c.w,c.y);
+            ctx.lineTo(c.x,c.t+c.h); ctx.lineTo(c.l,c.y);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+            if (n.isDoubleRelation) {
+                const m=8; ctx.lineWidth=2.5;
+                ctx.beginPath();
+                ctx.moveTo(c.x,c.t+m); ctx.lineTo(c.l+c.w-m,c.y);
+                ctx.lineTo(c.x,c.t+c.h-m); ctx.lineTo(c.l+m,c.y);
+                ctx.closePath(); ctx.stroke();
+            }
+        } else if (n.type==='attribute') {
+            ctx.fillStyle='#f0fdf4';
+            ctx.strokeStyle = n.isMultivalued ? '#059669' : '#10b981';
+            ctx.lineWidth=2;
+            if (n.isDerived) ctx.setLineDash([4,4]);
+            ctx.beginPath(); ctx.ellipse(c.x,c.y,c.hw,c.hh,0,0,Math.PI*2);
+            ctx.fill(); ctx.stroke();
+            if (n.isMultivalued) {
+                ctx.lineWidth=1.5;
+                ctx.beginPath(); ctx.ellipse(c.x,c.y,c.hw-4,c.hh-4,0,0,Math.PI*2); ctx.stroke();
+            }
+            ctx.setLineDash([]);
+        } else if (n.type==='cardinality') {
+            ctx.fillStyle='#ffffff';
+            ctx.beginPath(); ctx.arc(c.x,c.y,Math.min(c.hw,c.hh)-1,0,Math.PI*2);
+            ctx.fill();
+        } else if (n.type==='isa') {
+            ctx.fillStyle='#ffffff'; ctx.strokeStyle='#475569'; ctx.lineWidth=3;
+            ctx.beginPath();
+            ctx.moveTo(c.x,c.t+2); ctx.lineTo(c.l+c.w-2,c.t+c.h-2); ctx.lineTo(c.l+2,c.t+c.h-2);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.fillStyle='#64748b'; ctx.font='bold 8px sans-serif';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText('ISA',c.x,c.y+6);
+            ctx.restore(); return;
+        }
+
+        // Texto
+        const fs = n.type==='cardinality' ? 13 : 10;
+        const fw = n.type==='cardinality' ? '800' : '700';
+        ctx.fillStyle = val ? tc : '#cbd5e1';
+        ctx.font = fw+' '+fs+'px "Plus Jakarta Sans",sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        const label = val || '?';
+        ctx.fillText(label, c.x, c.y);
+        if (val && n.isKey) {
+            const tw = ctx.measureText(val).width;
+            const uy = c.y + fs/2 + 1;
+            if (n.isDashed) {
+                // Clave parcial: subrayado discontinuo
+                ctx.save();
+                ctx.setLineDash([3,3]);
+                ctx.strokeStyle = tc;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(c.x-tw/2, uy+0.5);
+                ctx.lineTo(c.x+tw/2, uy+0.5);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.restore();
+            } else {
+                ctx.fillRect(c.x-tw/2, uy, tw, 1);
+            }
+        }
+        ctx.restore();
+    });
+
+    // ── Círculos de totalidad ─────────────────────────────
+    cur.nodes.forEach(n => {
+        if (n.type !== 'totalidad') return;
+        const userVal = (n.userValue || '').toUpperCase();
+        if (userVal !== 'S') return;
+        {
+
+            const match = n.id.match(/t_(.+?)_(left|right)/);
+            if (!match) return;
+            const relEl = document.getElementById('r_' + match[1]);
+            if (!relEl) return;
+            const rel = elC(relEl);
+
+            // Entidad conectada más cercana
+            let entityEl = null, minDist = Infinity;
+            cur.connections.forEach(conn => {
+                const otherId = conn.from === 'r_'+match[1] ? conn.to
+                              : conn.to   === 'r_'+match[1] ? conn.from : null;
+                if (!otherId) return;
+                const otherNode = cur.nodes.find(nd => nd.id === otherId);
+                if (otherNode?.type !== 'entity') return;
+                const dist = Math.hypot(otherNode.x - n.x, otherNode.y - n.y);
+                if (dist < minDist) { minDist = dist; entityEl = document.getElementById(otherId); }
+            });
+            if (!entityEl) return;
+
+            const ent = elC(entityEl);
+            const dx = ent.x - rel.x, dy = ent.y - rel.y;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            if (len < 0.5) return;
+            const ndx = dx/len, ndy = dy/len;
+            const t = 1 / (Math.abs(ndx)/rel.hw + Math.abs(ndy)/rel.hh);
+
+            ctx.save();
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(rel.x + ndx*t, rel.y + ndy*t, 5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        }
+    });
+
+    // Descarga
     try {
-        const shot = await html2canvas(canvasEl, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#f8fafc'
-        });
-        const link = document.createElement('a');
-        const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9]/g, '_');
-        link.download = 'ER_' + nombre + '.png';
-        link.href = shot.toDataURL('image/png');
+        const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9]/g,'_');
+        const link=document.createElement('a');
+        link.download='ER_'+nombre+'.png';
+        link.href=off.toDataURL('image/png');
         link.click();
-    } catch (err) {
-        console.error('PNG error:', err);
-        alert('No se pudo generar la imagen. Intentar nuevamente.');
+    } catch(err) {
+        console.error('PNG error:',err);
+        alert('No se pudo generar la imagen.');
     } finally {
-        canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
-        overlays.forEach(d => d.remove());
-        if (btn) { btn.textContent = '\ud83d\uddbc\ufe0f Guardar como PNG'; btn.disabled = false; }
+        if (btn) { btn.textContent='🖼️ Guardar como PNG'; btn.disabled=false; }
     }
 }

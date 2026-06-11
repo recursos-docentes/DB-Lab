@@ -606,7 +606,7 @@ const analyzeData = [
         "• De cada ", {word:"REPARACIÓN",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"Código",type:"atributo",attrType:"clave"}, " y ", {word:"Descripción",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede ", {word:"tener",type:"relacion"}, " muchos autos.\n",
-        "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones. Se registra ", {word:"Fecha_entrada",type:"atributo",attrType:"simple"}, " y ", {word:"Observación",type:"atributo",attrType:"simple"}, "."
+        "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones. Se registra ", {word:"Fecha_entrada",type:"atributo",attrType:"relacion"}, " y ", {word:"Observación",type:"atributo",attrType:"relacion"}, "."
     ],
 
     // 1 ── Biblioteca Escolar
@@ -793,13 +793,13 @@ const analyzeData = [
 ];
 
 const analyzeConfig = [
-    { requireSubtypes: false }, // 0 Taller
-    { requireSubtypes: false }, // 1 Biblioteca
+    { requireSubtypes: true  }, // 0 Taller - atributos de relación
+    { requireSubtypes: true  }, // 1 Biblioteca - atributos de relación
     { requireSubtypes: false }, // 2 Tienda
     { requireSubtypes: true  }, // 3 Red Social - ISA
     { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
     { requireSubtypes: false }, // 5 Hospital
-    { requireSubtypes: false }, // 6 Institución educativa
+    { requireSubtypes: true  }, // 6 Institución educativa - compuesto/derivado
     { requireSubtypes: true  }, // 7 Colegio - compuesto/derivado/multivaluado
     { requireSubtypes: false }, // 8 Película
     { requireSubtypes: false }  // 9 Fútbol

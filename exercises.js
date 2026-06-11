@@ -3,9 +3,9 @@ const exercises = [
     {
         title: "🔧 Taller Mecánico",
         description: `Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.<br><br>
-        • De cada <strong>Cliente</strong> se guarda la CI, nombre y apellido.<br>
-        • De los <strong>Autos</strong> se guarda la matrícula, marca, modelo y combustible.<br>
-        • De cada <strong>Reparación</strong> se guarda un código único y una descripción de la reparación.<br>
+        • De cada <strong>cliente</strong> se guarda la CI, nombre y apellido.<br>
+        • De los <strong>autos</strong> se guarda la matrícula, marca, modelo y combustible.<br>
+        • De cada <strong>reparación</strong> se guarda un código único y una descripción de la misma.<br>
         • Un cliente puede tener muchos autos, mientras que un auto solo es de un cliente.<br>
         • Un auto puede recibir muchas reparaciones y una reparación puede aplicarse a muchos autos.<br>
         • Se registra la fecha de entrada y observación para cada reparación.`,
@@ -50,10 +50,10 @@ const exercises = [
     {
         title: "📚 Biblioteca Escolar",
         description: `Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.<br><br>
-        • Cada <strong>Socio</strong> tiene id_socio, nombre y teléfono.<br>
-        • De los <strong>Libros</strong> se registra el isbn, título y autor.<br>
+        • Cada <strong>socio</strong> tiene id_socio, nombre y teléfono.<br>
+        • De los <strong>libros</strong> se registra el isbn, título y autor.<br>
         • Un socio puede solicitar múltiples préstamos y un libro puede prestarse a diferentes socios.<br>
-        • El <strong>Préstamo</strong> registra la fecha_prestamo y si fue devuelto.`,
+        • El <strong>préstamo</strong> registra la fecha_prestamo y si fue devuelto.`,
         hint: "Socio y Libro son las entidades primarias. Préstamo actúa como relación con atributos propios.",
         wordBank: ["SOCIO", "LIBRO", "préstamo", "Id_socio", "Nombre", "Teléfono", "Isbn", "Título", "Autor", "Fecha_prestamo", "Devuelto", "N", "N"],
         nodes: [
@@ -86,8 +86,8 @@ const exercises = [
     {
         title: "🛒 Tienda Online",
         description: `Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.<br><br>
-        • El <strong>Cliente</strong> tiene id_cliente, nombre, email.<br>
-        • El cliente realiza un <strong>Pedido</strong> con nro_pedido, fecha_pedido y total.<br>
+        • El <strong>cliente</strong> tiene id_cliente, nombre, email.<br>
+        • El cliente realiza un <strong>pedido</strong> con nro_pedido, fecha_pedido y total.<br>
         • Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente.`,
         hint: "Este es un caso típico de relación Uno a Muchos (1 a N) entre Cliente y Pedido. No existen atributos propios en la relación.",
         wordBank: ["CLIENTE", "PEDIDO", "realiza", "Id_cliente", "Nombre", "Email", "Nro_pedido", "Fecha_pedido", "Total", "1", "N"],
@@ -117,19 +117,12 @@ const exercises = [
     // ── Ejercicio 4 ──────────────────────────────────────────────────────────
     {
         title: "🌐 Red Social",
-        description: `
-            <p class="font-bold text-slate-300 mb-1">Red Social — Categorización</p>
-            <p class="text-slate-400 text-xs leading-relaxed">
-                Una red social tiene <strong>Usuarios</strong>, que pueden ser <strong>Creadores</strong>
-                o <strong>Espectadores</strong>.
-                Los usuarios tienen Id, Email y Año de ingreso.
-                Los Creadores tienen cantidad de seguidores.
-                Los Espectadores pueden tener varios teléfonos y una ciudad.
-                Los Usuarios <em>publican</em> <strong>Contenidos</strong>.
-                El Contenido tiene número, título y fecha. 
-                Se sabe que un usuario puede publicar muchos contenidos
-                 pero un contenido solo es propiedad de un usuario
-            </p>`,
+        description: `Una red social tiene <strong>usuarios</strong>, que pueden ser <strong>creadores</strong> o <strong>espectadores</strong>.<br><br>
+        • Los usuarios tienen id, email y año de ingreso.<br>
+        • Los creadores tienen cantidad de seguidores.<br>
+        • Los espectadores pueden tener varios teléfonos y una ciudad.<br>
+        • Los usuarios <em>publican</em> <strong>contenidos</strong>. El contenido tiene número, título y fecha.<br>
+        • Un usuario puede publicar muchos contenidos, pero un contenido solo es propiedad de un usuario.`,
         hint: "Usá el triángulo ISA para la categorización USUARIO → CREADOR / ESPECTADOR. Las cardinalidades van entre la entidad y la relación. Teléfono es multivaluado (doble óvalo).",
         wordBank: ["USUARIO","CREADOR","ESPECTADOR","CONTENIDO","publica","Id_usuario","Email","Año_ingreso","Cant_seguidores","Teléfono","Ciudad","Nro_contenido","Título","Fecha","1","N"],
         nodes: [
@@ -170,13 +163,13 @@ const exercises = [
     {
         title: "📺 Plataforma de Streaming",
         description: `Una plataforma de streaming desea administrar su catálogo de películas y sus socios.<br><br>
-        • De cada <strong>Socio</strong> se guarda Cod_socio, Nombre_completo (compuesto por Primer_nom y Primer_ape) y una lista de Directores_favoritos.<br>
-        • De cada <strong>Película</strong> se registra Cod_pelicula, Titulo, Año y una lista de Actores.<br>
-        • Las películas se almacenan en <strong>Archivadores</strong> con Nro_arch y Ubicacion.<br>
-        • Un socio puede <em>alquilar</em> muchas películas y una película puede ser alquilada por muchos socios (N:M). Se registra Fecha y Devuelto.<br>
-        • Un archivador <em>guarda</em> muchas películas, pero cada película está en un solo archivador (N:1).`,
+        • De cada <strong>socio</strong> se guarda cod_socio, nombre_completo (compuesto por primer_nom y primer_ape) y una lista de directores_favoritos.<br>
+        • De cada <strong>película</strong> se registra cod_pelicula, titulo, año y una lista de actores.<br>
+        • Las películas se almacenan en <strong>archivadores</strong> con nro_arch y ubicacion.<br>
+        • Un socio puede <em>alquilar</em> muchas películas y una película puede ser alquilada por muchos socios. Se registra fecha_alq y fech_devuelto.<br>
+        • Un archivador <em>guarda</em> muchas películas, pero cada película está en un solo archivador.`,
         hint: "Nombre_completo es un atributo <strong>compuesto</strong>: Primer_nom y Primer_ape se conectan al óvalo de Nombre_completo, no a SOCIO directamente. Los atributos con doble borde son multivaluados (listas de valores).",
-        wordBank: ["SOCIO","PELÍCULA","ARCHIVADOR","alquila","guarda","Cod_socio","Nombre_completo","Primer_nom","Primer_ape","Directores_favoritos","Cod_pelicula","Titulo","Año","Actores","Nro_arch","Ubicacion","Fecha","Devuelto","N","N","N","1"],
+        wordBank: ["SOCIO","PELÍCULA","ARCHIVADOR","alquila","guarda","Cod_socio","Nombre_completo","Primer_nom","Primer_ape","Directores_favoritos","Cod_pelicula","Titulo","Año","Actores","Nro_arch","Ubicacion","Fecha_alq","Fech_devuelto","N","N","N","1"],
         nodes: [
             // ── Entidades ──
             { id: "e_soc", type: "entity",   correctValue: "SOCIO",      x: 10, y: 45, w: 110, h: 52 },
@@ -205,8 +198,8 @@ const exercises = [
             { id: "a_a1",  type: "attribute", isKey: true,         correctValue: "Nro_arch",            x: 80, y: 23, w: 82,  h: 40 },
             { id: "a_a2",  type: "attribute", isKey: false,        correctValue: "Ubicacion",           x: 90, y: 23, w: 85,  h: 40 },
             // ── Atributos relación alquila ──
-            { id: "a_r1",  type: "attribute", isKey: false,        correctValue: "Fecha",               x: 24, y: 60, w: 72,  h: 40 },
-            { id: "a_r2",  type: "attribute", isKey: false,        correctValue: "Devuelto",            x: 35, y: 60, w: 80,  h: 40 }
+            { id: "a_r1",  type: "attribute", isKey: false,        correctValue: "Fecha_alq",           x: 24, y: 60, w: 82,  h: 40 },
+            { id: "a_r2",  type: "attribute", isKey: false,        correctValue: "Fech_devuelto",       x: 35, y: 60, w: 105, h: 40 }
         ],
         connections: [
             // SOCIO ↔ atributos
@@ -241,11 +234,11 @@ const exercises = [
     {
         title: "🏥 Sistema Hospitalario",
         description: `Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.<br><br>
-        • De cada <strong>Paciente</strong> se guarda Cédula, Nombre y Teléfono.<br>
-        • De cada <strong>Médico</strong> se registra Matrícula, Nombre y Especialidad.<br>
-        • Las <strong>Consultas</strong> tienen Número, Fecha y Diagnóstico.<br>
-        • Un paciente puede tener muchas consultas; cada consulta es de un médico (1:N).<br>
-        • Un médico puede atender muchos pacientes.`,
+        • De cada <strong>paciente</strong> se guarda cédula, nombre y teléfono.<br>
+        • De cada <strong>médico</strong> se registra matrícula, nombre y especialidad.<br>
+        • Las <strong>consultas</strong> tienen número, fecha y diagnóstico.<br>
+        • Un paciente puede tener muchas consultas; cada consulta es de un médico.<br>
+        • Un médico puede atender muchos pacientes y un paciente se puede atender con muchos médicos.`,
         hint: "Recuerda que Cédula es la clave primaria de PACIENTE y Matrícula de MÉDICO. Las relaciones 'realiza' y 'atiende' conectan las entidades.",
         wordBank: ["PACIENTE", "MÉDICO", "CONSULTA", "realiza", "atiende", "Cédula", "Nombre", "Teléfono", "Matrícula", "Especialidad", "Número", "Fecha", "Diagnóstico", "N", "1", "N", "1"],
         nodes: [
@@ -283,7 +276,11 @@ const exercises = [
 // ── Ejercicio 7: Institución educativa ──────────────────────────────────
 {
     title: "🏫 Institución educativa",
-    description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br>De las materias nos interesa su código, nombre y año.<br>De los alumnos su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha nacimiento.<br>Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>Un alumno puede asistir a muchas materias y a una materia pueden asistir muchos alumnos.`,
+    description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br><br>
+        • De las <strong>materias</strong> nos interesa su código, nombre y año.<br>
+        • De los <strong>alumnos</strong> su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha de nacimiento.<br>
+        • Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>
+        • Un alumno puede cursar muchas materias y una materia puede ser cursada por muchos alumnos.`,
     hint: "Recuerda que Institución no es una entidad",
     wordBank: ["MATERIA", "Código", "NombreMat", "Año", "ALUMNO", "Cédula", "Nombre", "Teléfonos", "Dirección", "Calle", "Nro", "Esquina", "Fecha_nac", "Edad", "cursa", "Nota", "N", "N"],
     nodes: [
@@ -333,7 +330,7 @@ const exercises = [
 // Ejercicio 8 --Colegio
    {
     title: "🏫 Colegio",
-    description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac, AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• PROFESOR puede dictar muchas ASIGNATURAS.<br>• ALUMNO puede cursar muchas ASIGNATURAS.<br>• PROFESOR puede publicar un LIBRO.<br>`,
+    description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA pueden ser dictadas por muchos PROFESORES<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.<br>• Un PROFESOR puede publicar muchos LIBROS y un LIBRO es solo publicado por un PROFESOR .<br>`,
     hint: "Recuerda que Colegio no es una entidad",
     wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
     nodes: [
@@ -432,7 +429,16 @@ const exercises = [
 
 {
     title: "🎬 Película",
-    description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br><br>• De cada CLIENTE se guarda CédulaC, NombreC, Dirección, Teléfono.<br>• De cada EJEMPLAR! se guarda Número, Estado.<br>• De cada PELICULA se guarda Título, Productora, Fecha, NacionalidadP.<br>• De cada DIRECTOR se guarda CédulaD, NombreD, NacionalidadD.<br>• De cada ACTOR se guarda CédulaA, Principal, Sexo, NacionalidadA, NombreA.<br><br>• CLIENTE puede alquila muchas EJEMPLAR y un EJEMPLAR puede ser alquilado por muchos CLIENTES<br>• PELICULA puede tener muchos EJEMPLARES pero un EJEMPLAR solo es de una PELICULA<br>• ACTOR puede participar en  muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES<br>• DIRECTOR puede dirigir una PELICULA y una PELICULA solo es dirigida por un DIRECTOR<br>`,
+    description: `Un videoclub desea llevar un registro de sus clientes, las películas disponibles, los ejemplares en alquiler, y los directores y actores que participan en cada película.<br><br>
+        • De cada <strong>cliente</strong> se guarda cédulaC, nombreC, dirección y teléfono.<br>
+        • De cada <strong>ejemplar</strong> se guarda número y estado.<br>
+        • De cada <strong>película</strong> se guarda título, productora, fecha y nacionalidadP.<br>
+        • De cada <strong>director</strong> se guarda cédulaD, nombreD y nacionalidadD.<br>
+        • De cada <strong>actor</strong> se guarda cédulaA, principal, sexo, nacionalidadA y nombreA.<br><br>
+        • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>.<br>
+        • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo es de una <strong>película</strong>.<br>
+        • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>.<br>
+        • Un <strong>director</strong> puede dirigir una <strong>película</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>.`,
     hint: "",
     wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
                "EJEMPLAR", "Número", "Estado",
@@ -541,7 +547,7 @@ const exercises = [
 //10 Ejercicio Fútbol
 {
     title: "⚽ Fútbol",
-    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• JUGADOR puede juega_en muchos CLUBES y en un CLUB pueden jugar muchos jugadores<br>• CLUB puede jugar con  muchos CLUBES y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario<br>`,
+    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• Un jugador juega_en muchos clubes y en un club pueden jugar muchos jugadores.<br>• Un club puede jugar con muchos clubes y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario.<br>`,
     hint: "Recuerda de Fútbol no es una entidad",
     wordBank: ["CLUB", "Nombre", "AñoFundación", "Ubicación", "Entrenador", "Presidente", "Estadio", "JUGADOR", "Ced", "Nacionalidad", "Estatura", "Apodo", "Nombre", "FechaNac", "juega_en", "N", "N", "juega_con", "Fecha", "Resultado", "N", "N"],
     nodes: [
@@ -631,12 +637,12 @@ const analyzeData = [
     // 3 ── Red Social
     [
         "Una red social tiene ", {word:"USUARIO",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
-        {word:"CREADOR",type:"entidad",entityType:"fuerte"}, " o ", {word:"ESPECTADOR",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n",
-        "Los usuarios tienen ", {word:"Id_usuario",type:"atributo",attrType:"clave"}, ", ", {word:"Email",type:"atributo",attrType:"simple"}, " y ", {word:"Año_ingreso",type:"atributo",attrType:"simple"}, ".\n",
-        "Los Creadores tienen ", {word:"Cant_seguidores",type:"atributo",attrType:"simple"}, ".\n",
-        "Los Espectadores pueden tener varios ", {word:"Teléfono",type:"atributo",attrType:"multivaluado"}, " y una ", {word:"Ciudad",type:"atributo",attrType:"simple"}, ".\n",
-        "Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"CONTENIDO",type:"entidad",entityType:"fuerte"}, ".\n",
-        "El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
+        {word:"CREADOR",type:"entidad",entityType:"fuerte"}, " o ", {word:"ESPECTADOR",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n\n",
+        "• Los usuarios tienen ", {word:"Id_usuario",type:"atributo",attrType:"clave"}, ", ", {word:"Email",type:"atributo",attrType:"simple"}, " y ", {word:"Año_ingreso",type:"atributo",attrType:"simple"}, ".\n",
+        "• Los Creadores tienen ", {word:"Cant_seguidores",type:"atributo",attrType:"simple"}, ".\n",
+        "• Los Espectadores pueden tener varios ", {word:"Teléfono",type:"atributo",attrType:"multivaluado"}, " y una ", {word:"Ciudad",type:"atributo",attrType:"simple"}, ".\n",
+        "• Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"CONTENIDO",type:"entidad",entityType:"fuerte"}, ".\n",
+        "• El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
     ],
     // 4 ── Plataforma Streaming
     [
@@ -651,8 +657,8 @@ const analyzeData = [
         "• Las películas se almacenan en ", {word:"ARCHIVADOR",type:"entidad",entityType:"fuerte"}, " con ",
         {word:"Nro_arch",type:"atributo",attrType:"clave"}, " y ", {word:"Ubicacion",type:"atributo",attrType:"simple"}, ".\n",
         "• Un socio puede ", {word:"alquilar",type:"relacion"}, " muchas películas y una película puede ser alquilada por muchos socios. Se registra ",
-        {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, ".\n",
-        "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador (N:1)."
+        {word:"Fecha_alq",type:"atributo",attrType:"relacion"}, " y ", {word:"Fech_devuelto",type:"atributo",attrType:"relacion"}, ".\n",
+        "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador."
     ],
     // 5 ── Sistema Hospitalario
     [
@@ -663,8 +669,8 @@ const analyzeData = [
         {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
         "• Las ", {word:"CONSULTA",type:"entidad",entityType:"fuerte"}, " tienen ",
         {word:"Número",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha",type:"atributo",attrType:"simple"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"simple"}, ".\n",
-        "• Un paciente puede ", {word:"realizar",type:"relacion"}, " muchas consultas; cada consulta es de un médico (1:N).\n",
-        "• Un médico puede ", {word:"atender",type:"relacion"}, " muchos pacientes."
+        "• Un paciente puede ", {word:"realizar",type:"relacion"}, " muchas consultas; cada consulta es de un médico.\n",
+        "• Un médico puede ", {word:"atender",type:"relacion"}, " muchos pacientes y un paciente se puede atender con muchos médicos."
     ],
     // 6 ── Institución educativa
 [
@@ -675,7 +681,7 @@ const analyzeData = [
     {word:"Código",type:"atributo",attrType:"clave"},
     ", ",
     {word:"NombreMat",type:"atributo",attrType:"simple"},
-    ", ",
+    " y ",
     {word:"Año",type:"atributo",attrType:"simple"},
     ".\n",
     "• De cada ",
@@ -688,16 +694,15 @@ const analyzeData = [
     {word:"Dirección",type:"atributo",attrType:"simple"},
     ", ",
     {word:"Fecha_nac",type:"atributo",attrType:"simple"},
-    ", ",
+    " y ",
     {word:"Edad",type:"atributo",attrType:"derivado"},
     ".\n",
-    "• ALUMNO puede ",
-    {word:"cursa",type:"relacion"},
-    " muchos(as) MATERIA.\n"
+    "Por otra parte, se desea agregar la ", {word:"Nota",type:"atributo",attrType:"relacion"}, " que tiene el alumno en cada materia.\n",
+    "• Un ALUMNO  ",{word:"cursa",type:"relacion"}, " muchas MATERIAS. Y una MATERIA puede ser cursada por muchos ALUMNOS.\n"
 ],
      // 8─Colegio
    [
-    "Representar la siguiente realidad a través de un diagrama entidad relación. \n\n",
+    "En un colegio privado sucede lo siguiente: \n\n",
     "• De cada ",
     {word:"PROFESOR",type:"entidad",entityType:"fuerte"},
     " se guarda ",
@@ -746,15 +751,15 @@ const analyzeData = [
     " y ",
     {word:"Fecha",type:"atributo",attrType:"simple"},
     ".\n",
-    "• PROFESOR puede ",
+    "• Un PROFESOR puede ",
     {word:"dictar",type:"relacion"},
-    " muchas ASIGNATURAS.\n",
-    "• ALUMNO puede ",
+    " muchas ASIGNATURAS y una ASIGNATURA puede ser dictada por muchos PROFESORES.\n",
+    "• Un ALUMNO puede ",
     {word:"cursar",type:"relacion"},
-    " muchas ASIGNATURAS.\n",
-    "• PROFESOR puede ",
+    " muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.\n",
+    "• Un PROFESOR puede ",
     {word:"publicar",type:"relacion"},
-    " un LIBRO.\n"
+    " muchos LIBROS y un LIBRO es solo publicado por un PROFESOR.\n"
 ]
 ,     //9--x
     // ┌─────────────────────────────────────────────────────────────────────────┐
@@ -764,31 +769,31 @@ const analyzeData = [
     // └─────────────────────────────────────────────────────────────────────────┘,
     // 7 ── Película
     [
-        "Representar la siguiente realidad a través de un diagrama entidad relación.\n\n",
+        "Un videoclub desea llevar un registro de sus clientes, las películas disponibles, los ejemplares en alquiler, y los directores y actores que participan en cada película.\n\n",
         "• De cada ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"CédulaC",type:"atributo",attrType:"clave"}, ", ", {word:"NombreC",type:"atributo",attrType:"simple"}, ", ", {word:"Dirección",type:"atributo",attrType:"simple"}, ", ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"CédulaC",type:"atributo",attrType:"clave"}, ", ", {word:"NombreC",type:"atributo",attrType:"simple"}, ", ", {word:"Dirección",type:"atributo",attrType:"simple"}, " y ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"EJEMPLAR",type:"entidad",entityType:"débil"}, " se guarda ",
         {word:"Número",type:"atributo",attrType:"clave"}, " y ", {word:"Estado",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"PELICULA",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"Título",type:"atributo",attrType:"clave"}, ", ", {word:"Productora",type:"atributo",attrType:"simple"}, ", ", {word:"Fecha",type:"atributo",attrType:"simple"}, ", ", {word:"NacionalidadP",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"Título",type:"atributo",attrType:"clave"}, ", ", {word:"Productora",type:"atributo",attrType:"simple"}, ", ", {word:"Fecha",type:"atributo",attrType:"simple"}, " y ", {word:"NacionalidadP",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"DIRECTOR",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"CédulaD",type:"atributo",attrType:"clave"}, ", ", {word:"NombreD",type:"atributo",attrType:"simple"}, ", ", {word:"NacionalidadD",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"CédulaD",type:"atributo",attrType:"clave"}, ", ", {word:"NombreD",type:"atributo",attrType:"simple"}, " y ", {word:"NacionalidadD",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"ACTOR",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"CédulaA",type:"atributo",attrType:"clave"}, ", ", {word:"Principal",type:"atributo",attrType:"simple"}, ", ", {word:"Sexo",type:"atributo",attrType:"simple"}, ", ", {word:"NacionalidadA",type:"atributo",attrType:"simple"}, ", ", {word:"NombreA",type:"atributo",attrType:"simple"}, ".\n\n",
-        "• CLIENTE puede ", {word:"alquila",type:"relacion"}, " muchos EJEMPLAR.\n",
-        "• PELICULA ", {word:"tiene",type:"relacion"}, " muchos EJEMPLARES.\n",
-        "• ACTOR puede ", {word:"participa",type:"relacion"}, " en muchas PELICULAS.\n",
-        "• DIRECTOR puede ", {word:"dirige",type:"relacion"}, " una PELICULA."
+        {word:"CédulaA",type:"atributo",attrType:"clave"}, ", ", {word:"Principal",type:"atributo",attrType:"simple"}, ", ", {word:"Sexo",type:"atributo",attrType:"simple"}, ", ", {word:"NacionalidadA",type:"atributo",attrType:"simple"}, " y ", {word:"NombreA",type:"atributo",attrType:"simple"}, ".\n\n",
+        "• Un CLIENTE ", {word:"alquila",type:"relacion"}, " muchos EJEMPLARES y un EJEMPLAR es alquilado por muchos CLIENTES.\n",
+        "• Una PELICULA ", {word:"tiene",type:"relacion"}, " muchos EJEMPLARES, pero un EJEMPLAR es de una sola PELICULA.\n",
+        "• Un ACTOR ", {word:"participa",type:"relacion"}, " en muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES.\n",
+        "• Una PELICULA es dirigida por un DIRECTOR. Un DIRECTOR ", {word:"dirige",type:"relacion"}, " muchas PELICULAS."
     ],
     // 8 ── Fútbol
     [
         "En una asociación deportiva se desea almacenar información sobre clubes y partidos de fútbol.\n\n",
         "• De cada ", {word:"CLUB",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"Nombre",type:"atributo",attrType:"clave"}, ", ", {word:"AñoFundación",type:"atributo",attrType:"simple"}, ", ", {word:"Ubicación",type:"atributo",attrType:"simple"}, ", ", {word:"Entrenador",type:"atributo",attrType:"simple"}, ", ", {word:"Presidente",type:"atributo",attrType:"simple"}, ", ", {word:"Estadio",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"Nombre",type:"atributo",attrType:"clave"}, ", ", {word:"AñoFundación",type:"atributo",attrType:"simple"}, ", ", {word:"Ubicación",type:"atributo",attrType:"simple"}, ", ", {word:"Entrenador",type:"atributo",attrType:"simple"}, ", ", {word:"Presidente",type:"atributo",attrType:"simple"}, " y ", {word:"Estadio",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"JUGADOR",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"Ced",type:"atributo",attrType:"clave"}, ", ", {word:"Nacionalidad",type:"atributo",attrType:"simple"}, ", ", {word:"Estatura",type:"atributo",attrType:"simple"}, ", ", {word:"Apodo",type:"atributo",attrType:"simple"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, ", ", {word:"FechaNac",type:"atributo",attrType:"simple"}, ".\n\n",
-        "• JUGADOR puede ", {word:"juega_en",type:"relacion"}, " muchos CLUBES.\n",
-        "• CLUB puede ", {word:"juega_con",type:"relacion"}, " muchos CLUBES."
+        {word:"Ced",type:"atributo",attrType:"clave"}, ", ", {word:"Nacionalidad",type:"atributo",attrType:"simple"}, ", ", {word:"Estatura",type:"atributo",attrType:"simple"}, ", ", {word:"Apodo",type:"atributo",attrType:"simple"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"FechaNac",type:"atributo",attrType:"simple"}, ".\n\n",
+        "• Un JUGADOR ", {word:"juega_en",type:"relacion"}, " muchos CLUBES.\n",
+        "• Un CLUB ", {word:"juega_con",type:"relacion"}, " muchos CLUBES."
     ]
 ];
 
@@ -797,7 +802,7 @@ const analyzeConfig = [
     { requireSubtypes: true  }, // 1 Biblioteca - atributos de relación
     { requireSubtypes: false }, // 2 Tienda
     { requireSubtypes: true  }, // 3 Red Social - ISA
-    { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
+    { requireSubtypes: true  }, // 4 Streaming - comp    { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
     { requireSubtypes: false }, // 5 Hospital
     { requireSubtypes: true  }, // 6 Institución educativa - compuesto/derivado
     { requireSubtypes: true  }, // 7 Colegio - compuesto/derivado/multivaluado

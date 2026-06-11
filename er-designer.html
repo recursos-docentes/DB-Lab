@@ -76,7 +76,7 @@
                     </select>
                 </div>
             </div>
-            <div id="analyze-text" class="text-sm text-slate-200 leading-7 whitespace-pre-wrap flex-1 pt-1 overflow-y-auto" style="font-size: 1em;"></div>
+            <div id="analyze-text" class="text-xs leading-relaxed text-slate-400 flex-1 pt-1 overflow-y-auto pr-1" style="font-size: 1em;"></div>
         </div>
 
         <!-- Panel de clasificación -->
@@ -358,7 +358,7 @@
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
-    <script src="exercises.js?t=10"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
+    <script src="exercises.js?t=12"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
     <script src="script.js?t=13"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
     <script src="diagram.js?t=17"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
     <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
@@ -554,10 +554,4 @@
             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1">¿De qué atributos está compuesto?</p>
             <div id="popup-step3-options" class="flex flex-wrap gap-1"></div>
             <div class="flex justify-between items-center pt-1">
-                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border-emerald-700/40">✓ Confirmar</button>
-                <button onclick="hidePopup()" class="text-[10px] text-slate-500 hover:text-slate-300 transition pr-1">✕ cancelar</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border

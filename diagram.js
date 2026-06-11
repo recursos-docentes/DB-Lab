@@ -552,18 +552,58 @@ async function saveAsPNG() {
         return {x:c.x+nx*t, y:c.y+ny*t};
     }
 
+    // ── Detectar autorelaciones ───────────────────────────
+    const autoRelIds = new Set();
+    cur.connections.forEach(({from, to}) => {
+        if (typeMap[from]==='entity' && typeMap[to]==='relation' &&
+            cur.connections.some(c => c.from===to && c.to===from))
+            autoRelIds.add(to);
+    });
+
     // ── Conectores ────────────────────────────────────────
     ctx.lineCap = 'round';
-    cur.connections.forEach(({from, to}) => {
+    cur.connections.forEach(({from, to, role}) => {
+        // Omitir líneas card↔autorelación (se posicionan por x,y)
+        if (typeMap[from]==='cardinality' && autoRelIds.has(to)) return;
+        if (typeMap[to]==='cardinality'   && autoRelIds.has(from)) return;
+
         const aEl=document.getElementById(from), bEl=document.getElementById(to);
         if (!aEl||!bEl) return;
         const ca=elC(aEl), cb=elC(bEl);
-        const p1=edgePt(ca,cb.x,cb.y,typeMap[from]);
-        const p2=edgePt(cb,ca.x,ca.y,typeMap[to]);
+
+        const isAutoEnt = typeMap[from]==='entity'   && autoRelIds.has(to);
+        const isAutoRel = typeMap[from]==='relation' && autoRelIds.has(from) && typeMap[to]==='entity';
+
+        let p1, p2;
+        if (isAutoEnt) {
+            // entidad → top del rombo
+            p1 = {x: ca.x, y: ca.y - ca.hh};
+            p2 = {x: cb.x, y: cb.y - cb.hh};
+        } else if (isAutoRel) {
+            // bottom del rombo → entidad
+            p1 = {x: ca.x, y: ca.y + ca.hh};
+            p2 = {x: cb.x, y: cb.y + cb.hh};
+        } else {
+            p1 = edgePt(ca,cb.x,cb.y,typeMap[from]);
+            p2 = edgePt(cb,ca.x,ca.y,typeMap[to]);
+        }
+
         const isAttr = typeMap[from]==='attribute'||typeMap[to]==='attribute';
         ctx.strokeStyle = isAttr ? '#10b981' : '#94a3b8';
         ctx.lineWidth   = isAttr ? 1.5 : 2;
         ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+
+        // Etiqueta de rol
+        if (role && (isAutoEnt || isAutoRel)) {
+            const rt = isAutoEnt ? 0.68 : 0.32;
+            const mx = p1.x + (p2.x-p1.x)*rt;
+            const my = p1.y + (p2.y-p1.y)*rt + (isAutoEnt ? -10 : 10);
+            ctx.save();
+            ctx.fillStyle='#475569'; ctx.font='600 10px sans-serif';
+            ctx.textAlign='start'; ctx.textBaseline='middle';
+            ctx.fillText(role, mx-30, my);
+            ctx.restore();
+        }
     });
 
     // ── Nodos ─────────────────────────────────────────────

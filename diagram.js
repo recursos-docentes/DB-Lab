@@ -373,14 +373,14 @@ function checkAnswers() {
     const entities = cur.nodes.filter(n => n.type === 'entity' && n.correctValue);
     cur.nodes.forEach(n => {
         if (!n.correctValue || n.type === 'attribute') return;
-        const el = document.getElementById(`input-${n.id}`);
-        if (!el) return;
 
         if (n.type === 'totalidad') {
-            // Para totalidad: acepta "S" (Sí) o "N" (No) según lo definido en correctValue
-            const val = el.value.trim().toUpperCase();
-            correctMap[n.id] = val === n.correctValue;
+            // Totalidad se valida desde userValue (botones del panel inferior)
+            const val = (n.userValue || '').toUpperCase();
+            correctMap[n.id] = val === n.correctValue.toUpperCase();
         } else {
+            const el = document.getElementById(`input-${n.id}`);
+            if (!el) return;
             correctMap[n.id] = el.value.trim().toLowerCase() === n.correctValue.toLowerCase();
         }
     });
@@ -441,15 +441,32 @@ function checkAnswers() {
     }
     // Apply styles and count
     let hits = 0;
+    const totalidadMap = {};
     cur.nodes.forEach(n => {
         if (!n.correctValue) return;
-        const el = document.getElementById(`input-${n.id}`);
-        if (!el) return;
         const ok = correctMap[n.id] ?? false;
-        el.classList.toggle('input-correct',   ok);
-        el.classList.toggle('input-incorrect', !ok);
-        if (ok) hits++;
+        if (n.type === 'totalidad') {
+            // Colorear botones S/N del panel inferior
+            totalidadMap[n.id] = ok;
+            document.querySelectorAll(`.totalidad-btn[data-nodeid="${n.id}"]`).forEach(btn => {
+                const isSelected = btn.getAttribute('data-value') === (n.userValue || '').toUpperCase();
+                btn.classList.remove('bg-emerald-700','border-emerald-500','bg-rose-700','border-rose-500','bg-blue-600','border-blue-500','bg-slate-700','border-slate-600');
+                if (isSelected) {
+                    btn.classList.add(ok ? 'bg-emerald-700' : 'bg-rose-700', ok ? 'border-emerald-500' : 'border-rose-500');
+                } else {
+                    btn.classList.add('bg-slate-700','border-slate-600');
+                }
+            });
+            if (ok) hits++;
+        } else {
+            const el = document.getElementById(`input-${n.id}`);
+            if (!el) return;
+            el.classList.toggle('input-correct',   ok);
+            el.classList.toggle('input-incorrect', !ok);
+            if (ok) hits++;
+        }
     });
+    _totalidadCorrectMap = Object.keys(totalidadMap).length > 0 ? totalidadMap : null;
     drawCrispConnectors();
     // Calificación /10
     const grade     = Math.round((hits / total) * 10);
@@ -482,5 +499,73 @@ function checkAnswers() {
             btn.className = 'w-full py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
             btn.textContent = '✓ Diagrama registrado';
         }
+    }
+}
+
+// ── Guardar diagrama como PNG ─────────────────────────────
+async function saveAsPNG() {
+    const btn = document.getElementById('png-btn');
+    const canvasEl = document.getElementById('er-canvas');
+    // Avisar si el contenido está cortado
+    if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
+        const ok = confirm(
+            '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
+            '📐 Para que salga completo:\n' +
+            '  • Reducir el zoom del navegador (Ctrl + −)\n' +
+            '  • O ampliar la ventana\n\n' +
+            '¿Guardar igualmente?'
+        );
+        if (!ok) return;
+    }
+    if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
+    canvasEl.scrollLeft = 0;
+    canvasEl.scrollTop  = 0;
+    const canvasRect = canvasEl.getBoundingClientRect();
+    const overlays   = [];
+    // html2canvas no lee texto de <input> → creamos divs temporales encima
+    canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
+        inp.style.opacity = '0';
+        if (!inp.value) return;
+        const r   = inp.getBoundingClientRect();
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position:absolute;
+            left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
+            top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
+            width:${r.width}px; height:${r.height}px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:11px; font-weight:700;
+            font-family:'Plus Jakarta Sans',sans-serif;
+            pointer-events:none; z-index:9999; background:transparent;
+            color:${
+                inp.classList.contains('input-correct')   ? '#059669' :
+                inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
+            };
+            text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
+        `;
+        div.textContent = inp.value;
+        canvasEl.appendChild(div);
+        overlays.push(div);
+    });
+    await new Promise(r => requestAnimationFrame(r));
+    try {
+        const shot = await html2canvas(canvasEl, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#f8fafc'
+        });
+        const link = document.createElement('a');
+        const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9]/g, '_');
+        link.download = 'ER_' + nombre + '.png';
+        link.href = shot.toDataURL('image/png');
+        link.click();
+    } catch (err) {
+        console.error('PNG error:', err);
+        alert('No se pudo generar la imagen. Intentar nuevamente.');
+    } finally {
+        canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
+        overlays.forEach(d => d.remove());
+        if (btn) { btn.textContent = '\ud83d\uddbc\ufe0f Guardar como PNG'; btn.disabled = false; }
     }
 }

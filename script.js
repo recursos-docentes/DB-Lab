@@ -56,7 +56,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadExercise(inicio);
     window.addEventListener('resize', drawCrispConnectors);
     if (!localStorage.getItem('ert_tutorial_seen')) showTutorial();
-
 });
 // ── Divisor redimensionable ──────────────────────────────
 (function initResizer() {
@@ -188,7 +187,7 @@ function renderInteractiveCanvas(exercise) {
     const container = document.getElementById('diagram-nodes');
     container.innerHTML = "";
     exercise.nodes.forEach(node => {
-        if (node.type === 'totalidad') return;
+        if (node.type === 'totalidad') return;   // se manejan en el panel inferior
         const el = document.createElement('div');
         el.id = node.id;
         el.style.cssText = `
@@ -201,56 +200,24 @@ function renderInteractiveCanvas(exercise) {
         `;
         let html = "";
         if (node.type === "entity") {
-            // Entidad débil: doble borde (borde exterior + borde interior)
-            if (node.isWeak) {
-                el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
-                html = `
-                    <div class="absolute inset-[3px] border-2 border-blue-500 pointer-events-none"></div>
-                    <input type="text" id="input-${node.id}" placeholder="?"
-                        class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent relative z-10"
-                        onclick="fillSlot('${node.id}')" readonly>
-                `;
-            } else {
-                el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
-                html = `
-                    <input type="text" id="input-${node.id}" placeholder="?"
-                        class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
-                        onclick="fillSlot('${node.id}')" readonly>
-                `;
-            }
+            el.className = "bg-blue-50 border-2 border-blue-500 shadow-md flex justify-center items-center p-2 z-20";
+            html = `
+                <input type="text" id="input-${node.id}" placeholder="?"
+                    class="diagram-input w-full h-full text-xs text-center leading-none border-none bg-transparent"
+                    onclick="fillSlot('${node.id}')" readonly>
+            `;
         } else if (node.type === "relation") {
             el.className = "relative flex justify-center items-center z-20";
-            // Autorelación: rombo un 25% más grande (se escala desde el centro)
-            const isAutoRel = exercise.connections.some(c => c.from === node.id &&
-                exercise.connections.some(c2 => c2.from === c.to && c2.to === node.id));
-            if (isAutoRel) {
-                el.style.transform = 'translate(-50%, -50%) scale(1.25)';
-            }
-            // Relación identificadora (entidad débil): doble rombo
-            if (node.isDoubleRelation) {
-                html = `
-                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
-                        <polygon points="50,12 88,50 50,88 12,50" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round"/>
-                    </svg>
-                    <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
-                        <input type="text" id="input-${node.id}" placeholder="?"
-                            class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
-                            onclick="fillSlot('${node.id}')" readonly>
-                    </div>
-                `;
-            } else {
-                html = `
-                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
-                    </svg>
-                    <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
-                        <input type="text" id="input-${node.id}" placeholder="?"
-                            class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
-                            onclick="fillSlot('${node.id}')" readonly>
-                    </div>
-                `;
-            }
+            html = `
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polygon points="50,3 97,50 50,97 3,50" fill="#fdf2f8" stroke="#db2777" stroke-width="3.5" stroke-linejoin="round"/>
+                </svg>
+                <div class="relative z-30 flex items-center justify-center text-center w-full h-full">
+                    <input type="text" id="input-${node.id}" placeholder="?"
+                        class="diagram-input w-10/12 h-full text-[11px] text-center leading-none border-none bg-transparent"
+                        onclick="fillSlot('${node.id}')" readonly>
+                </div>
+            `;
         } else if (node.type === "attribute") {
             let borderClass, inputExtra;
             if (node.isKey) {
@@ -306,11 +273,9 @@ function renderInteractiveCanvas(exercise) {
 function fillSlot(nodeId) {
     const inp = document.getElementById(`input-${nodeId}`);
     if (!inp) return;
-
     const cur  = exercises[activeExercise];
     const node = cur?.nodes.find(n => n.id === nodeId);
-
-    // Si el slot ya tiene valor: devolverlo al banco (sin importar si hay selección)
+    // Si ya tiene valor: devolver al banco
     if (inp.value) {
         inp.value = '';
         inp.classList.remove('input-correct', 'input-incorrect');
@@ -324,8 +289,7 @@ function fillSlot(nodeId) {
         updateWordBankVisuals();
         return;
     }
-
-    // Si el slot está vacío: pegar la palabra seleccionada (si hay alguna)
+    // Si está vacío: colocar palabra seleccionada
     if (highlightedWord === null) return;
     inp.value = highlightedWord;
     inp.classList.remove('input-correct', 'input-incorrect');
@@ -340,12 +304,12 @@ function fillSlot(nodeId) {
     document.getElementById('selection-status').innerText = "";
     updateWordBankVisuals();
 }
-
-// ── Modales: Conceptos ────────────────────────────────────
+// ── Dibujar conectores con recorte a bordes de figura ────
+// ── Conceptos ─────────────────────────────────────────────
 function showConcepts() { document.getElementById('concepts-modal').classList.remove('hidden'); }
 function closeConcepts() { document.getElementById('concepts-modal').classList.add('hidden'); }
 
-// ── Modales: Glosario ─────────────────────────────────────
+// ── Glosario ──────────────────────────────────────────────
 function showGlossary() { document.getElementById('glossary-modal').classList.remove('hidden'); }
 function closeGlossary() { document.getElementById('glossary-modal').classList.add('hidden'); }
 
@@ -372,79 +336,5 @@ function _renderTutorialStep() {
     steps.forEach((s, i) => s.classList.toggle('hidden', i !== _tutorialStep));
     dots.forEach((d, i)  => d.className = `w-2 h-2 rounded-full ${i === _tutorialStep ? 'bg-indigo-500' : 'bg-slate-600'}`);
     const btn = document.getElementById('tutorial-next-btn');
-    if (btn) btn.textContent = _tutorialStep === steps.length - 1 ? '¡Comenzar! 🚀' : 'Siguiente →';
+    btn.textContent = _tutorialStep === steps.length - 1 ? '\u00a1Comenzar! \ud83d\ude80' : 'Siguiente \u2192';
 }
-
-// ── Guardar diagrama como PNG ─────────────────────────────
-async function saveAsPNG() {
-    const btn = document.getElementById('png-btn');
-    const canvasEl = document.getElementById('er-canvas');
-
-    if (canvasEl.scrollWidth > canvasEl.clientWidth + 50 || canvasEl.scrollHeight > canvasEl.clientHeight + 50) {
-        const ok = confirm(
-            '⚠️ El diagrama es más grande que el área visible y puede quedar cortado en la imagen.\n\n' +
-            '📐 Para que salga completo:\n' +
-            '  • Reducir el zoom del navegador (Ctrl + −)\n' +
-            '  • O ampliar la ventana\n\n' +
-            '¿Guardar igualmente?'
-        );
-        if (!ok) return;
-    }
-
-    if (btn) { btn.textContent = '⏳ Generando…'; btn.disabled = true; }
-    canvasEl.scrollLeft = 0;
-    canvasEl.scrollTop  = 0;
-
-    const canvasRect = canvasEl.getBoundingClientRect();
-    const overlays   = [];
-
-    canvasEl.querySelectorAll('input.diagram-input').forEach(inp => {
-        inp.style.opacity = '0';
-        if (!inp.value) return;
-        const nodeId = inp.id.replace('input-', '');
-        const nodeEl = document.getElementById(nodeId) || inp.parentElement;
-        const r      = nodeEl.getBoundingClientRect();
-        const div = document.createElement('div');
-        div.style.cssText = `
-            position:absolute;
-            left:${r.left - canvasRect.left + canvasEl.scrollLeft}px;
-            top:${r.top  - canvasRect.top  + canvasEl.scrollTop}px;
-            width:${r.width}px; height:${r.height}px;
-            display:flex; align-items:center; justify-content:center;
-            font-size:11px; font-weight:700;
-            font-family:'Plus Jakarta Sans',sans-serif;
-            pointer-events:none; z-index:9999; background:transparent;
-            color:${
-                inp.classList.contains('input-correct')   ? '#059669' :
-                inp.classList.contains('input-incorrect') ? '#dc2626' : '#1e293b'
-            };
-            text-decoration:${inp.classList.contains('underline') ? 'underline' : 'none'};
-        `;
-        div.textContent = inp.value;
-        canvasEl.appendChild(div);
-        overlays.push(div);
-    });
-    await new Promise(r => requestAnimationFrame(r));
-
-    try {
-        const shot = await html2canvas(canvasEl, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#f8fafc'
-        });
-        const link = document.createElement('a');
-        const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_');
-        link.download = `ER_${nombre}.png`;
-        link.href = shot.toDataURL('image/png');
-        link.click();
-    } catch (err) {
-        console.error('PNG error:', err);
-        alert('No se pudo generar la imagen. Intentar nuevamente.');
-    } finally {
-        canvasEl.querySelectorAll('input.diagram-input').forEach(inp => inp.style.opacity = '');
-        overlays.forEach(d => d.remove());
-        if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
-    }
-}
-

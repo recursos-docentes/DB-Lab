@@ -179,6 +179,22 @@ En la **misma posición** que el ejercicio en `exercises[]`. Cada elemento es un
 | `entityType` | `"fuerte"`, `"débil"` (obligatorio si `type:"entidad"`) |
 | `attrType` | `"simple"`, `"clave"`, `"compuesto"`, `"multivaluado"`, `"derivado"`, `"relacion"` (obligatorio si `type:"atributo"`) |
 
+**⚠️ Convención de nombres — OBLIGATORIA en todo `analyzeData[]`:**
+
+| Tipo | Regla | Ejemplos ✅ | Ejemplos ❌ |
+|------|-------|------------|------------|
+| `entidad` | TODO EN MAYÚSCULAS, singular | `CLIENTE`, `LIBRO`, `MÉDICO` | `Cliente`, `Libros`, `medico` |
+| `atributo` | Primera letra mayúscula | `Nombre`, `FechaNac`, `Id_socio` | `nombre`, `fechaNac`, `id_socio` |
+| `relacion` | todo en minúsculas | `préstamo`, `dicta`, `tiene` | `Préstamo`, `TIENE` |
+
+Para atributos compuestos, listar los sub-atributos inline y agregar `components`:
+```js
+{word:"NombreCom", type:"atributo", attrType:"compuesto", components:["Nom","Ape1","Ape2"]},
+" (compuesto por ", {word:"Nom", type:"atributo", attrType:"simple"}, ", ",
+{word:"Ape1", type:"atributo", attrType:"simple"}, " y ",
+{word:"Ape2", type:"atributo", attrType:"simple"}, "), "
+```
+
 > ⚠️ `exercises[]`, `analyzeData[]` y `analyzeConfig[]` deben tener **exactamente el mismo número de entradas**. Una coma faltante entre entradas rompe el array sin error visible — verificar con la consola del navegador (`F12 → Console`) si algo no carga.
 
 ---

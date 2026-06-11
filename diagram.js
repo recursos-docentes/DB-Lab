@@ -676,7 +676,6 @@ async function saveAsPNG() {
             const tw = ctx.measureText(val).width;
             const uy = c.y + fs/2 + 1;
             if (n.isDashed) {
-                // Clave parcial: subrayado discontinuo
                 ctx.save();
                 ctx.setLineDash([3,3]);
                 ctx.strokeStyle = tc;
@@ -694,20 +693,18 @@ async function saveAsPNG() {
         ctx.restore();
     });
 
-    // ── Círculos de totalidad ─────────────────────────────
+    // ── Círculos de totalidad ─────────────────────
     cur.nodes.forEach(n => {
         if (n.type !== 'totalidad') return;
         const userVal = (n.userValue || '').toUpperCase();
         if (userVal !== 'S') return;
         {
-
             const match = n.id.match(/t_(.+?)_(left|right)/);
             if (!match) return;
             const relEl = document.getElementById('r_' + match[1]);
             if (!relEl) return;
             const rel = elC(relEl);
 
-            // Entidad conectada más cercana
             let entityEl = null, minDist = Infinity;
             cur.connections.forEach(conn => {
                 const otherId = conn.from === 'r_'+match[1] ? conn.to

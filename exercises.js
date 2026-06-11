@@ -546,12 +546,12 @@ const exercises = [
     wordBank: ["CLUB", "Nombre", "AñoFundación", "Ubicación", "Entrenador", "Presidente", "Estadio", "JUGADOR", "Ced", "Nacionalidad", "Estatura", "Apodo", "Nombre", "FechaNac", "juega_en", "N", "N", "juega_con", "Fecha", "Resultado", "N", "N"],
     nodes: [
         { id: "e_0", type: "entity", correctValue: "CLUB", x: 30, y: 30, w: 110, h: 52 },
-        { id: "a_0", type: "attribute", isKey: true, correctValue: "Nombre", x: 20, y: 10, w: 92, h: 40 },
-        { id: "a_1", type: "attribute", correctValue: "AñoFundación", x: 20, y: 22, w: 92, h: 40 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "Nombre", x: 15, y: 10, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "AñoFundación", x: 15, y: 22, w: 92, h: 40 },
         { id: "a_2", type: "attribute", correctValue: "Ubicación", x: 30, y: 10, w: 92, h: 40 },
         { id: "a_3", type: "attribute", correctValue: "Entrenador", x: 40, y: 10, w: 92, h: 40 },
-        { id: "a_4", type: "attribute", correctValue: "Presidente", x: 20, y: 34, w: 92, h: 40 },
-        { id: "a_5", type: "attribute", correctValue: "Estadio", x: 20, y: 46, w: 92, h: 40 },
+        { id: "a_4", type: "attribute", correctValue: "Presidente", x: 15, y: 34, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", correctValue: "Estadio", x: 15, y: 46, w: 92, h: 40 },
        
         { id: "e_1", type: "entity", correctValue: "JUGADOR", x: 30, y: 90, w: 110, h: 52 },
         { id: "a_6", type: "attribute", isKey: true, correctValue: "Ced", x: 45, y: 68, w: 92, h: 40 },
@@ -599,11 +599,11 @@ const analyzeData = [
     // -1 ── Taller Mecánico
     [
         "Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.\n\n",
-        "• De cada ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " se guarda la ",
+        "• De cada ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " se guarda la ",
         {word:"CI",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Apellido",type:"atributo",attrType:"simple"}, ".\n",
-        "• De los ", {word:"Autos",type:"entidad",entityType:"fuerte"}, " se guarda la ",
+        "• De los ", {word:"AUTO",type:"entidad",entityType:"fuerte"}, " se guarda la ",
         {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"Marca",type:"atributo",attrType:"simple"}, ", ", {word:"Modelo",type:"atributo",attrType:"simple"}, " y ", {word:"Combustible",type:"atributo",attrType:"simple"}, ".\n",
-        "• De cada ", {word:"Reparación",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        "• De cada ", {word:"REPARACIÓN",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"Código",type:"atributo",attrType:"clave"}, " y ", {word:"Descripción",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede ", {word:"tener",type:"relacion"}, " muchos autos.\n",
         "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones. Se registra ", {word:"Fecha_entrada",type:"atributo",attrType:"simple"}, " y ", {word:"Observación",type:"atributo",attrType:"simple"}, "."
@@ -612,43 +612,43 @@ const analyzeData = [
     // 1 ── Biblioteca Escolar
     [
         "Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.\n\n",
-        "• Cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " tiene ",
-        {word:"id_socio",type:"atributo",attrType:"clave"}, ", ", {word:"nombre",type:"atributo",attrType:"simple"}, " y ", {word:"teléfono",type:"atributo",attrType:"simple"}, ".\n",
-        "• De los ", {word:"Libros",type:"entidad",entityType:"fuerte"}, " se registra el ",
-        {word:"isbn",type:"atributo",attrType:"clave"}, ", ", {word:"título",type:"atributo",attrType:"simple"}, " y ", {word:"autor",type:"atributo",attrType:"simple"}, ".\n",
+        "• Cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " tiene ",
+        {word:"Id_socio",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
+        "• De los ", {word:"LIBRO",type:"entidad",entityType:"fuerte"}, " se registra el ",
+        {word:"Isbn",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Autor",type:"atributo",attrType:"simple"}, ".\n",
         "• Un socio puede ", {word:"solicitar",type:"relacion"}, " múltiples préstamos y un libro puede prestarse a diferentes socios.\n",
-        "• El Préstamo registra la ", {word:"fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"devuelto",type:"atributo",attrType:"relacion"}, "."
+        "• El Préstamo registra la ", {word:"Fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, "."
     ],
     // 2 ── Tienda Online
     [
         "Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.\n\n",
-        "• El ", {word:"Cliente",type:"entidad",entityType:"fuerte"}, " tiene ",
-        {word:"id_cliente",type:"atributo",attrType:"clave"}, ", ", {word:"nombre",type:"atributo",attrType:"simple"}, ", ", {word:"email",type:"atributo",attrType:"simple"}, ".\n",
-        "• El cliente ", {word:"realiza",type:"relacion"}, " un ", {word:"Pedido",type:"entidad",entityType:"fuerte"}, " con ",
-        {word:"nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"total",type:"atributo",attrType:"simple"}, ".\n",
+        "• El ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " tiene ",
+        {word:"Id_cliente",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, ", ", {word:"Email",type:"atributo",attrType:"simple"}, ".\n",
+        "• El cliente ", {word:"realiza",type:"relacion"}, " un ", {word:"PEDIDO",type:"entidad",entityType:"fuerte"}, " con ",
+        {word:"Nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"Total",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente."
     ],
     // 3 ── Red Social
     [
-        "Una red social tiene ", {word:"Usuarios",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
-        {word:"Creadores",type:"entidad",entityType:"fuerte"}, " o ", {word:"Espectadores",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n",
+        "Una red social tiene ", {word:"USUARIO",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
+        {word:"CREADOR",type:"entidad",entityType:"fuerte"}, " o ", {word:"ESPECTADOR",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n",
         "Los usuarios tienen ", {word:"Id_usuario",type:"atributo",attrType:"clave"}, ", ", {word:"Email",type:"atributo",attrType:"simple"}, " y ", {word:"Año_ingreso",type:"atributo",attrType:"simple"}, ".\n",
         "Los Creadores tienen ", {word:"Cant_seguidores",type:"atributo",attrType:"simple"}, ".\n",
         "Los Espectadores pueden tener varios ", {word:"Teléfono",type:"atributo",attrType:"multivaluado"}, " y una ", {word:"Ciudad",type:"atributo",attrType:"simple"}, ".\n",
-        "Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"Contenidos",type:"entidad",entityType:"fuerte"}, ".\n",
+        "Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"CONTENIDO",type:"entidad",entityType:"fuerte"}, ".\n",
         "El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
     ],
     // 4 ── Plataforma Streaming
     [
         "Una plataforma de streaming desea administrar su catálogo de películas y sus socios.\n\n",
-        "• De cada ", {word:"Socio",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        "• De cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"Cod_socio",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre_completo",type:"atributo",attrType:"compuesto",components:["Primer_nom","Primer_ape"]},
         " (compuesto por ", {word:"Primer_nom",type:"atributo",attrType:"simple"}, " y ", {word:"Primer_ape",type:"atributo",attrType:"simple"}, ") y una lista de ",
         {word:"Directores_favoritos",type:"atributo",attrType:"multivaluado"}, ".\n",
-        "• De cada ", {word:"Película",type:"entidad",entityType:"fuerte"}, " se registra ",
+        "• De cada ", {word:"PELÍCULA",type:"entidad",entityType:"fuerte"}, " se registra ",
         {word:"Cod_pelicula",type:"atributo",attrType:"clave"}, ", ", {word:"Titulo",type:"atributo",attrType:"simple"}, ", ",
         {word:"Año",type:"atributo",attrType:"simple"}, " y una lista de ", {word:"Actores",type:"atributo",attrType:"multivaluado"}, ".\n",
-        "• Las películas se almacenan en ", {word:"Archivadores",type:"entidad",entityType:"fuerte"}, " con ",
+        "• Las películas se almacenan en ", {word:"ARCHIVADOR",type:"entidad",entityType:"fuerte"}, " con ",
         {word:"Nro_arch",type:"atributo",attrType:"clave"}, " y ", {word:"Ubicacion",type:"atributo",attrType:"simple"}, ".\n",
         "• Un socio puede ", {word:"alquilar",type:"relacion"}, " muchas películas y una película puede ser alquilada por muchos socios. Se registra ",
         {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, ".\n",
@@ -657,11 +657,11 @@ const analyzeData = [
     // 5 ── Sistema Hospitalario
     [
         "Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.\n\n",
-        "• De cada ", {word:"Paciente",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        "• De cada ", {word:"PACIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"Cédula",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
-        "• De cada ", {word:"Médico",type:"entidad",entityType:"fuerte"}, " se registra ",
+        "• De cada ", {word:"MÉDICO",type:"entidad",entityType:"fuerte"}, " se registra ",
         {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
-        "• Las ", {word:"Consultas",type:"entidad",entityType:"fuerte"}, " tienen ",
+        "• Las ", {word:"CONSULTA",type:"entidad",entityType:"fuerte"}, " tienen ",
         {word:"Número",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha",type:"atributo",attrType:"simple"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"simple"}, ".\n",
         "• Un paciente puede ", {word:"realizar",type:"relacion"}, " muchas consultas; cada consulta es de un médico (1:N).\n",
         "• Un médico puede ", {word:"atender",type:"relacion"}, " muchos pacientes."
@@ -701,7 +701,9 @@ const analyzeData = [
     "• De cada ",
     {word:"PROFESOR",type:"entidad",entityType:"fuerte"},
     " se guarda ",
-    {word:"Nombre",type:"atributo",attrType:"clave"},
+    {word:"CédulaP",type:"atributo",attrType:"clave"},
+    ", ",
+    {word:"Nombre",type:"atributo",attrType:"simple"},
     ", ",
     {word:"TeléfonoP",type:"atributo",attrType:"simple"},
     ", ",
@@ -723,8 +725,8 @@ const analyzeData = [
     " se guarda ",
     {word:"CédulaA",type:"atributo",attrType:"clave"},
     ", ",
-    {word:"NombreCom",type:"atributo",attrType:"compuesto"},
-    ", ",
+    {word:"NombreCom",type:"atributo",attrType:"compuesto",components:["Nom","Ape1","Ape2"]},
+    " (compuesto por ", {word:"Nom",type:"atributo",attrType:"simple"}, ", ", {word:"Ape1",type:"atributo",attrType:"simple"}, " y ", {word:"Ape2",type:"atributo",attrType:"simple"}, "), ",
     {word:"Teléfono",type:"atributo",attrType:"simple"},
     ", ",
     {word:"FechaNac",type:"atributo",attrType:"simple"},

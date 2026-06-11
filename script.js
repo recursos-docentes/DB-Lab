@@ -56,6 +56,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadExercise(inicio);
     window.addEventListener('resize', drawCrispConnectors);
     if (!localStorage.getItem('ert_tutorial_seen')) showTutorial();
+
 });
 // ── Divisor redimensionable ──────────────────────────────
 (function initResizer() {
@@ -303,15 +304,31 @@ function renderInteractiveCanvas(exercise) {
 }
 // ── Pegar palabra en un slot ──────────────────────────────
 function fillSlot(nodeId) {
-    if (highlightedWord === null) return;
     const inp = document.getElementById(`input-${nodeId}`);
     if (!inp) return;
-    inp.value = highlightedWord;
-    inp.classList.remove('input-correct', 'input-incorrect');
 
-    // Cardinalidades: ocultar borde del círculo al llenarlo
     const cur  = exercises[activeExercise];
     const node = cur?.nodes.find(n => n.id === nodeId);
+
+    // Si el slot ya tiene valor: devolverlo al banco (sin importar si hay selección)
+    if (inp.value) {
+        inp.value = '';
+        inp.classList.remove('input-correct', 'input-incorrect');
+        if (node?.type === 'cardinality') {
+            const container = document.getElementById(nodeId);
+            if (container) {
+                container.classList.remove('border-transparent', 'border-emerald-500', 'border-rose-500');
+                container.classList.add('border-slate-600');
+            }
+        }
+        updateWordBankVisuals();
+        return;
+    }
+
+    // Si el slot está vacío: pegar la palabra seleccionada (si hay alguna)
+    if (highlightedWord === null) return;
+    inp.value = highlightedWord;
+    inp.classList.remove('input-correct', 'input-incorrect');
     if (node?.type === 'cardinality') {
         const container = document.getElementById(nodeId);
         if (container) {
@@ -319,7 +336,6 @@ function fillSlot(nodeId) {
             container.classList.add('border-transparent');
         }
     }
-
     highlightedWord = null;
     document.getElementById('selection-status').innerText = "";
     updateWordBankVisuals();
@@ -408,7 +424,6 @@ async function saveAsPNG() {
         canvasEl.appendChild(div);
         overlays.push(div);
     });
-
     await new Promise(r => requestAnimationFrame(r));
 
     try {
@@ -432,3 +447,4 @@ async function saveAsPNG() {
         if (btn) { btn.textContent = '🖼️ Guardar como PNG'; btn.disabled = false; }
     }
 }
+

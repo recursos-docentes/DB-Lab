@@ -24,6 +24,10 @@
         .diagram-input:not(:placeholder-shown) {
             border: none !important;
             background: transparent !important;
+            cursor: pointer;
+        }
+        .diagram-input:not(:placeholder-shown):hover {
+            opacity: 0.6;
         }
         .diagram-input:placeholder-shown:hover {
             border-color: #0284c7;

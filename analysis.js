@@ -53,9 +53,7 @@ function renderAnalysisPanel(exerciseIndex) {
         updateClassificationPanels();
         return;
     }
-    segments.forEach(seg => {
-        textContainer.appendChild(document.createTextNode(typeof seg === 'string' ? seg : seg.word));
-    });
+    textContainer.innerHTML = (exercises[exerciseIndex]?.description || '').replace(/\n\s*/g, '');
     // Fichas en el panel lateral
     const pool = document.getElementById('terms-pool');
     pool.innerHTML = '';

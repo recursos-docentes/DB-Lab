@@ -233,43 +233,36 @@ const exercises = [
     // ── Ejercicio 6: Sistema Hospitalario ──────────────────────────────────
     {
         title: "🏥 Sistema Hospitalario",
-        description: `Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.<br><br>
-        • De cada <strong>paciente</strong> se guarda cédula, nombre y teléfono.<br>
-        • De cada <strong>médico</strong> se registra matrícula, nombre y especialidad.<br>
-        • Las <strong>consultas</strong> tienen número, fecha y diagnóstico.<br>
-        • Un paciente puede tener muchas consultas; cada consulta es de un médico.<br>
-        • Un médico puede atender muchos pacientes y un paciente se puede atender con muchos médicos.`,
-        hint: "Recuerda que Cédula es la clave primaria de PACIENTE y Matrícula de MÉDICO. Las relaciones 'realiza' y 'atiende' conectan las entidades.",
-        wordBank: ["PACIENTE", "MÉDICO", "CONSULTA", "realiza", "atiende", "Cédula", "Nombre", "Teléfono", "Matrícula", "Especialidad", "Número", "Fecha", "Diagnóstico", "N", "1", "N", "1"],
+        description: `Un hospital desea gestionar información sobre sus pacientes y médicos.<br><br>
+        • De cada <strong>paciente</strong> se guarda cédula, nombreP y teléfono.<br>
+        • De cada <strong>médico</strong> se registra matrícula, nombreM y especialidad.<br>
+        • Un paciente puede consultar a muchos médicos y un médico puede atender a muchos pacientes.<br>
+        • De cada <strong>consulta</strong> se registra fecha y diagnóstico.`,
+        hint: "Cédula es la clave de PACIENTE y Matrícula de MÉDICO. La relación 'consulta' conecta ambas entidades y tiene atributos propios.",
+        wordBank: ["PACIENTE", "MÉDICO", "consulta", "Cédula", "NombreP", "Teléfono", "Matrícula", "NombreM", "Especialidad", "Fecha", "Diagnóstico", "N", "N"],
         nodes: [
-            { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 15,   y: 50,   w: 120, h: 55 },
-            { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 50,   y: 50,   w: 120, h: 55 },
-            { id: "e_con", type: "entity",      correctValue: "CONSULTA",    x: 85,   y: 50,   w: 120, h: 55 },
-            { id: "r_rea", type: "relation",    correctValue: "realiza",     x: 32,   y: 50,   w: 80,  h: 80 },
-            { id: "r_ate", type: "relation",    correctValue: "atiende",     x: 68,   y: 50,   w: 80,  h: 80 },
-            { id: "a_p1", type: "attribute", isKey: true,  correctValue: "Cédula",       x: 5,  y: 22, w: 85,  h: 42 },
-            { id: "a_p2", type: "attribute", isKey: false, correctValue: "Nombre",      x: 15, y: 22, w: 85,  h: 42 },
-            { id: "a_p3", type: "attribute", isKey: false, correctValue: "Teléfono",    x: 25, y: 22, w: 90,  h: 42 },
-            { id: "a_m1", type: "attribute", isKey: true,  correctValue: "Matrícula",   x: 40, y: 22, w: 90,  h: 42 },
-            { id: "a_m2", type: "attribute", isKey: false, correctValue: "Nombre",      x: 50, y: 22, w: 85,  h: 42 },
-            { id: "a_m3", type: "attribute", isKey: false, correctValue: "Especialidad",x: 60, y: 22, w: 100, h: 42 },
-            { id: "a_c1", type: "attribute", isKey: true,  correctValue: "Número",      x: 80, y: 22, w: 85,  h: 42 },
-            { id: "a_c2", type: "attribute", isKey: false, correctValue: "Fecha",       x: 90, y: 22, w: 85,  h: 42 },
-            { id: "a_c3", type: "attribute", isKey: false, correctValue: "Diagnóstico", x: 85, y: 78, w: 95,  h: 42 },
-            { id: "c_p", type: "cardinality", correctValue: "N", x: 24,   y: 50, w: 32, h: 32 },
-            { id: "c_m", type: "cardinality", correctValue: "1", x: 41,   y: 50, w: 32, h: 32 },
-            { id: "c_m2", type: "cardinality", correctValue: "N", x: 59,   y: 50, w: 32, h: 32 },
-            { id: "c_c", type: "cardinality", correctValue: "1", x: 76,   y: 50, w: 32, h: 32 }
+            { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 20,   y: 50,   w: 120, h: 55 },
+            { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 80,   y: 50,   w: 120, h: 55 },
+            { id: "r_con", type: "relation",    correctValue: "consulta",    x: 50,   y: 50,   w: 80,  h: 80 },
+            { id: "a_p1", type: "attribute", isKey: true,  correctValue: "Cédula",       x: 8,  y: 22, w: 85,  h: 42 },
+            { id: "a_p2", type: "attribute", isKey: false, correctValue: "NombreP",     x: 20, y: 22, w: 88,  h: 42 },
+            { id: "a_p3", type: "attribute", isKey: false, correctValue: "Teléfono",    x: 30, y: 22, w: 90,  h: 42 },
+            { id: "a_m1", type: "attribute", isKey: true,  correctValue: "Matrícula",   x: 70, y: 22, w: 90,  h: 42 },
+            { id: "a_m2", type: "attribute", isKey: false, correctValue: "NombreM",     x: 80, y: 22, w: 88,  h: 42 },
+            { id: "a_m3", type: "attribute", isKey: false, correctValue: "Especialidad",x: 90, y: 22, w: 100, h: 42 },
+            { id: "a_r1", type: "attribute", isKey: false, correctValue: "Fecha",       x: 43, y: 78, w: 85,  h: 42 },
+            { id: "a_r2", type: "attribute", isKey: false, correctValue: "Diagnóstico", x: 57, y: 78, w: 95,  h: 42 },
+            { id: "c_1",  type: "cardinality", correctValue: "N", x: 35,   y: 50, w: 32, h: 32 },
+            { id: "c_2",  type: "cardinality", correctValue: "N", x: 65,   y: 50, w: 32, h: 32 }
         ],
         connections: [
             { from: "a_p1", to: "e_pac" }, { from: "a_p2", to: "e_pac" }, { from: "a_p3", to: "e_pac" },
             { from: "a_m1", to: "e_med" }, { from: "a_m2", to: "e_med" }, { from: "a_m3", to: "e_med" },
-            { from: "a_c1", to: "e_con" }, { from: "a_c2", to: "e_con" }, { from: "a_c3", to: "e_con" },
-            { from: "e_pac", to: "r_rea" }, { from: "r_rea", to: "e_con" },
-            { from: "e_med", to: "r_ate" }, { from: "r_ate", to: "e_con" }
+            { from: "e_pac", to: "r_con" }, { from: "r_con", to: "e_med" },
+            { from: "r_con", to: "a_r1" }, { from: "r_con", to: "a_r2" }
         ],
         // METADATOS
-        concept: "relaciones_simples",  // Relación 1:N con entidad intermedia
+        concept: "atributos_especiales",  // Relación N:N con atributos de relación
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
@@ -438,7 +431,7 @@ const exercises = [
         • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>.<br>
         • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo es de una <strong>película</strong>.<br>
         • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>.<br>
-        • Un <strong>director</strong> puede dirigir una <strong>película</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>.`,
+        • Un <strong>director</strong> puede dirigir muchas <strong>películas</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>. Toda película debe tener obligatoriamente un director asignado.`,
     hint: "",
     wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
                "EJEMPLAR", "Número", "Estado",
@@ -664,13 +657,10 @@ const analyzeData = [
     [
         "Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.\n\n",
         "• De cada ", {word:"PACIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"Cédula",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"Cédula",type:"atributo",attrType:"clave"}, ", ", {word:"NombreP",type:"atributo",attrType:"simple"}, " y ", {word:"Teléfono",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"MÉDICO",type:"entidad",entityType:"fuerte"}, " se registra ",
-        {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
-        "• Las ", {word:"CONSULTA",type:"entidad",entityType:"fuerte"}, " tienen ",
-        {word:"Número",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha",type:"atributo",attrType:"simple"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"simple"}, ".\n",
-        "• Un paciente puede ", {word:"realizar",type:"relacion"}, " muchas consultas; cada consulta es de un médico.\n",
-        "• Un médico puede ", {word:"atender",type:"relacion"}, " muchos pacientes y un paciente se puede atender con muchos médicos."
+        {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"NombreM",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
+        "• Un PACIENTE ", {word:"consulta",type:"relacion"}, " muchos MÉDICOS y un MÉDICO atiende a muchos PACIENTES. Se registra ", {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"relacion"}, "."
     ],
     // 6 ── Institución educativa
 [

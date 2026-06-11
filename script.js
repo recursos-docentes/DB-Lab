@@ -1,6 +1,8 @@
 let activeExercise  = 0;
 let highlightedWord = null;
 let analysisAttempts = 0;
+let diagramAttemptScores  = [];  // [{hits, total, grade}] — se resetea al cambiar ejercicio
+let analysisAttemptScores = [];  // [{hits, total, pct}]   — ídem
 let usedWords = new Set();     // Palabras ya colocadas en el diagrama
 let wordClassifications = {};
 let wordAttrTypes = {};
@@ -132,6 +134,8 @@ function loadExercise(index) {
     updateWordBankVisuals();
     renderAnalysisPanel(activeExercise);
     _resetCorregirBtn();
+    diagramAttemptScores  = [];
+    analysisAttemptScores = [];
     setStage('analyze');
 }
 // ── Actualizar estado visual de palabras usadas ──────────

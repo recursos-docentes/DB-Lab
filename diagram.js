@@ -490,7 +490,34 @@ function checkAnswers() {
             ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
             : ['bg-amber-950',  'text-amber-300', 'border-amber-700'])
     );
-    fb.innerHTML = `<span class="text-sm">${msg}</span>`;
+    // Registrar intento
+    if (!evalMode) {
+        diagramAttemptScores.push({ hits, total, grade });
+        const histHtml = diagramAttemptScores
+            .map((s, i) => `<span class="font-bold">Intento ${i+1}:</span> ${s.grade}/10`)
+            .join(' &nbsp;|&nbsp; ');
+        fb.innerHTML = `<span class="text-sm">${msg}</span><div class="mt-1.5 text-xs text-slate-300">${histHtml}</div>`;
+        if (diagramAttemptScores.length >= 3) {
+            const btn = document.querySelector('button[onclick="checkAnswers()"]');
+            if (btn) {
+                btn.disabled = true;
+                btn.className = 'w-full py-3.5 bg-slate-700/50 text-slate-400 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700';
+                btn.textContent = '✓ Máximo 3 intentos';
+            }
+            // Congelar banco de palabras restantes
+            document.querySelectorAll('#word-bank button').forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-40', 'cursor-not-allowed');
+                b.onclick = null;
+            });
+            // Deshabilitar inputs del canvas
+            document.querySelectorAll('#diagram-nodes input').forEach(inp => {
+                inp.disabled = true;
+            });
+        }
+    } else {
+        fb.innerHTML = `<span class="text-sm">${msg}</span>`;
+    }
     requestAnimationFrame(drawCrispConnectors);
     if (evalMode) {
         const btn = document.querySelector('button[onclick="checkAnswers()"]');
@@ -732,6 +759,51 @@ async function saveAsPNG() {
             ctx.restore();
         }
     });
+
+    // ── Historial de intentos (banda inferior) ────────────
+    const hasHistory = (diagramAttemptScores.length > 0) || (analysisAttemptScores.length > 0);
+    if (hasHistory && !evalMode) {
+        const bandH = 28;
+        // Ampliar canvas
+        const oldData = ctx.getImageData(0, 0, W*SCALE, H*SCALE);
+        off.height = (H + bandH) * SCALE;
+        ctx.putImageData(oldData, 0, 0);
+        ctx.scale(SCALE, SCALE);  // redimensionar resetea el transform — re-aplicar
+        // Fondo de la banda
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, H, W, bandH);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.stroke();
+        // Texto
+        ctx.font = 'bold 9px "Plus Jakarta Sans",sans-serif';
+        ctx.textBaseline = 'middle';
+        const y = H + bandH / 2;
+        let x = 12;
+        if (diagramAttemptScores.length > 0) {
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('Diseño E-R:', x, y);
+            x += ctx.measureText('Diseño E-R:').width + 6;
+            diagramAttemptScores.forEach((s, i) => {
+                if (i > 0) { ctx.fillStyle = '#475569'; ctx.fillText('|', x, y); x += ctx.measureText('|').width + 6; }
+                ctx.fillStyle = s.grade >= 6 ? '#34d399' : '#f87171';
+                ctx.fillText(`Int.${i+1}: ${s.grade}/10`, x, y);
+                x += ctx.measureText(`Int.${i+1}: ${s.grade}/10`).width + 8;
+            });
+            x += 10;
+        }
+        if (analysisAttemptScores.length > 0) {
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('Análisis:', x, y);
+            x += ctx.measureText('Análisis:').width + 6;
+            analysisAttemptScores.forEach((s, i) => {
+                if (i > 0) { ctx.fillStyle = '#475569'; ctx.fillText('|', x, y); x += ctx.measureText('|').width + 6; }
+                ctx.fillStyle = s.pct >= 60 ? '#34d399' : '#f87171';
+                ctx.fillText(`Int.${i+1}: ${s.hits}/${s.total}`, x, y);
+                x += ctx.measureText(`Int.${i+1}: ${s.hits}/${s.total}`).width + 8;
+            });
+        }
+    }
 
     // Descarga
     try {

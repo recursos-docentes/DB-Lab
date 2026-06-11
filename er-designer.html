@@ -359,9 +359,9 @@
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
     <script src="exercises.js?t=9"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
-    <script src="script.js?t=12"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
-    <script src="diagram.js?t=14"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
-    <script src="analysis.js?t=2"></script>   <!-- análisis: modo eval, panel, clasificación -->
+    <script src="script.js?t=13"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="diagram.js?t=17"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
+    <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->
@@ -497,14 +497,16 @@
                         <p class="text-4xl mb-3">📋</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Etapa 1: Analizar</h3>
                         <p class="text-slate-300 text-sm leading-relaxed mb-3">Leé el enunciado del problema. A la derecha aparecen <strong class="text-amber-300">fichas</strong> con los términos importantes.</p>
-                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en cada ficha y decí si es una <strong class="text-blue-300">Entidad</strong>, un <strong class="text-emerald-300">Atributo</strong> o una <strong class="text-red-300">Relación</strong>. Luego presioná <strong class="text-white">Validar clasificación</strong>.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-2">Hacé clic en cada ficha y decí si es una <strong class="text-blue-300">Entidad</strong>, un <strong class="text-emerald-300">Atributo</strong> o una <strong class="text-red-300">Relación</strong>. Luego presioná <strong class="text-white">Validar clasificación</strong>.</p>
+                        <p class="text-amber-300 text-xs font-semibold">⚠️ Tenés <strong>3 intentos</strong> para validar. Usálos bien.</p>
                     </div>
                     <!-- Step 3 -->
                     <div class="tutorial-step hidden" data-step="2">
                         <p class="text-4xl mb-3">🔗</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Etapa 2: Diseño E-R</h3>
                         <p class="text-slate-300 text-sm leading-relaxed mb-3">El diagrama tiene <strong class="text-white">huecos</strong> en blanco. A la izquierda hay un <strong class="text-white">banco de palabras</strong>.</p>
-                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en una palabra del banco y después en el hueco donde corresponde. Cuando termines, presioná <strong class="text-white">Corregir Diagrama</strong>.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-2">Hacé clic en una palabra del banco y después en el hueco donde corresponde. Cuando termines, presioná <strong class="text-white">Corregir Diagrama</strong>.</p>
+                        <p class="text-amber-300 text-xs font-semibold">⚠️ Tenés <strong>3 intentos</strong> para corregir. Al terminarlos, el diagrama se bloquea.</p>
                     </div>
                     <!-- Step 4 -->
                     <div class="tutorial-step hidden" data-step="3">
@@ -512,9 +514,8 @@
                         <h3 class="text-white font-extrabold text-xl mb-2">Consejos útiles</h3>
                         <ul class="text-slate-300 text-sm leading-relaxed space-y-2">
                             <li>• Podés consultar el <button onclick="closeTutorial();showGlossary()" class="text-indigo-300 underline hover:text-white">📖 Glosario</button> en cualquier momento.</li>
-                            <li>• Si algo quedó rojo, no te preocupes — podés intentarlo de nuevo.</li>
+                            <li>• Si algo quedó rojo, podés intentarlo de nuevo — hasta <strong class="text-amber-300">3 veces</strong> por etapa.</li>
                             <li>• Usá el botón <strong class="text-white">Ver pista de diseño</strong> si necesitás ayuda.</li>
-                            <li>• En el botón <strong class="text-white">⊙</strong> del menú podés activar alto contraste.</li>
                         </ul>
                     </div>
                 </div>

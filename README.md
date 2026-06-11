@@ -22,8 +22,9 @@ Cada ejercicio tiene tres etapas accesibles desde los botones superiores:
 ## Modos de uso
 
 ### 📚 Ejercitación (por defecto)
-- El botón "Validar clasificación" se puede usar múltiples veces.
-- Para avanzar al Diseño E-R se requiere al menos **50% correcto** en el análisis.
+- Cada etapa permite **hasta 3 intentos**. Al agotar los intentos, el botón se bloquea y los elementos quedan en solo lectura (fichas del analizador, banco de palabras e inputs del diagrama).
+- El historial de puntajes (Intento 1 / 2 / 3) se muestra en el banner de feedback y se incluye al pie del PNG al guardar.
+- Para avanzar al Diseño E-R se requiere al menos **50% correcto** en el análisis (o haber agotado los 3 intentos).
 
 ### 📝 Evaluación
 Activado por el docente mediante el parámetro `?ex=1` en la URL. **No hay ningún indicador visible** en pantalla.
@@ -48,7 +49,7 @@ er-designer.html?ejercicio=2&ex=1
 - **Tres pasos** para atributos compuestos: identifica el tipo, luego selecciona los componentes.
 - **Entidades:** si el ejercicio solo tiene entidades fuertes, se clasifican directo sin preguntar subtipo.
 - **Estado persistente:** al cambiar al tab de Diseño E-R y volver, la clasificación se mantiene.
-- **Rastreo de progreso:** compara el resultado con el intento anterior (`localStorage`).
+- **Historial de intentos:** muestra el puntaje de cada intento (hasta 3) en el banner y en el PNG exportado.
 - **Ver respuestas:** después de 2 intentos fallidos en modo ejercitación.
 
 ---

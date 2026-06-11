@@ -93,12 +93,12 @@ merTutor-main/
 | 1 | 📚 Biblioteca Escolar | Atributos especiales (relación) | ✅ |
 | 2 | 🛒 Tienda Online | Relaciones simples | ✅ |
 | 3 | 🌐 Red Social | Generalización/ISA | ✅ |
-| 4 | Plataforma Streaming | Atributos especiales | ✅ |
+| 4 | 📺 Plataforma Streaming | Atributos especiales | ✅ |
 | 5 | 🏥 Sistema Hospitalario | Relaciones simples | ✅ |
-| 6 | Institución educativa | Atributos especiales | ✅ |
-| 7 | Colegio | Totalidad / Participación | ✅ |
-| 8 | Película | Entidad débil | ✅ |
-| 9 | Fútbol | Autorelación | ✅ |
+| 6 | 🏫 Institución educativa | Atributos especiales | ✅ |
+| 7 | 🏫 Colegio | Totalidad / Participación | ✅ |
+| 8 | 🎬 Película | Entidad débil | ✅ |
+| 9 | ⚽ Fútbol | Autorelación | ✅ |
 
 ---
 

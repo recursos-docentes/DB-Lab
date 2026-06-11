@@ -168,7 +168,7 @@ const exercises = [
     },
     // ── Ejercicio 5 ──────────────────────────────────────────────────────────
     {
-        title: "Plataforma de Streaming",
+        title: "📺 Plataforma de Streaming",
         description: `Una plataforma de streaming desea administrar su catálogo de películas y sus socios.<br><br>
         • De cada <strong>Socio</strong> se guarda Cod_socio, Nombre_completo (compuesto por Primer_nom y Primer_ape) y una lista de Directores_favoritos.<br>
         • De cada <strong>Película</strong> se registra Cod_pelicula, Titulo, Año y una lista de Actores.<br>
@@ -282,7 +282,7 @@ const exercises = [
     },
 // ── Ejercicio 7: Institución educativa ──────────────────────────────────
 {
-    title: "Institución educativa",
+    title: "🏫 Institución educativa",
     description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br>De las materias nos interesa su código, nombre y año.<br>De los alumnos su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha nacimiento.<br>Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>Un alumno puede asistir a muchas materias y a una materia pueden asistir muchos alumnos.`,
     hint: "Recuerda que Institución no es una entidad",
     wordBank: ["MATERIA", "Código", "NombreMat", "Año", "ALUMNO", "Cédula", "Nombre", "Teléfonos", "Dirección", "Calle", "Nro", "Esquina", "Fecha_nac", "Edad", "cursa", "Nota", "N", "N"],
@@ -332,7 +332,7 @@ const exercises = [
 },
 // Ejercicio 8 --Colegio
    {
-    title: "Colegio",
+    title: "🏫 Colegio",
     description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac, AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• PROFESOR puede dictar muchas ASIGNATURAS.<br>• ALUMNO puede cursar muchas ASIGNATURAS.<br>• PROFESOR puede publicar un LIBRO.<br>`,
     hint: "Recuerda que Colegio no es una entidad",
     wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
@@ -431,7 +431,7 @@ const exercises = [
 // EJER 9- Peliculas
 
 {
-    title: "Película",
+    title: "🎬 Película",
     description: `Representar la siguiente realidad a través de un diagrama entidad relación. <br><br>• De cada CLIENTE se guarda CédulaC, NombreC, Dirección, Teléfono.<br>• De cada EJEMPLAR! se guarda Número, Estado.<br>• De cada PELICULA se guarda Título, Productora, Fecha, NacionalidadP.<br>• De cada DIRECTOR se guarda CédulaD, NombreD, NacionalidadD.<br>• De cada ACTOR se guarda CédulaA, Principal, Sexo, NacionalidadA, NombreA.<br><br>• CLIENTE puede alquila muchas EJEMPLAR y un EJEMPLAR puede ser alquilado por muchos CLIENTES<br>• PELICULA puede tener muchos EJEMPLARES pero un EJEMPLAR solo es de una PELICULA<br>• ACTOR puede participar en  muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES<br>• DIRECTOR puede dirigir una PELICULA y una PELICULA solo es dirigida por un DIRECTOR<br>`,
     hint: "",
     wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
@@ -540,7 +540,7 @@ const exercises = [
 
 //10 Ejercicio Fútbol
 {
-    title: "Fútbol",
+    title: "⚽ Fútbol",
     description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• JUGADOR puede juega_en muchos CLUBES y en un CLUB pueden jugar muchos jugadores<br>• CLUB puede jugar con  muchos CLUBES y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario<br>`,
     hint: "Recuerda de Fútbol no es una entidad",
     wordBank: ["CLUB", "Nombre", "AñoFundación", "Ubicación", "Entrenador", "Presidente", "Estadio", "JUGADOR", "Ced", "Nacionalidad", "Estatura", "Apodo", "Nombre", "FechaNac", "juega_en", "N", "N", "juega_con", "Fecha", "Resultado", "N", "N"],

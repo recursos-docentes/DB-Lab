@@ -61,18 +61,7 @@
                     <button onclick="zoomText(1)" title="Aumentar" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition">+</button>
                     <select id="analyze-select" onchange="loadExercise(this.value)"
                         class="p-2 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                        <option value="0">🔧 Taller Mecánico</option>
-                        <option value="1">📚 Biblioteca Escolar</option>
-                        <option value="2">🛒 Tienda Online</option>
-                        <option value="3">🌐 Red Social</option>
-                        <option value="4">📺 Plataforma Streaming</option>
-                        <option value="5">🏥 Sistema Hospitalario</option>
-                        <option value="6">🏫 Institución educativa</option>
-                        <option value="7">🏫 Colegio</option>
-                        <option value="8">🎬 Película</option>
-                        <option value="9">⚽ Fútbol</option>
-
-                        <!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
+                        <!-- opciones generadas dinámicamente desde exercises[] en script.js -->
                     </select>
                 </div>
             </div>
@@ -134,17 +123,7 @@
                 </label>
                 <select id="exercise-select" onchange="loadExercise(this.value)"
                     class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                    <option value="0">🔧 Taller Mecánico</option>
-                    <option value="1">📚 Biblioteca Escolar</option>
-                    <option value="2">🛒 Tienda Online</option>
-                    <option value="3">🌐 Red Social</option>
-                    <option value="4">📺 Plataforma Streaming</option>
-                    <option value="5">🏥 Sistema Hospitalario</option>
-                    <option value="6">🏫 Institución educativa</option>
-                    <option value="7">🏫 Colegio</option>
-                    <option value="8">🎬 Película</option>
-                    <option value="9">⚽ Fútbol</option>
-<!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
+                    <!-- opciones generadas dinámicamente desde exercises[] en script.js -->
                 </select>
             </div>
 
@@ -358,10 +337,10 @@
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
-    <script src="exercises.js?t=13"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
+    <script src="exercises.js?t=18"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
     <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="diagram.js?t=17"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
-    <script src="script.js?t=13"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="script.js?t=15"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->
@@ -554,4 +533,4 @@
             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1">¿De qué atributos está compuesto?</p>
             <div id="popup-step3-options" class="flex flex-wrap gap-1"></div>
             <div class="flex justify-between items-center pt-1">
-                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border
+                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   

@@ -233,47 +233,50 @@ const exercises = [
     // ── Ejercicio 6: Sistema Hospitalario ──────────────────────────────────
     {
         title: "🏥 Sistema Hospitalario",
-        description: `Un hospital desea gestionar información sobre sus pacientes y médicos.<br><br>
-        • De cada <strong>paciente</strong> se guarda cédula, nombreP y teléfono.<br>
-        • De cada <strong>médico</strong> se registra matrícula, nombreM y especialidad.<br>
-        • Un paciente puede consultar a muchos médicos y un médico puede atender a muchos pacientes.<br>
-        • De cada <strong>consulta</strong> se registra fecha y diagnóstico.`,
-        hint: "Cédula es la clave de PACIENTE y Matrícula de MÉDICO. La relación 'consulta' conecta ambas entidades y tiene atributos propios.",
-        wordBank: ["PACIENTE", "MÉDICO", "consulta", "Cédula", "NombreP", "Teléfono", "Matrícula", "NombreM", "Especialidad", "Fecha", "Diagnóstico", "N", "N"],
+        description: `Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.<br><br>
+        • De cada <strong>paciente</strong> se guarda cédula, nombre y teléfono.<br>
+        • De cada <strong>médico</strong> se registra matrícula, nombre y especialidad.<br>
+        • Las <strong>consultas</strong> tienen número, fecha y diagnóstico.<br>
+        • Un paciente puede tener muchas consultas; cada consulta es de un médico.<br>
+        • Un médico puede atender muchos pacientes y un paciente se puede atender con muchos médicos.`,
+        hint: "Recuerda que Cédula es la clave primaria de PACIENTE y Matrícula de MÉDICO. Las relaciones 'realiza' y 'atiende' conectan las entidades.",
+        wordBank: ["PACIENTE", "MÉDICO", "CONSULTA", "realiza", "atiende", "Cédula", "Nombre", "Teléfono", "Matrícula", "Especialidad", "Número", "Fecha", "Diagnóstico", "N", "1", "N", "1"],
         nodes: [
-            { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 20,   y: 50,   w: 120, h: 55 },
-            { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 80,   y: 50,   w: 120, h: 55 },
-            { id: "r_con", type: "relation",    correctValue: "consulta",    x: 50,   y: 50,   w: 80,  h: 80 },
-            { id: "a_p1", type: "attribute", isKey: true,  correctValue: "Cédula",       x: 8,  y: 22, w: 85,  h: 42 },
-            { id: "a_p2", type: "attribute", isKey: false, correctValue: "NombreP",     x: 20, y: 22, w: 88,  h: 42 },
-            { id: "a_p3", type: "attribute", isKey: false, correctValue: "Teléfono",    x: 30, y: 22, w: 90,  h: 42 },
-            { id: "a_m1", type: "attribute", isKey: true,  correctValue: "Matrícula",   x: 70, y: 22, w: 90,  h: 42 },
-            { id: "a_m2", type: "attribute", isKey: false, correctValue: "NombreM",     x: 80, y: 22, w: 88,  h: 42 },
-            { id: "a_m3", type: "attribute", isKey: false, correctValue: "Especialidad",x: 90, y: 22, w: 100, h: 42 },
-            { id: "a_r1", type: "attribute", isKey: false, correctValue: "Fecha",       x: 43, y: 78, w: 85,  h: 42 },
-            { id: "a_r2", type: "attribute", isKey: false, correctValue: "Diagnóstico", x: 57, y: 78, w: 95,  h: 42 },
-            { id: "c_1",  type: "cardinality", correctValue: "N", x: 35,   y: 50, w: 32, h: 32 },
-            { id: "c_2",  type: "cardinality", correctValue: "N", x: 65,   y: 50, w: 32, h: 32 }
+            { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 15,   y: 50,   w: 120, h: 55 },
+            { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 50,   y: 50,   w: 120, h: 55 },
+            { id: "e_con", type: "entity",      correctValue: "CONSULTA",    x: 85,   y: 50,   w: 120, h: 55 },
+            { id: "r_rea", type: "relation",    correctValue: "realiza",     x: 32,   y: 50,   w: 80,  h: 80 },
+            { id: "r_ate", type: "relation",    correctValue: "atiende",     x: 68,   y: 50,   w: 80,  h: 80 },
+            { id: "a_p1", type: "attribute", isKey: true,  correctValue: "Cédula",       x: 5,  y: 22, w: 85,  h: 42 },
+            { id: "a_p2", type: "attribute", isKey: false, correctValue: "Nombre",      x: 15, y: 22, w: 85,  h: 42 },
+            { id: "a_p3", type: "attribute", isKey: false, correctValue: "Teléfono",    x: 25, y: 22, w: 90,  h: 42 },
+            { id: "a_m1", type: "attribute", isKey: true,  correctValue: "Matrícula",   x: 40, y: 22, w: 90,  h: 42 },
+            { id: "a_m2", type: "attribute", isKey: false, correctValue: "Nombre",      x: 50, y: 22, w: 85,  h: 42 },
+            { id: "a_m3", type: "attribute", isKey: false, correctValue: "Especialidad",x: 60, y: 22, w: 100, h: 42 },
+            { id: "a_c1", type: "attribute", isKey: true,  correctValue: "Número",      x: 80, y: 22, w: 85,  h: 42 },
+            { id: "a_c2", type: "attribute", isKey: false, correctValue: "Fecha",       x: 90, y: 22, w: 85,  h: 42 },
+            { id: "a_c3", type: "attribute", isKey: false, correctValue: "Diagnóstico", x: 85, y: 78, w: 95,  h: 42 },
+            { id: "c_p", type: "cardinality", correctValue: "N", x: 24,   y: 50, w: 32, h: 32 },
+            { id: "c_m", type: "cardinality", correctValue: "1", x: 41,   y: 50, w: 32, h: 32 },
+            { id: "c_m2", type: "cardinality", correctValue: "N", x: 59,   y: 50, w: 32, h: 32 },
+            { id: "c_c", type: "cardinality", correctValue: "1", x: 76,   y: 50, w: 32, h: 32 }
         ],
         connections: [
             { from: "a_p1", to: "e_pac" }, { from: "a_p2", to: "e_pac" }, { from: "a_p3", to: "e_pac" },
             { from: "a_m1", to: "e_med" }, { from: "a_m2", to: "e_med" }, { from: "a_m3", to: "e_med" },
-            { from: "e_pac", to: "r_con" }, { from: "r_con", to: "e_med" },
-            { from: "r_con", to: "a_r1" }, { from: "r_con", to: "a_r2" }
+            { from: "a_c1", to: "e_con" }, { from: "a_c2", to: "e_con" }, { from: "a_c3", to: "e_con" },
+            { from: "e_pac", to: "r_rea" }, { from: "r_rea", to: "e_con" },
+            { from: "e_med", to: "r_ate" }, { from: "r_ate", to: "e_con" }
         ],
         // METADATOS
-        concept: "atributos_especiales",  // Relación N:N con atributos de relación
+        concept: "relaciones_simples",  // Relación 1:N con entidad intermedia
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
 // ── Ejercicio 7: Institución educativa ──────────────────────────────────
 {
     title: "🏫 Institución educativa",
-    description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br><br>
-        • De las <strong>materias</strong> nos interesa su código, nombre y año.<br>
-        • De los <strong>alumnos</strong> su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha de nacimiento.<br>
-        • Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>
-        • Un alumno puede cursar muchas materias y una materia puede ser cursada por muchos alumnos.`,
+    description: `Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.<br>De las materias nos interesa su código, nombre y año.<br>De los alumnos su cédula de identidad, nombre, dirección compuesta por calle, nro y esquina, además el teléfono y la fecha nacimiento.<br>Por otra parte, se desea agregar la nota que tiene el alumno en cada materia.<br>Un alumno puede cursar muchas materias y una materia puede ser cursada por muchos alumnos.`,
     hint: "Recuerda que Institución no es una entidad",
     wordBank: ["MATERIA", "Código", "NombreMat", "Año", "ALUMNO", "Cédula", "Nombre", "Teléfonos", "Dirección", "Calle", "Nro", "Esquina", "Fecha_nac", "Edad", "cursa", "Nota", "N", "N"],
     nodes: [
@@ -323,14 +326,7 @@ const exercises = [
 // Ejercicio 8 --Colegio
    {
     title: "🏫 Colegio",
-    description: `En un colegio privado, sucede lo siguiente:<br><br>
-        • De cada <strong>profesor</strong> se guarda nombre, teléfonoP, fechaNac y añoIngreso. El grado se calcula automáticamente.<br>
-        • De cada <strong>asignatura</strong> se guarda código y su nombreAsisg.<br>
-        • De cada <strong>alumno</strong> se guarda cédulaA, nombreCom, teléfono, fechaNac. Su edad se calcula automáticamente. Además, se registran sus antecedentes.<br>
-        • De cada <strong>libro</strong> se guarda códigoL, titulo, tema y fecha.<br>
-        • Un <strong>profesor</strong> puede dictar muchas <strong>asignaturas</strong> y una <strong>asignatura</strong> puede ser dictada por muchos <strong>profesores</strong>.<br>
-        • Un <strong>alumno</strong> puede cursar muchas <strong>asignaturas</strong> y una <strong>asignatura</strong> puede ser cursada por muchos <strong>alumnos</strong>.<br>
-        • Un <strong>profesor</strong> puede publicar muchos <strong>libros</strong> y un <strong>libro</strong> solo es publicado por un <strong>profesor</strong>.`,
+    description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA pueden ser dictadas por muchos PROFESORES<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.<br>• Un PROFESOR puede publicar muchos LIBROS y un LIBRO es solo publicado por un PROFESOR .<br>`,
     hint: "Recuerda que Colegio no es una entidad",
     wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
     nodes: [
@@ -435,10 +431,10 @@ const exercises = [
         • De cada <strong>película</strong> se guarda título, productora, fecha y nacionalidadP.<br>
         • De cada <strong>director</strong> se guarda cédulaD, nombreD y nacionalidadD.<br>
         • De cada <strong>actor</strong> se guarda cédulaA, principal, sexo, nacionalidadA y nombreA.<br><br>
-        • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>. Se registra fechaComienzo y fechaDevolución.<br>
-        • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo pertenece a una <strong>película</strong>. Todo ejemplar debe estar asociado obligatoriamente a una película.<br>
-        • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>. Toda película debe tener al menos un actor.<br>
-        • Un <strong>director</strong> puede dirigir muchas <strong>películas</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>. Toda película debe tener obligatoriamente un director asignado.`,
+        • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>.<br>
+        • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo es de una <strong>película</strong>.<br>
+        • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>.<br>
+        • Un <strong>director</strong> puede dirigir una <strong>película</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>.`,
     hint: "",
     wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
                "EJEMPLAR", "Número", "Estado",
@@ -503,11 +499,11 @@ const exercises = [
         { id: "t_1_left",  type: "totalidad", correctValue: "N", x: 42, y: 20, w: 28, h: 24 },
         { id: "t_1_right", type: "totalidad", correctValue: "S", x: 28, y: 20, w: 28, h: 24 },
         // participa (horizontal): from=ACTOR(e_4,x:82) → to=PELICULA(e_2,x:50)
-        { id: "t_2_left",  type: "totalidad", correctValue: "S", x: 72, y: 20, w: 28, h: 24 },
-        { id: "t_2_right", type: "totalidad", correctValue: "N", x: 58, y: 20, w: 28, h: 24 },
+        { id: "t_2_left",  type: "totalidad", correctValue: "N", x: 72, y: 20, w: 28, h: 24 },
+        { id: "t_2_right", type: "totalidad", correctValue: "S", x: 58, y: 20, w: 28, h: 24 },
         // dirige (vertical): from=DIRECTOR(e_3,y:85) → to=PELICULA(e_2,y:25)
-        { id: "t_3_left",  type: "totalidad", correctValue: "S", x: 44, y: 67, w: 28, h: 24 },
-        { id: "t_3_right", type: "totalidad", correctValue: "N", x: 44, y: 43, w: 28, h: 24 }
+        { id: "t_3_left",  type: "totalidad", correctValue: "N", x: 44, y: 67, w: 28, h: 24 },
+        { id: "t_3_right", type: "totalidad", correctValue: "S", x: 44, y: 43, w: 28, h: 24 }
     ],
     connections: [
         { from: "a_0", to: "e_0" },
@@ -547,11 +543,7 @@ const exercises = [
 //10 Ejercicio Fútbol
 {
     title: "⚽ Fútbol",
-    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de fútbol.<br><br>
-        • De cada <strong>club</strong> se guarda nombre, añoFundación, ubicación, entrenador, presidente y estadio.<br>
-        • De cada <strong>jugador</strong> se guarda ced, nacionalidad, estatura, apodo, nombre y fechaNac.<br><br>
-        • Un jugador juega_en muchos clubes y en un club pueden jugar muchos jugadores.<br>
-        • Un club puede jugar con muchos clubes y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario.`,
+    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• JUGADOR puede juega_en muchos CLUBES y en un CLUB pueden jugar muchos jugadores<br>• CLUB puede jugar con  muchos CLUBES y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario<br>`,
     hint: "Recuerda de Fútbol no es una entidad",
     wordBank: ["CLUB", "Nombre", "AñoFundación", "Ubicación", "Entrenador", "Presidente", "Estadio", "JUGADOR", "Ced", "Nacionalidad", "Estatura", "Apodo", "Nombre", "FechaNac", "juega_en", "N", "N", "juega_con", "Fecha", "Resultado", "N", "N"],
     nodes: [
@@ -595,9 +587,56 @@ const exercises = [
     concept: "autorelacion",
     availableFor: ["class", "home", "eval"],
     enabled: true
+},
+
+// 11 Música
+{
+    title: "🎵 Música",
+    description: `Se desea mantener información sobre música, al estilo de programas como Spotify.<br><br>• De cada <strong>artista</strong> se guarda <strong>nombre</strong> que lo identifica, <strong>nacionalidad</strong> y <strong>fotografía</strong>.<br>• De cada <strong>album</strong> se guarda <strong>títuloA</strong> que lo identifica y <strong>género</strong>.<br>• De cada <strong>tema</strong> se guarda <strong>títuloT</strong> que lo identifica y <strong>duración</strong>.<br><br>• Un <strong>artista</strong> puede componer muchos <strong>álbumes</strong> y un <strong>álbum</strong> puede estar compuesto por muchos <strong>artistas</strong>.<br>• Un <strong>álbum</strong> puede contener muchos <strong>temas</strong> y un <strong>tema</strong> puede estar contenido en muchos <strong>álbumes</strong>.<br>`,
+    hint: "Recuerda que Música no es una entidad",
+    wordBank: ["ARTISTA", "Nombre", "Nacionalidad", "Fotografía", "ALBUM", "TítuloA", "Género", "TEMA", "TítuloT", "Duración", "compone", "N", "N", "contiene", "N", "1"],
+    nodes: [
+        { id: "e_0", type: "entity", correctValue: "ARTISTA", x: 20, y: 50, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "Nombre", x: 20, y: 22, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "Nacionalidad", x: 14, y: 72, w: 92, h: 40 },
+        { id: "a_2", type: "attribute", correctValue: "Fotografía", x: 24, y: 72, w: 92, h: 40 },
+        { id: "e_1", type: "entity", correctValue: "ALBUM", x: 50, y: 50, w: 110, h: 52 },
+        { id: "a_3", type: "attribute", isKey: true, correctValue: "TítuloA", x: 50, y: 22, w: 92, h: 40 },
+        { id: "a_4", type: "attribute", correctValue: "Género", x: 50, y: 72, w: 92, h: 40 },
+        { id: "e_2", type: "entity", correctValue: "TEMA", x: 80, y: 50, w: 110, h: 52 },
+        { id: "a_5", type: "attribute", isKey: true, correctValue: "TítuloT", x: 80, y: 22, w: 92, h: 40 },
+        { id: "a_6", type: "attribute", correctValue: "Duración", x: 80, y: 72, w: 92, h: 40 },
+        { id: "r_0", type: "relation", correctValue: "compone", x: 35, y: 50, w: 80, h: 80 },
+        { id: "c_0_1", type: "cardinality", correctValue: "N", x: 29, y: 50, w: 30, h: 30 },
+        { id: "c_0_n", type: "cardinality", correctValue: "N", x: 41, y: 50, w: 30, h: 30 },
+        { id: "r_1", type: "relation", correctValue: "contiene", x: 65, y: 50, w: 80, h: 80 },
+        { id: "c_1_1", type: "cardinality", correctValue: "N", x: 71, y: 50, w: 30, h: 30 },
+        { id: "c_1_n", type: "cardinality", correctValue: "1", x: 59, y: 50, w: 30, h: 30 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_0" },
+        { from: "a_3", to: "e_1" },
+        { from: "a_4", to: "e_1" },
+        { from: "a_5", to: "e_2" },
+        { from: "a_6", to: "e_2" },
+        { from: "e_0", to: "r_0" },
+        { from: "r_0", to: "e_1" },
+        { from: "c_0_n", to: "r_0" },
+        { from: "c_0_1", to: "r_0" },
+        { from: "e_2", to: "r_1" },
+        { from: "r_1", to: "e_1" },
+        { from: "c_1_n", to: "r_1" },
+        { from: "c_1_1", to: "r_1" }
+    ],
+    // METADATOS
+    concept: "relaciones_simples",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
 
-//11 xx
+//12 xx
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
@@ -795,6 +834,18 @@ const analyzeData = [
         {word:"Ced",type:"atributo",attrType:"clave"}, ", ", {word:"Nacionalidad",type:"atributo",attrType:"simple"}, ", ", {word:"Estatura",type:"atributo",attrType:"simple"}, ", ", {word:"Apodo",type:"atributo",attrType:"simple"}, ", ", {word:"Nombre",type:"atributo",attrType:"simple"}, " y ", {word:"FechaNac",type:"atributo",attrType:"simple"}, ".\n\n",
         "• Un JUGADOR ", {word:"juega_en",type:"relacion"}, " muchos CLUBES.\n",
         "• Un CLUB ", {word:"juega_con",type:"relacion"}, " muchos CLUBES."
+    ],
+
+    // 10 ── Música
+    [
+        "• De cada ", {word:"ARTISTA",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        {word:"Nombre",type:"atributo",attrType:"clave"}, ", ", {word:"Nacionalidad",type:"atributo",attrType:"simple"}, ", ", {word:"Fotografía",type:"atributo",attrType:"simple"}, ".\n",
+        "• De cada ", {word:"ALBUM",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        {word:"TítuloA",type:"atributo",attrType:"clave"}, ", ", {word:"Género",type:"atributo",attrType:"simple"}, ".\n",
+        "• De cada ", {word:"TEMA",type:"entidad",entityType:"fuerte"}, " se guarda ",
+        {word:"TítuloT",type:"atributo",attrType:"clave"}, ", ", {word:"Duración",type:"atributo",attrType:"simple"}, ".\n",
+        "• ARTISTA ", {word:"compone",type:"relacion"}, " muchos ALBUMS.\n",
+        "• TEMA ", {word:"contiene",type:"relacion"}, " muchos ALBUMS."
     ]
 ];
 
@@ -808,5 +859,6 @@ const analyzeConfig = [
     { requireSubtypes: true  }, // 6 Institución educativa - compuesto/derivado
     { requireSubtypes: true  }, // 7 Colegio - compuesto/derivado/multivaluado
     { requireSubtypes: false }, // 8 Película
-    { requireSubtypes: false }  // 9 Fútbol
+    { requireSubtypes: false }, // 9 Fútbol
+    { requireSubtypes: false }  // 10 Música
 ];

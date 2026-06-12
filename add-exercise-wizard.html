@@ -225,10 +225,10 @@
                                     <option value="participacion">Totalidad / Participación</option>
                                     <option value="generalizacion">Generalización / ISA</option>
                                     <option value="autorelacion">Autorelación</option>
-                                    <option value="entidad_debil">Entidades débiles 🔒</option>
+                                    <option value="entidad_debil">Entidades débiles</option>
                                     <option value="agregacion">Agregación 🔒</option>
                                 </select>
-                                <p class="text-xs text-slate-500 mt-1">Los conceptos con 🔒 aparecen como "pendiente" en el inicio hasta que se agregue su sección.</p>
+                                <p class="text-xs text-slate-500 mt-1">Los conceptos con 🔒 aún no tienen sección en el inicio.</p>
                             </div>
 
                             <div class="flex gap-2">
@@ -1078,6 +1078,7 @@ ${escapeHtml(exerciseCode)}
     <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
         <p class="text-sm font-semibold text-amber-900 mb-2">📊 2. Análisis de Términos</p>
         <p class="text-xs text-amber-800 mb-2">Pegar al final de <code class="bg-white px-2 py-1 rounded">analyzeData = [...]</code>, antes del cierre <code>]</code> y separado por coma.</p>
+        <p class="text-xs text-amber-700 mb-2">ℹ️ El texto descriptivo del tab Analizar se toma automáticamente del campo <code class="bg-white px-1 rounded">description</code> del ejercicio. Solo se necesitan los chips (entidades, atributos, relaciones).</p>
         <div class="code-block text-xs">
 ${escapeHtml(analyzeDataCode)}
         </div>
@@ -1093,18 +1094,14 @@ ${escapeHtml(configCode)}
         <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(configCode)}">📋 Copiar</button>
     </div>
 
-    <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p class="text-sm font-semibold text-green-900 mb-2">🔽 4. Selector en er-designer.html</p>
-        <p class="text-xs text-green-800 mb-2">Agregar en los dos <code class="bg-white px-2 py-1 rounded">&lt;select&gt;</code> de <strong>er-designer.html</strong> (reemplazar N con el índice real).</p>
-        <div class="code-block text-xs">
-${escapeHtml(htmlOptionCode)}
-        </div>
-        <button class="btn-primary text-sm mt-2 copy-btn" data-text="${encodeURIComponent(htmlOptionCode)}">📋 Copiar</button>
+    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <p class="text-sm font-semibold text-emerald-900 mb-2">✅ 4. Selector en er-designer.html — automático</p>
+        <p class="text-xs text-emerald-800">El selector se genera dinámicamente desde el array <code class="bg-white px-1 rounded">exercises[]</code>. No es necesario editar el HTML.</p>
     </div>
 
-    <div class="p-4 bg-slate-50 border border-slate-300 rounded-lg">
-        <p class="text-sm font-semibold text-slate-800 mb-2">🏠 5. Página de inicio (index.html)</p>
-        <p class="text-xs text-slate-700">${indexInfo}</p>
+    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <p class="text-sm font-semibold text-emerald-900 mb-2">✅ 5. Página de inicio (index.html) — automático</p>
+        <p class="text-xs text-emerald-800">${indexInfo}</p>
     </div>
 </div>
             `;
@@ -1283,8 +1280,8 @@ ${escapeHtml(htmlOptionCode)}
                 const cardX1 = (ent1Pos.x + relX) / 2;  // Entre ent1 y relación
                 const cardXn = (relX + ent2Pos.x) / 2;  // Entre relación y ent2
 
-                nodes.push(`        { id: "${card1}", type: "cardinality", correctValue: "1", x: ${Math.round(cardX1 * 10) / 10}, y: 50, w: 30, h: 30 }`);
-                nodes.push(`        { id: "${cardN}", type: "cardinality", correctValue: "N", x: ${Math.round(cardXn * 10) / 10}, y: 50, w: 30, h: 30 }`);
+                nodes.push(`        { id: "${card1}", type: "cardinality", correctValue: "${rel.card1||'N'}", x: ${Math.round(cardX1 * 10) / 10}, y: 50, w: 30, h: 30 }`);
+                nodes.push(`        { id: "${cardN}", type: "cardinality", correctValue: "${rel.card2||'N'}", x: ${Math.round(cardXn * 10) / 10}, y: 50, w: 30, h: 30 }`);
 
                 connections.push(`        { from: "${cardN}", to: "${relId}" }`);
                 connections.push(`        { from: "${card1}", to: "${relId}" }`);
@@ -1339,16 +1336,16 @@ ${connections.join(',\n')}
         function generateAnalyzeDataCode(description) {
             let segments = [];
             const lines = description.split('\n');
-            const firstLine = lines[0];
 
             // Escapar strings correctamente
             const escapeString = (str) => str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
-            // Primera línea
-            segments.push(`"${escapeString(firstLine)}\\n\\n"`);
+            // Nota: el texto introductorio ya NO se incluye aquí.
+            // El tab Analizar muestra exercises[i].description directamente.
+            // Solo se generan los chips (entidades, atributos, relaciones).
 
-            // Procesar líneas restantes (saltar líneas vacías)
-            const dataLines = lines.slice(1).filter(line => line.trim());
+            // Procesar todas las líneas (saltar líneas vacías y la intro)
+            const dataLines = lines.filter(line => line.trim() && line.trim().startsWith('•'));
 
             dataLines.forEach((line) => {
                 // Dividir línea en partes según patrones
@@ -1390,18 +1387,4 @@ ${connections.join(',\n')}
                         segments.push(`"${escapeString(after)}\\n"`);
                     } else {
                         segments.push(`"${escapeString(line)}\\n"`);
-                    }
-                } else {
-                    segments.push(`"${escapeString(line)}\\n"`);
-                }
-            });
-
-            return `[\n    ${segments.join(',\n    ')}\n]`;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        }
-    </script>
-</body>
-</html>
+                

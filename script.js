@@ -45,12 +45,21 @@ function zoomDescription(direction) {
     }
 }
 window.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('selection-status')) return; // solo en er-designer.html
     _initMode();
     document.addEventListener('click', hidePopup);
     // Fecha de hoy en la cabecera de impresión
     const hoy = new Date().toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const dateEl = document.getElementById('exam-date');
     if (dateEl) dateEl.value = hoy;
+    // Generar opciones de ejercicios dinámicamente desde el array exercises
+    ['exercise-select', 'analyze-select'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        sel.innerHTML = exercises.map((ex, i) =>
+            `<option value="${i}">${ex.title}</option>`
+        ).join('');
+    });
     // Leer parámetro ?ejercicio=N de la URL (viene desde index.html)
     const params   = new URLSearchParams(window.location.search);
     const ejercicio = parseInt(params.get('ejercicio') ?? '0');

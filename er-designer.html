@@ -61,11 +61,22 @@
                     <button onclick="zoomText(1)" title="Aumentar" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition">+</button>
                     <select id="analyze-select" onchange="loadExercise(this.value)"
                         class="p-2 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                        <!-- opciones generadas dinámicamente desde exercises[] en script.js -->
+                        <option value="0">🔧 Taller Mecánico</option>
+                        <option value="1">📚 Biblioteca Escolar</option>
+                        <option value="2">🛒 Tienda Online</option>
+                        <option value="3">🌐 Red Social</option>
+                        <option value="4">🎬 Plataforma Streaming</option>
+                        <option value="5">🏥 Sistema Hospitalario</option>
+                        <option value="6">🏫 Institución educativa</option>
+                        <option value="7">🏫 Colegio</option>
+                        <option value="8">🎬 Película</option>
+                        <option value="9">🏫 Fútbol</option>
+
+                        <!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
                     </select>
                 </div>
             </div>
-            <div id="analyze-text" class="text-xs leading-relaxed text-slate-400 flex-1 pt-1 overflow-y-auto pr-1" style="font-size: 1em;"></div>
+            <div id="analyze-text" class="text-sm text-slate-200 leading-7 whitespace-pre-wrap flex-1 pt-1 overflow-y-auto" style="font-size: 1em;"></div>
         </div>
 
         <!-- Panel de clasificación -->
@@ -123,7 +134,17 @@
                 </label>
                 <select id="exercise-select" onchange="loadExercise(this.value)"
                     class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl font-semibold text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                    <!-- opciones generadas dinámicamente desde exercises[] en script.js -->
+                    <option value="0">🔧 Taller Mecánico</option>
+                    <option value="1">📚 Biblioteca Escolar</option>
+                    <option value="2">🛒 Tienda Online</option>
+                    <option value="3">🌐 Red Social</option>
+                    <option value="4">🎬 Plataforma Streaming</option>
+                    <option value="5">🏥 Sistema Hospitalario</option>
+                    <option value="6">🏫 Institución educativa</option>
+                    <option value="7">🏫 Colegio</option>
+                    <option value="8">🎬 Película</option>
+                    <option value="9">🏫 Fútbol</option>
+<!-- ══ En caso de agregar mas ejercicios aquí va una linea ════════════════════════════ -->
                 </select>
             </div>
 
@@ -337,10 +358,10 @@
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
-    <script src="exercises.js?t=18"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
-    <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
-    <script src="diagram.js?t=17"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
-    <script src="script.js?t=15"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="exercises.js?t=9"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
+    <script src="script.js?t=12"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="diagram.js?t=14"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
+    <script src="analysis.js?t=2"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->
@@ -476,16 +497,14 @@
                         <p class="text-4xl mb-3">📋</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Etapa 1: Analizar</h3>
                         <p class="text-slate-300 text-sm leading-relaxed mb-3">Leé el enunciado del problema. A la derecha aparecen <strong class="text-amber-300">fichas</strong> con los términos importantes.</p>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-2">Hacé clic en cada ficha y decí si es una <strong class="text-blue-300">Entidad</strong>, un <strong class="text-emerald-300">Atributo</strong> o una <strong class="text-red-300">Relación</strong>. Luego presioná <strong class="text-white">Validar clasificación</strong>.</p>
-                        <p class="text-amber-300 text-xs font-semibold">⚠️ Tenés <strong>3 intentos</strong> para validar. Usálos bien.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en cada ficha y decí si es una <strong class="text-blue-300">Entidad</strong>, un <strong class="text-emerald-300">Atributo</strong> o una <strong class="text-red-300">Relación</strong>. Luego presioná <strong class="text-white">Validar clasificación</strong>.</p>
                     </div>
                     <!-- Step 3 -->
                     <div class="tutorial-step hidden" data-step="2">
                         <p class="text-4xl mb-3">🔗</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Etapa 2: Diseño E-R</h3>
                         <p class="text-slate-300 text-sm leading-relaxed mb-3">El diagrama tiene <strong class="text-white">huecos</strong> en blanco. A la izquierda hay un <strong class="text-white">banco de palabras</strong>.</p>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-2">Hacé clic en una palabra del banco y después en el hueco donde corresponde. Cuando termines, presioná <strong class="text-white">Corregir Diagrama</strong>.</p>
-                        <p class="text-amber-300 text-xs font-semibold">⚠️ Tenés <strong>3 intentos</strong> para corregir. Al terminarlos, el diagrama se bloquea.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Hacé clic en una palabra del banco y después en el hueco donde corresponde. Cuando termines, presioná <strong class="text-white">Corregir Diagrama</strong>.</p>
                     </div>
                     <!-- Step 4 -->
                     <div class="tutorial-step hidden" data-step="3">
@@ -493,8 +512,9 @@
                         <h3 class="text-white font-extrabold text-xl mb-2">Consejos útiles</h3>
                         <ul class="text-slate-300 text-sm leading-relaxed space-y-2">
                             <li>• Podés consultar el <button onclick="closeTutorial();showGlossary()" class="text-indigo-300 underline hover:text-white">📖 Glosario</button> en cualquier momento.</li>
-                            <li>• Si algo quedó rojo, podés intentarlo de nuevo — hasta <strong class="text-amber-300">3 veces</strong> por etapa.</li>
+                            <li>• Si algo quedó rojo, no te preocupes — podés intentarlo de nuevo.</li>
                             <li>• Usá el botón <strong class="text-white">Ver pista de diseño</strong> si necesitás ayuda.</li>
+                            <li>• En el botón <strong class="text-white">⊙</strong> del menú podés activar alto contraste.</li>
                         </ul>
                     </div>
                 </div>
@@ -533,4 +553,10 @@
             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-1">¿De qué atributos está compuesto?</p>
             <div id="popup-step3-options" class="flex flex-wrap gap-1"></div>
             <div class="flex justify-between items-center pt-1">
-                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                <button onclick="confirmCompoundComponents()" class="px-3 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900/60 rounded-lg transition border border-emerald-700/40">✓ Confirmar</button>
+                <button onclick="hidePopup()" class="text-[10px] text-slate-500 hover:text-slate-300 transition pr-1">✕ cancelar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

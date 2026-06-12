@@ -955,5 +955,5 @@ const analyzeConfig = [
     { requireSubtypes: false },
 
     // 11 ── Biblioteca2
-    { requireSubtypes: true }
+    { requireSubtypes: true  },
 ];

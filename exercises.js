@@ -640,7 +640,12 @@ const exercises = [
 // 12 Biblioteca2
 {
     title: "📖 Biblioteca2",
-    description: `El objetivo es gestionar el préstamo de <strong>ejemplar</strong>es mediante una base de datos diseñada bajo las siguientes espe<strong>ci</strong>fica<strong>ci</strong>ones:<br><br>• De cada <strong>so<strong>ci</strong>o</strong> se guarda <strong>ci</strong>, <strong>celular</strong>, <strong><strong>nom</strong>completo</strong>, <strong>nom</strong>, <strong>ape1</strong>, <strong>ap2</strong>, <strong>direc<strong>ci</strong>ón</strong>.<br>• De cada <strong>ejemplar</strong> se guarda <strong>número</strong>.<br>• De cada <strong>libro</strong> se guarda <strong>código</strong>, <strong>titulo</strong>, <strong>año</strong>, <strong>autor</strong>.<br><br>• <strong>so<strong>ci</strong>o</strong> puede prestar muchas <strong>ejemplar</strong>.<br>• <strong>ejemplar</strong> puede tiene muchas <strong>libro</strong>.<br>`,
+    description: `Una biblioteca desea registrar el préstamo de ejemplares de libros a sus socios.<br><br>
+        • De cada <strong>socio</strong> se guarda su CI, celular, nombre completo (compuesto por nombre, primer apellido y segundo apellido) y dirección.<br>
+        • De cada <strong>libro</strong> se guarda un código, título, año y autor; un libro puede tener más de un autor.<br>
+        • Cada <strong>ejemplar</strong> tiene un número identificador y su existencia depende del libro al que pertenece.<br>
+        • Un <strong>socio</strong> puede tomar prestados muchos ejemplares, y un mismo <strong>ejemplar</strong> puede ser prestado a muchos socios; de cada préstamo se registra la fecha de inicio, fecha de fin y fecha de devolución.<br>
+        • Cada <strong>ejemplar</strong> pertenece a un único <strong>libro</strong>, pero un libro puede tener muchos ejemplares.`,
     hint: "",
     wordBank: ["SOCIO", "CI", "Celular", "NomCompleto", "Nom", "Ape1", "Ape2", "Dirección", "EJEMPLAR", "Número", "LIBRO", "Código", "Titulo", "Año", "Autor", "prestar", "FechaI", "FechaF", "FechaD", "N", "N", "tiene", "N", "1"],
     nodes: [

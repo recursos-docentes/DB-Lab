@@ -111,11 +111,11 @@
             </section>
 
             <!-- 7. AGREGACIÓN -->
-            <section class="fade-up delay-3">
+            <section class="fade-up delay-3" data-concept="agregacion">
                 <h2 class="text-2xl font-extrabold text-pink-400 mb-4">Agregación</h2>
                 <p class="text-slate-400 text-sm mb-3">Tratar una relación como una entidad.</p>
-                <div class="px-4 py-3 bg-slate-700/40 border border-slate-600/50 rounded-xl text-sm font-semibold text-slate-400 flex items-center gap-2.5">
-                    <span>🔒</span> Ejercicio pendiente
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Los ejercicios se generan dinámicamente -->
                 </div>
             </section>
 
@@ -171,7 +171,8 @@
                 'participacion': { container: null, color: 'violet', concept: 'participacion' },
                 'autorelacion': { container: null, color: 'cyan', concept: 'autorelacion' },
                 'generalizacion': { container: null, color: 'purple', concept: 'generalizacion' },
-                'entidad_debil': { container: null, color: 'amber', concept: 'entidad_debil' }
+                'entidad_debil': { container: null, color: 'amber', concept: 'entidad_debil' },
+                'agregacion':     { container: null, color: 'pink',  concept: 'agregacion'     }
             };
 
             // Encontrar/crear contenedores para cada sección
@@ -190,7 +191,8 @@
                 'violet': { bg: 'rgb(139, 92, 246, 0.2)', border: 'rgb(139, 92, 246, 0.4)' },
                 'cyan': { bg: 'rgb(6, 182, 212, 0.2)', border: 'rgb(6, 182, 212, 0.4)' },
                 'purple': { bg: 'rgb(168, 85, 247, 0.2)', border: 'rgb(168, 85, 247, 0.4)' },
-                'amber': { bg: 'rgb(217, 119, 6, 0.2)', border: 'rgb(217, 119, 6, 0.4)' }
+                'amber': { bg: 'rgb(217, 119, 6, 0.2)', border: 'rgb(217, 119, 6, 0.4)' },
+                'pink':  { bg: 'rgb(236, 72, 153, 0.2)', border: 'rgb(236, 72, 153, 0.4)' }
             };
 
             exercises.forEach((exercise, idx) => {

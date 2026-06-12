@@ -89,17 +89,19 @@ merTutor-main/
 
 | Índice | Caso | Concepto | Estado |
 |--------|------|---------|--------|
-| 0 | 🔧 Taller Mecánico | Atributos especiales (relación) | ✅ |
-| 1 | 📚 Biblioteca Escolar | Atributos especiales (relación) | ✅ |
-| 2 | 🛒 Tienda Online | Relaciones simples | ✅ |
+| 0 | 🔧 Taller Mecánico | Atributos especiales (atributo de relación) | ✅ |
+| 1 | 📚 Biblioteca Escolar | Atributos especiales (atributo de relación) | ✅ |
+| 2 | 🛒 Tienda Online | Relaciones simples (1:N) | ✅ |
 | 3 | 🌐 Red Social | Generalización/ISA | ✅ |
-| 4 | 📺 Plataforma Streaming | Atributos especiales | ✅ |
-| 5 | 🏥 Sistema Hospitalario | Relaciones simples | ✅ |
-| 6 | 🏫 Institución educativa | Atributos especiales | ✅ |
+| 4 | 📺 Plataforma de Streaming | Atributos especiales (compuesto, multivaluado) | ✅ |
+| 5 | 🏥 Sistema Hospitalario | Relaciones simples (1:N) | ✅ |
+| 6 | 🏫 Institución educativa | Atributos especiales (compuesto, derivado) | ✅ |
 | 7 | 🏫 Colegio | Totalidad / Participación | ✅ |
 | 8 | 🎬 Película | Entidad débil | ✅ |
 | 9 | ⚽ Fútbol | Autorelación | ✅ |
-| 10 | 🎵 Música | Relaciones simples (N:N y N:1) | ✅ |
+| 10 | 🎵 Música | Relaciones simples (N:N, N:1) | ✅ |
+| 11 | 📖 Biblioteca2 | Entidad débil | ✅ |
+| 12 | 🔩 Almacén de Piezas | Autorelación + entidad débil | ✅ |
 
 ---
 
@@ -261,7 +263,15 @@ Secciones activas en `index.html`:
 | `autorelacion` | Autorelación |
 | `generalizacion` | Generalización/Categorización (ISA) |
 | `entidad_debil` | Entidades débiles |
+| `agregacion` | Agregación |
 
 ---
 
-## Tecnolog
+## Tecnologías
+
+- **HTML + JavaScript vanilla** — sin frameworks ni bundlers
+- **Tailwind CSS** vía CDN
+- **html2canvas** — exportación del diagrama como PNG
+- **GitHub Pages** — despliegue directo de archivos estáticos
+
+No requiere instalación ni build. Para desplegar: subir los archivos al repositorio y activar GitHub Pages desde la rama `main`.

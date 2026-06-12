@@ -634,9 +634,74 @@ const exercises = [
     concept: "relaciones_simples",
     availableFor: ["class", "home", "eval"],
     enabled: true
-}
+},
 
-//12 xx
+
+// 12 Biblioteca2
+{
+    title: "📖 Biblioteca2",
+    description: `El objetivo es gestionar el préstamo de ejemplares mediante una base de datos diseñada bajo las siguientes especificaciones:<br><br>• De cada SOCIO se guarda CI, Celular, NomCompleto, Nom, Ape1, Ap2, Dirección.<br>• De cada EJEMPLAR se guarda Número.<br>• De cada LIBRO se guarda Código, Titulo, Año, Autor.<br><br>• SOCIO puede prestar muchas EJEMPLAR.<br>• EJEMPLAR puede tiene muchas LIBRO.<br>`,
+    hint: "",
+    wordBank: ["SOCIO", "CI", "Celular", "NomCompleto", "Nom", "Ape1", "Ap2", "Dirección", "EJEMPLAR", "Número", "LIBRO", "Código", "Titulo", "Año", "Autor", "prestar", "FechaI", "FechaF", "FechaD", "N", "N", "tiene", "N", "1"],
+    nodes: [
+        { id: "e_0", type: "entity", correctValue: "SOCIO", x: 23.3, y: 50, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "CI", x: 23.3, y: 22, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "Celular", x: 13.333333333333336, y: 22, w: 92, h: 40 },
+        { id: "a_2", type: "attribute", correctValue: "NomCompleto", x: 23.333333333333336, y: 22, w: 92, h: 40 },
+        { id: "a_3", type: "attribute", correctValue: "Nom", x: 33.333333333333336, y: 22, w: 92, h: 40 },
+        { id: "a_4", type: "attribute", correctValue: "Ape1", x: 13.333333333333336, y: 72, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", correctValue: "Ap2", x: 23.333333333333336, y: 72, w: 92, h: 40 },
+        { id: "a_6", type: "attribute", correctValue: "Dirección", x: 33.333333333333336, y: 72, w: 92, h: 40 },
+        { id: "e_1", type: "entity", isWeak: true, correctValue: "EJEMPLAR", x: 50, y: 50, w: 110, h: 52 },
+        { id: "a_7", type: "attribute", isKey: true, isDashed: true, correctValue: "Número", x: 50, y: 22, w: 92, h: 40 },
+        { id: "e_2", type: "entity", correctValue: "LIBRO", x: 76.7, y: 50, w: 110, h: 52 },
+        { id: "a_8", type: "attribute", isKey: true, correctValue: "Código", x: 76.7, y: 22, w: 92, h: 40 },
+        { id: "a_9", type: "attribute", correctValue: "Titulo", x: 66.66666666666667, y: 72, w: 92, h: 40 },
+        { id: "a_10", type: "attribute", correctValue: "Año", x: 76.66666666666667, y: 72, w: 92, h: 40 },
+        { id: "a_11", type: "attribute", isMultivalued: true, correctValue: "Autor", x: 86.66666666666667, y: 72, w: 92, h: 40 },
+        { id: "r_0", type: "relation", isDoubleRelation: true, correctValue: "prestar", x: 36.7, y: 50, w: 80, h: 80 },
+        { id: "c_0_1", type: "cardinality", correctValue: "N", x: 30, y: 50, w: 30, h: 30 },
+        { id: "c_0_n", type: "cardinality", correctValue: "N", x: 43.3, y: 50, w: 30, h: 30 },
+        { id: "a_12", type: "attribute", correctValue: "FechaI", x: 26.7, y: 107, w: 92, h: 40 },
+        { id: "a_13", type: "attribute", correctValue: "FechaF", x: 46.7, y: 142, w: 92, h: 40 },
+        { id: "a_14", type: "attribute", correctValue: "FechaD", x: 66.7, y: 177, w: 92, h: 40 },
+        { id: "r_1", type: "relation", isDoubleRelation: true, totalityLeft: true, correctValue: "tiene", x: 63.3, y: 50, w: 80, h: 80 },
+        { id: "c_1_1", type: "cardinality", correctValue: "N", x: 56.7, y: 50, w: 30, h: 30 },
+        { id: "c_1_n", type: "cardinality", correctValue: "1", x: 70, y: 50, w: 30, h: 30 },
+        { id: "t_1_left",  type: "totalidad", correctValue: "S",  x: 60.7, y: 45, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "N", x: 72.7, y: 45, w: 28, h: 24 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_0" },
+        { from: "a_3", to: "e_0" },
+        { from: "a_4", to: "e_0" },
+        { from: "a_5", to: "e_0" },
+        { from: "a_6", to: "e_0" },
+        { from: "a_7", to: "e_1" },
+        { from: "a_8", to: "e_2" },
+        { from: "a_9", to: "e_2" },
+        { from: "a_10", to: "e_2" },
+        { from: "a_11", to: "e_2" },
+        { from: "e_0", to: "r_0" },
+        { from: "r_0", to: "e_1" },
+        { from: "c_0_n", to: "r_0" },
+        { from: "c_0_1", to: "r_0" },
+        { from: "a_12", to: "r_0" },
+        { from: "a_13", to: "r_0" },
+        { from: "a_14", to: "r_0" },
+        { from: "e_1", to: "r_1" },
+        { from: "r_1", to: "e_2" },
+        { from: "c_1_n", to: "r_1" },
+        { from: "c_1_1", to: "r_1" }
+    ],
+    // METADATOS
+    concept: "entidad_debil",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
+}
+//13
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
@@ -658,7 +723,7 @@ const analyzeData = [
         "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones. Se registra ", {word:"Fecha_entrada",type:"atributo",attrType:"relacion"}, " y ", {word:"Observación",type:"atributo",attrType:"relacion"}, "."
     ],
 
-    // 1 ── Biblioteca Escolar
+    // 2 ── Biblioteca Escolar
     [
         "Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.\n\n",
         "• Cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -668,7 +733,7 @@ const analyzeData = [
         "• Un socio puede ", {word:"solicitar",type:"relacion"}, " múltiples préstamos y un libro puede prestarse a diferentes socios.\n",
         "• El Préstamo registra la ", {word:"Fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, "."
     ],
-    // 2 ── Tienda Online
+    // 3 ── Tienda Online
     [
         "Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.\n\n",
         "• El ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -677,7 +742,7 @@ const analyzeData = [
         {word:"Nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"Total",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente."
     ],
-    // 3 ── Red Social
+    // 4 ── Red Social
     [
         "Una red social tiene ", {word:"USUARIO",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
         {word:"CREADOR",type:"entidad",entityType:"fuerte"}, " o ", {word:"ESPECTADOR",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n\n",
@@ -687,7 +752,7 @@ const analyzeData = [
         "• Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"CONTENIDO",type:"entidad",entityType:"fuerte"}, ".\n",
         "• El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
     ],
-    // 4 ── Plataforma Streaming
+    // 5 ── Plataforma Streaming
     [
         "Una plataforma de streaming desea administrar su catálogo de películas y sus socios.\n\n",
         "• De cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -703,7 +768,7 @@ const analyzeData = [
         {word:"Fecha_alq",type:"atributo",attrType:"relacion"}, " y ", {word:"Fech_devuelto",type:"atributo",attrType:"relacion"}, ".\n",
         "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador."
     ],
-    // 5 ── Sistema Hospitalario
+    // 6 ── Sistema Hospitalario
     [
         "Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.\n\n",
         "• De cada ", {word:"PACIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -712,7 +777,7 @@ const analyzeData = [
         {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"NombreM",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
         "• Un PACIENTE ", {word:"consulta",type:"relacion"}, " muchos MÉDICOS y un MÉDICO atiende a muchos PACIENTES. Se registra ", {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"relacion"}, "."
     ],
-    // 6 ── Institución educativa
+    // 7 ── Institución educativa
 [
     "Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.\n\n",
     "• De cada ",
@@ -800,14 +865,8 @@ const analyzeData = [
     "• Un PROFESOR puede ",
     {word:"publicar",type:"relacion"},
     " muchos LIBROS y un LIBRO es solo publicado por un PROFESOR.\n"
-]
-,     //9--x
-    // ┌─────────────────────────────────────────────────────────────────────────┐
-    // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
-    // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
-    // │ Reemplazar esta línea con el código del Paso 3                          │
-    // └─────────────────────────────────────────────────────────────────────────┘,
-    // 7 ── Película
+],  
+    // 9 ── Película
     [
         "Un videoclub desea llevar un registro de sus clientes, las películas disponibles, los ejemplares en alquiler, y los directores y actores que participan en cada película.\n\n",
         "• De cada ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -825,7 +884,7 @@ const analyzeData = [
         "• Un ACTOR ", {word:"participa",type:"relacion"}, " en muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES.\n",
         "• Una PELICULA es dirigida por un DIRECTOR. Un DIRECTOR ", {word:"dirige",type:"relacion"}, " muchas PELICULAS."
     ],
-    // 8 ── Fútbol
+    // 10 ── Fútbol
     [
         "En una asociación deportiva se desea almacenar información sobre clubes y partidos de fútbol.\n\n",
         "• De cada ", {word:"CLUB",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -836,17 +895,73 @@ const analyzeData = [
         "• Un CLUB ", {word:"juega_con",type:"relacion"}, " muchos CLUBES."
     ],
 
-    // 10 ── Música
+    // 11 ── Música
     [
         "• De cada ", {word:"ARTISTA",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"Nombre",type:"atributo",attrType:"clave"}, ", ", {word:"Nacionalidad",type:"atributo",attrType:"simple"}, ", ", {word:"Fotografía",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"Nombre",type:"atributo",attrType:"clave"}, ", ",
+        {word:"Nacionalidad",type:"atributo",attrType:"simple"}, " y ",
+        {word:"Fotografía",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"ALBUM",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"TítuloA",type:"atributo",attrType:"clave"}, ", ", {word:"Género",type:"atributo",attrType:"simple"}, ".\n",
+        {word:"TítuloA",type:"atributo",attrType:"clave"}, " y ",
+        {word:"Género",type:"atributo",attrType:"simple"}, ".\n",
         "• De cada ", {word:"TEMA",type:"entidad",entityType:"fuerte"}, " se guarda ",
-        {word:"TítuloT",type:"atributo",attrType:"clave"}, ", ", {word:"Duración",type:"atributo",attrType:"simple"}, ".\n",
-        "• ARTISTA ", {word:"compone",type:"relacion"}, " muchos ALBUMS.\n",
-        "• TEMA ", {word:"contiene",type:"relacion"}, " muchos ALBUMS."
+        {word:"TítuloT",type:"atributo",attrType:"clave"}, " y ",
+        {word:"Duración",type:"atributo",attrType:"simple"}, ".\n",
+        "• Un ", {word:"ARTISTA",type:"entidad",entityType:"fuerte"}, " puede ",
+        {word:"compone",type:"relacion"}, " muchos ÁLBUMES y un ÁLBUM puede estar compuesto por muchos ARTISTAS.\n",
+        "• Un ", {word:"ALBUM",type:"entidad",entityType:"fuerte"}, " puede ",
+        {word:"contiene",type:"relacion"}, " muchos TEMAS y un TEMA puede estar contenido en muchos ÁLBUMES.\n"
+    ],
+
+       //12-Biblioteca2
+[
+        "• De cada ",
+        {word:"SOCIO",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"CI",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Celular",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"NomCompleto",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Nom",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Ape1",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Ap2",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Dirección",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• De cada ",
+        {word:"EJEMPLAR",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"Número",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• De cada ",
+        {word:"LIBRO",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"Código",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Titulo",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Año",type:"atributo",attrType:"simple"},
+        ", ",
+        {word:"Autor",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• SOCIO puede ",
+        {word:"prestar",type:"relacion"},
+        " muchas EJEMPLAR.\n",
+        "• EJEMPLAR puede ",
+        {word:"tiene",type:"relacion"},
+        " muchas LIBRO.\n"
     ]
+     
+       //ejer
+    // ┌─────────────────────────────────────────────────────────────────────────┐
+    // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
+    // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
+    // │ Reemplazar esta línea con el código del Paso 3                          │
+    // └─────────────────────────────────────────────────────────────────────────┘,
 ];
 
 const analyzeConfig = [
@@ -854,11 +969,13 @@ const analyzeConfig = [
     { requireSubtypes: true  }, // 1 Biblioteca - atributos de relación
     { requireSubtypes: false }, // 2 Tienda
     { requireSubtypes: true  }, // 3 Red Social - ISA
-    { requireSubtypes: true  }, // 4 Streaming - comp    { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
+    { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
     { requireSubtypes: false }, // 5 Hospital
     { requireSubtypes: true  }, // 6 Institución educativa - compuesto/derivado
     { requireSubtypes: true  }, // 7 Colegio - compuesto/derivado/multivaluado
     { requireSubtypes: false }, // 8 Película
-    { requireSubtypes: false }, // 9 Fútbol
-    { requireSubtypes: false }  // 10 Música
+    { requireSubtypes: false },  // 9 Fútbol
+    { requireSubtypes: false },   // 10 Música
+    { requireSubtypes: false }  //11 Biblioteca2
+    
 ];

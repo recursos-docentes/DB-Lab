@@ -295,6 +295,14 @@
         let entitiesData = {};
         let relationsData = [];
 
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
         function nextStep(from) {
             if (from === 1) {
                 if (!document.getElementById('title').value.trim()) {
@@ -1370,7 +1378,7 @@ ${connections.join(',\n')}
                             if (idx > 0) segments.push('", "');
                             segments.push(`{word:"${escapeString(attr)}",type:"atributo",attrType:"simple"}`);
                         });
-                        segments.push('".\n"');
+                        segments.push('".\\n"');
                     }
                 } else if (line.includes('puede ')) {
                     // Es una línea de relación — extraer el verbo relación como token
@@ -1387,4 +1395,18 @@ ${connections.join(',\n')}
                         segments.push(`"${escapeString(after)}\\n"`);
                     } else {
                         segments.push(`"${escapeString(line)}\\n"`);
-                
+                                    }
+                } else {
+                    // Línea genérica
+                    segments.push(`"${escapeString(line.trim())}\\n"`);
+                }
+            });
+            return `[\n        ${segments.join(',\n        ')}\n    ]`;
+        }
+
+ 
+
+    </script>
+
+</body>
+</html>

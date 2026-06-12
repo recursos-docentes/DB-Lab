@@ -99,6 +99,7 @@ merTutor-main/
 | 7 | 🏫 Colegio | Totalidad / Participación | ✅ |
 | 8 | 🎬 Película | Entidad débil | ✅ |
 | 9 | ⚽ Fútbol | Autorelación | ✅ |
+| 10 | 🎵 Música | Relaciones simples (N:N y N:1) | ✅ |
 
 ---
 
@@ -107,6 +108,12 @@ merTutor-main/
 ### Método rápido: Asistente visual
 
 Abrir `add-exercise-wizard.html` en el navegador. Genera automáticamente el código para los 4 bloques que hay que pegar.
+
+**Cómo insertar el emoji del título:**
+1. Hacer clic en el campo "Título" del asistente
+2. Presionar **Win + .** (tecla Windows + punto)
+3. Buscar por palabra (ej: "music", "hospital", "school")
+4. Hacer clic en el emoji → se inserta donde está el cursor
 
 Para autorelación, la sintaxis en el campo de relaciones es:
 ```
@@ -257,14 +264,4 @@ Secciones activas en `index.html`:
 
 ---
 
-## Tecnologías
-
-- **Tailwind CSS** (CDN) — estilos
-- **html2canvas 1.4.1** (CDN) — exportación PNG
-- JavaScript vanilla — sin frameworks ni dependencias de build
-
----
-
-## Licencia
-
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) — Podés usar, adaptar y redistribuir con atribución y bajo la misma licencia.
+## Tecnolog

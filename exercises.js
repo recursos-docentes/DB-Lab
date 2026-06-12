@@ -1,5 +1,5 @@
 const exercises = [
-    // ── Ejercicio 1 ──────────────────────────────────────────────────────────
+// ── Ejercicio 1: Taller Mecánico ─────────────────────────────────────────
     {
         title: "🔧 Taller Mecánico",
         description: `Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.<br><br>
@@ -46,7 +46,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-    // ── Ejercicio 2 ──────────────────────────────────────────────────────────
+// ── Ejercicio 2: Biblioteca Escolar ──────────────────────────────────────
     {
         title: "📚 Biblioteca Escolar",
         description: `Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.<br><br>
@@ -82,7 +82,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-    // ── Ejercicio 3 ──────────────────────────────────────────────────────────
+// ── Ejercicio 3: Tienda Online ────────────────────────────────────────────
     {
         title: "🛒 Tienda Online",
         description: `Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.<br><br>
@@ -114,7 +114,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-    // ── Ejercicio 4 ──────────────────────────────────────────────────────────
+// ── Ejercicio 4: Red Social ───────────────────────────────────────────────
     {
         title: "🌐 Red Social",
         description: `Una red social tiene <strong>usuarios</strong>, que pueden ser <strong>creadores</strong> o <strong>espectadores</strong>.<br><br>
@@ -159,7 +159,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-    // ── Ejercicio 5 ──────────────────────────────────────────────────────────
+// ── Ejercicio 5: Plataforma Streaming ────────────────────────────────────
     {
         title: "📺 Plataforma de Streaming",
         description: `Una plataforma de streaming desea administrar su catálogo de películas y sus socios.<br><br>
@@ -230,7 +230,7 @@ const exercises = [
         availableFor: ["class", "home", "eval"],
         enabled: true
     },
-    // ── Ejercicio 6: Sistema Hospitalario ──────────────────────────────────
+// ── Ejercicio 6: Sistema Hospitalario ────────────────────────────────────
     {
         title: "🏥 Sistema Hospitalario",
         description: `Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.<br><br>
@@ -323,7 +323,7 @@ const exercises = [
     availableFor: ["class", "home", "eval"],
     enabled: true
 },
-// Ejercicio 8 --Colegio
+// ── Ejercicio 8: Colegio ──────────────────────────────────────────────────
    {
     title: "🏫 Colegio",
     description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA pueden ser dictadas por muchos PROFESORES<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.<br>• Un PROFESOR puede publicar muchos LIBROS y un LIBRO es solo publicado por un PROFESOR .<br>`,
@@ -421,7 +421,7 @@ const exercises = [
     enabled: true
 },
 
-// EJER 9- Peliculas
+// ── Ejercicio 9: Película ─────────────────────────────────────────────────
 
 {
     title: "🎬 Película",
@@ -540,7 +540,7 @@ const exercises = [
     enabled: true
 },
 
-//10 Ejercicio Fútbol
+// ── Ejercicio 10: Fútbol ──────────────────────────────────────────────────
 {
     title: "⚽ Fútbol",
     description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• JUGADOR puede juega_en muchos CLUBES y en un CLUB pueden jugar muchos jugadores<br>• CLUB puede jugar con  muchos CLUBES y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario<br>`,
@@ -589,7 +589,7 @@ const exercises = [
     enabled: true
 },
 
-// 11 Música
+// ── Ejercicio 11: Música ──────────────────────────────────────────────────
 {
     title: "🎵 Música",
     description: `Se desea mantener información sobre música, al estilo de programas como Spotify.<br><br>• De cada <strong>artista</strong> se guarda <strong>nombre</strong> que lo identifica, <strong>nacionalidad</strong> y <strong>fotografía</strong>.<br>• De cada <strong>album</strong> se guarda <strong>títuloA</strong> que lo identifica y <strong>género</strong>.<br>• De cada <strong>tema</strong> se guarda <strong>títuloT</strong> que lo identifica y <strong>duración</strong>.<br><br>• Un <strong>artista</strong> puede componer muchos <strong>álbumes</strong> y un <strong>álbum</strong> puede estar compuesto por muchos <strong>artistas</strong>.<br>• Un <strong>álbum</strong> puede contener muchos <strong>temas</strong> y un <strong>tema</strong> puede estar contenido en muchos <strong>álbumes</strong>.<br>`,
@@ -637,7 +637,7 @@ const exercises = [
 },
 
 
-// 12 Biblioteca2
+// ── Ejercicio 12: Biblioteca2 ─────────────────────────────────────────────
 {
     title: "📖 Biblioteca2",
     description: `Una biblioteca desea registrar el préstamo de ejemplares de libros a sus socios.<br><br>
@@ -705,8 +705,69 @@ const exercises = [
     concept: "entidad_debil",
     availableFor: ["class", "home", "eval"],
     enabled: true
+},
+// ── Ejercicio 13: Almacén de Piezas ──────────────────────────────────────
+{
+    title: "🔩 Almacén de Piezas",
+    description: `Se desea crear una base de datos sobre un almacén de piezas.<br><br>
+• Cada <strong>pieza</strong> se identifica con un código de dos letras y un número (por ejemplo, TU6). De cada <strong>pieza</strong> se guarda id_pieza, descripciónP y precio.<br>
+• De cada <strong>almacén</strong> se guarda nro, descripciónA y dirección.<br>
+• Cada <strong>estantería</strong> pertenece a un único <strong>almacén</strong> y se identifica por id_est dentro de ese <strong>almacén</strong>.<br><br>
+• Un <strong>almacén</strong> puede vender muchas piezas, y una <strong>pieza</strong> puede ser vendida en muchos almacenes.<br>
+• Un <strong>almacén</strong> puede tener muchas estanterías, pero cada <strong>estantería</strong> pertenece a un único <strong>almacén</strong>.<br>
+• Una <strong>pieza</strong> puede estar compuesta por muchas piezas, y a su vez puede ser componente de muchas piezas.`,
+    hint: "",
+    wordBank: ["PIEZA", "ID_Pieza", "DescripciónP", "Precio", "ALMACÉN", "Nro", "DescripciónA", "Dirección", "ESTANTERÍA", "ID_Est", "vende", "N", "N", "tiene", "1", "N", "compuesta_por", "N", "N"],
+    nodes: [
+        { id: "e_0", type: "entity", correctValue: "PIEZA", x: 23, y: 50, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "ID_Pieza", x: 23, y: 22, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "DescripciónP", x: 23, y: 72, w: 92, h: 40 },
+        { id: "a_2", type: "attribute", correctValue: "Precio", x: 33, y: 22, w: 92, h: 40 },
+        { id: "e_1", type: "entity", correctValue: "ALMACÉN", x: 50, y: 50, w: 110, h: 52 },
+        { id: "a_3", type: "attribute", isKey: true, correctValue: "Nro", x: 50, y: 22, w: 92, h: 40 },
+        { id: "a_4", type: "attribute", correctValue: "DescripciónA", x: 40, y: 72, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", correctValue: "Dirección", x: 50, y: 72, w: 92, h: 40 },
+        { id: "e_2", type: "entity", isWeak: true, correctValue: "ESTANTERÍA", x: 76.7, y: 50, w: 110, h: 52 },
+        { id: "a_6", type: "attribute", isKey: true, isDashed: true, correctValue: "ID_Est", x: 76.7, y: 22, w: 92, h: 40 },
+        { id: "r_0", type: "relation", correctValue: "vende", x: 36.7, y: 50, w: 80, h: 80 },
+        { id: "c_0_1", type: "cardinality", correctValue: "N", x: 30, y: 50, w: 30, h: 30 },
+        { id: "c_0_n", type: "cardinality", correctValue: "N", x: 43.3, y: 50, w: 30, h: 30 },
+        { id: "r_1", type: "relation", isDoubleRelation: true, totalityRight: true, correctValue: "tiene", x: 63.3, y: 50, w: 80, h: 80 },
+        { id: "c_1_1", type: "cardinality", correctValue: "1", x: 56.7, y: 50, w: 30, h: 30 },
+        { id: "c_1_n", type: "cardinality", correctValue: "N", x: 70, y: 50, w: 30, h: 30 },
+        { id: "t_1_left",  type: "totalidad", correctValue: "N",  x: 60.7, y: 45, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "S", x: 72.7, y: 45, w: 28, h: 24 },
+        { id: "r_2", type: "relation", correctValue: "compuesta_por", x: 7, y: 50, w: 100, h: 100 },
+        { id: "c_2_top", type: "cardinality", correctValue: "N", x: 16, y: 40, w: 30, h: 30 },
+        { id: "c_2_bot", type: "cardinality", correctValue: "N", x: 16, y: 60, w: 30, h: 30 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" },
+        { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_0" },
+        { from: "a_3", to: "e_1" },
+        { from: "a_4", to: "e_1" },
+        { from: "a_5", to: "e_1" },
+        { from: "a_6", to: "e_2" },
+        { from: "e_0", to: "r_0" },
+        { from: "r_0", to: "e_1" },
+        { from: "c_0_n", to: "r_0" },
+        { from: "c_0_1", to: "r_0" },
+        { from: "e_1", to: "r_1" },
+        { from: "r_1", to: "e_2" },
+        { from: "c_1_n", to: "r_1" },
+        { from: "c_1_1", to: "r_1" },
+        { from: "e_0", to: "r_2", role: "componente" },
+        { from: "r_2", to: "e_0", role: "compuesto" },
+        { from: "c_2_top", to: "r_2" },
+        { from: "c_2_bot", to: "r_2" }
+    ],
+    // METADATOS
+    concept: "autorelacion",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
-//13
+// ── Ejercicio 14 ──────────────────────────────────────────────────────────
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
@@ -715,7 +776,7 @@ const exercises = [
 ];
 
 const analyzeData = [
-    // -1 ── Taller Mecánico
+    // ── Ejercicio 0: Taller Mecánico ────────────────────────────────────────
     [
         "Un taller mecánico desea registrar información referente a las reparaciones de los autos que llegan al taller y los dueños de los mismos.\n\n",
         "• De cada ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " se guarda la ",
@@ -728,7 +789,7 @@ const analyzeData = [
         "• Un auto puede ", {word:"recibir",type:"relacion"}, " muchas reparaciones. Se registra ", {word:"Fecha_entrada",type:"atributo",attrType:"relacion"}, " y ", {word:"Observación",type:"atributo",attrType:"relacion"}, "."
     ],
 
-    // 1 ── Biblioteca Escolar
+    // ── Ejercicio 1: Biblioteca Escolar ──────────────────────────────────────
     [
         "Se desea diseñar el esquema para el control de los libros prestados en una biblioteca escolar.\n\n",
         "• Cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -738,7 +799,7 @@ const analyzeData = [
         "• Un socio puede ", {word:"solicitar",type:"relacion"}, " múltiples préstamos y un libro puede prestarse a diferentes socios.\n",
         "• El Préstamo registra la ", {word:"Fecha_prestamo",type:"atributo",attrType:"relacion"}, " y si fue ", {word:"Devuelto",type:"atributo",attrType:"relacion"}, "."
     ],
-    // 2 ── Tienda Online
+    // ── Ejercicio 2: Tienda Online ────────────────────────────────────────────
     [
         "Se modela un sistema simplificado de ventas para un comercio electrónico en Internet.\n\n",
         "• El ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " tiene ",
@@ -747,7 +808,7 @@ const analyzeData = [
         {word:"Nro_pedido",type:"atributo",attrType:"clave"}, ", ", {word:"Fecha_pedido",type:"atributo",attrType:"simple"}, ", ", {word:"Total",type:"atributo",attrType:"simple"}, ".\n",
         "• Un cliente puede registrar múltiples pedidos en el mes, pero cada pedido solo pertenece a un único cliente."
     ],
-    // 3 ── Red Social
+    // ── Ejercicio 3: Red Social ───────────────────────────────────────────────
     [
         "Una red social tiene ", {word:"USUARIO",type:"entidad",entityType:"fuerte"}, ", que pueden ser ",
         {word:"CREADOR",type:"entidad",entityType:"fuerte"}, " o ", {word:"ESPECTADOR",type:"entidad",entityType:"fuerte"}, " (categorización IS-A).\n\n",
@@ -757,7 +818,7 @@ const analyzeData = [
         "• Los Usuarios ", {word:"publican",type:"relacion"}, " ", {word:"CONTENIDO",type:"entidad",entityType:"fuerte"}, ".\n",
         "• El Contenido tiene ", {word:"Nro_contenido",type:"atributo",attrType:"clave"}, ", ", {word:"Título",type:"atributo",attrType:"simple"}, " y ", {word:"Fecha",type:"atributo",attrType:"simple"}, "."
     ],
-    // 4 ── Plataforma Streaming
+    // ── Ejercicio 4: Plataforma Streaming ────────────────────────────────────
     [
         "Una plataforma de streaming desea administrar su catálogo de películas y sus socios.\n\n",
         "• De cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -773,7 +834,7 @@ const analyzeData = [
         {word:"Fecha_alq",type:"atributo",attrType:"relacion"}, " y ", {word:"Fech_devuelto",type:"atributo",attrType:"relacion"}, ".\n",
         "• Un archivador ", {word:"guarda",type:"relacion"}, " muchas películas, pero cada película está en un solo archivador."
     ],
-    // 5 ── Sistema Hospitalario
+    // ── Ejercicio 5: Sistema Hospitalario ────────────────────────────────────
     [
         "Un hospital desea gestionar información sobre sus pacientes, médicos y consultas.\n\n",
         "• De cada ", {word:"PACIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -782,7 +843,7 @@ const analyzeData = [
         {word:"Matrícula",type:"atributo",attrType:"clave"}, ", ", {word:"NombreM",type:"atributo",attrType:"simple"}, " y ", {word:"Especialidad",type:"atributo",attrType:"simple"}, ".\n",
         "• Un PACIENTE ", {word:"consulta",type:"relacion"}, " muchos MÉDICOS y un MÉDICO atiende a muchos PACIENTES. Se registra ", {word:"Fecha",type:"atributo",attrType:"relacion"}, " y ", {word:"Diagnóstico",type:"atributo",attrType:"relacion"}, "."
     ],
-    // 6 ── Institución educativa
+    // ── Ejercicio 6: Institución educativa ───────────────────────────────────
 [
     "Se quiere llevar un registro digital de las materias que los alumnos están cursando actualmente.\n\n",
     "• De cada ",
@@ -810,7 +871,7 @@ const analyzeData = [
     "Por otra parte, se desea agregar la ", {word:"Nota",type:"atributo",attrType:"relacion"}, " que tiene el alumno en cada materia.\n",
     "• Un ALUMNO  ",{word:"cursa",type:"relacion"}, " muchas MATERIAS. Y una MATERIA puede ser cursada por muchos ALUMNOS.\n"
 ],
-     // 8─Colegio
+    // ── Ejercicio 7: Colegio ──────────────────────────────────────────────────
    [
     "En un colegio privado sucede lo siguiente: \n\n",
     "• De cada ",
@@ -870,14 +931,9 @@ const analyzeData = [
     "• Un PROFESOR puede ",
     {word:"publicar",type:"relacion"},
     " muchos LIBROS y un LIBRO es solo publicado por un PROFESOR.\n"
-]
-,     //9--x
-    // ┌─────────────────────────────────────────────────────────────────────────┐
-    // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
-    // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
-    // │ Reemplazar esta línea con el código del Paso 3                          │
-    // └─────────────────────────────────────────────────────────────────────────┘,
-    // 7 ── Película
+],
+
+    // ── Ejercicio 8: Película ─────────────────────────────────────────────────
     [
         "Un videoclub desea llevar un registro de sus clientes, las películas disponibles, los ejemplares en alquiler, y los directores y actores que participan en cada película.\n\n",
         "• De cada ", {word:"CLIENTE",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -895,7 +951,7 @@ const analyzeData = [
         "• Un ACTOR ", {word:"participa",type:"relacion"}, " en muchas PELICULAS y en una PELICULA pueden participar muchos ACTORES.\n",
         "• Una PELICULA es dirigida por un DIRECTOR. Un DIRECTOR ", {word:"dirige",type:"relacion"}, " muchas PELICULAS."
     ],
-    // 8 ── Fútbol
+    // ── Ejercicio 9: Fútbol ───────────────────────────────────────────────────
     [
         "En una asociación deportiva se desea almacenar información sobre clubes y partidos de fútbol.\n\n",
         "• De cada ", {word:"CLUB",type:"entidad",entityType:"fuerte"}, " se guarda ",
@@ -906,7 +962,7 @@ const analyzeData = [
         "• Un CLUB ", {word:"juega_con",type:"relacion"}, " muchos CLUBES."
     ],
 
-    // 10 ── Música
+    // ── Ejercicio 10: Música ──────────────────────────────────────────────────
     [
         "• De cada ", {word:"ARTISTA",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"Nombre",type:"atributo",attrType:"clave"}, ", ",
@@ -922,7 +978,7 @@ const analyzeData = [
         "• Un álbum puede ", {word:"contiene",type:"relacion"}, " muchos temas.\n"
     ],
 
-    // 11 ── Biblioteca2
+    // ── Ejercicio 11: Biblioteca2 ────────────────────────────────────────────
     [
         "• De cada ", {word:"SOCIO",type:"entidad",entityType:"fuerte"}, " se guarda ",
         {word:"CI",type:"atributo",attrType:"clave"}, ", ",
@@ -941,24 +997,93 @@ const analyzeData = [
         {word:"Autor",type:"atributo",attrType:"multivaluado"}, ".\n",
         "• Un SOCIO puede ", {word:"prestar",type:"relacion"}, " muchos EJEMPLARES.\n",
         "• Un EJEMPLAR puede ", {word:"tiene",type:"relacion"}, " muchos LIBROS.\n"
+    ],
+
+    // ── Ejercicio 12: Almacén de Piezas ──────────────────────────────────────
+    [
+        "• De cada ",
+        {word:"PIEZA",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"ID_Pieza",type:"atributo",attrType:"clave"},
+        ", ",
+        {word:"DescripciónP",type:"atributo",attrType:"simple"},
+        " y ",
+        {word:"Precio",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• De cada ",
+        {word:"ALMACÉN",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"Nro",type:"atributo",attrType:"clave"},
+        ", ",
+        {word:"DescripciónA",type:"atributo",attrType:"simple"},
+        " y ",
+        {word:"Dirección",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• Cada ",
+        {word:"ESTANTERÍA",type:"entidad",entityType:"débil"},
+        " pertenece a un único ALMACÉN y se identifica por ",
+        {word:"ID_Est",type:"atributo",attrType:"clave"},
+        " dentro de ese almacén.\n",
+        "• Un ALMACÉN puede ",
+        {word:"vende",type:"relacion"},
+        " muchas PIEZAS, y una PIEZA puede ser vendida en muchos almacenes.\n",
+        "• Un ALMACÉN puede ",
+        {word:"tiene",type:"relacion"},
+        " muchas estanterías, pero cada ESTANTERÍA pertenece a un único ALMACÉN.\n",
+        "• Una PIEZA puede ",
+        {word:"compuesta_por",type:"relacion"},
+        " muchas PIEZAS (rol: ",
+        {word:"componente",type:"relacion"},
+        ") y a su vez ser componente de muchas piezas (rol: ",
+        {word:"compuesto",type:"relacion"},
+        ").\n"
     ]
+
+    // ┌─────────────────────────────────────────────────────────────────────────┐
+    // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
+    // │ AGREGAR COMA después del último análisis (arriba ↑) y antes de esto     │
+    // │ Reemplazar esta línea con el código del Paso 3                          │
+    // └─────────────────────────────────────────────────────────────────────────┘
 ];
 
 const analyzeConfig = [
-    { requireSubtypes: true  }, // 0 Taller - atributos de relación
-    { requireSubtypes: true  }, // 1 Biblioteca - atributos de relación
-    { requireSubtypes: false }, // 2 Tienda
-    { requireSubtypes: true  }, // 3 Red Social - ISA
-    { requireSubtypes: true  }, // 4 Streaming - compuesto/multivaluado
-    { requireSubtypes: false }, // 5 Hospital
-    { requireSubtypes: true  }, // 6 Institución educativa - compuesto/derivado
-    { requireSubtypes: true  }, // 7 Colegio - compuesto/derivado/multivaluado
-    { requireSubtypes: false }, // 8 Película
-    { requireSubtypes: false },  // 9 Fútbol
 
-    // 10 ── Música
+    // ── Ejercicio 0: Taller Mecánico ──────────────────────────────────────────
+    { requireSubtypes: true  },   // atributos de relación
+
+    // ── Ejercicio 1: Biblioteca Escolar ───────────────────────────────────────
+    { requireSubtypes: true  },   // atributos de relación
+
+    // ── Ejercicio 2: Tienda Online ────────────────────────────────────────────
     { requireSubtypes: false },
 
-    // 11 ── Biblioteca2
+    // ── Ejercicio 3: Red Social ───────────────────────────────────────────────
+    { requireSubtypes: true  },   // ISA
+
+    // ── Ejercicio 4: Plataforma Streaming ─────────────────────────────────────
+    { requireSubtypes: true  },   // compuesto / multivaluado
+
+    // ── Ejercicio 5: Sistema Hospitalario ─────────────────────────────────────
+    { requireSubtypes: false },
+
+    // ── Ejercicio 6: Institución educativa ────────────────────────────────────
+    { requireSubtypes: true  },   // compuesto / derivado
+
+    // ── Ejercicio 7: Colegio ──────────────────────────────────────────────────
+    { requireSubtypes: true  },   // compuesto / derivado / multivaluado
+
+    // ── Ejercicio 8: Película ─────────────────────────────────────────────────
+    { requireSubtypes: false },
+
+    // ── Ejercicio 9: Fútbol ───────────────────────────────────────────────────
+    { requireSubtypes: false },
+
+    // ── Ejercicio 10: Música ──────────────────────────────────────────────────
+    { requireSubtypes: false },
+
+    // ── Ejercicio 11: Biblioteca2 ─────────────────────────────────────────────
     { requireSubtypes: true  },
+
+    // ── Ejercicio 12: Almacén de Piezas ───────────────────────────────────────
+    { requireSubtypes: true  }
 ];

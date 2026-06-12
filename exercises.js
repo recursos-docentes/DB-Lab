@@ -323,7 +323,14 @@ const exercises = [
 // Ejercicio 8 --Colegio
    {
     title: "🏫 Colegio",
-    description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA pueden ser dictadas por muchos PROFESORES<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.<br>• Un PROFESOR puede publicar muchos LIBROS y un LIBRO es solo publicado por un PROFESOR .<br>`,
+    description: `En un colegio privado, sucede lo siguiente:<br><br>
+        • De cada <strong>profesor</strong> se guarda nombre, teléfonoP, fechaNac y añoIngreso. El grado se calcula automáticamente.<br>
+        • De cada <strong>asignatura</strong> se guarda código y su nombreAsisg.<br>
+        • De cada <strong>alumno</strong> se guarda cédulaA, nombreCom, teléfono, fechaNac. Su edad se calcula automáticamente. Además, se registran sus antecedentes.<br>
+        • De cada <strong>libro</strong> se guarda códigoL, titulo, tema y fecha.<br>
+        • Un <strong>profesor</strong> puede dictar muchas <strong>asignaturas</strong> y una <strong>asignatura</strong> puede ser dictada por muchos <strong>profesores</strong>.<br>
+        • Un <strong>alumno</strong> puede cursar muchas <strong>asignaturas</strong> y una <strong>asignatura</strong> puede ser cursada por muchos <strong>alumnos</strong>.<br>
+        • Un <strong>profesor</strong> puede publicar muchos <strong>libros</strong> y un <strong>libro</strong> solo es publicado por un <strong>profesor</strong>.`,
     hint: "Recuerda que Colegio no es una entidad",
     wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
     nodes: [
@@ -428,9 +435,9 @@ const exercises = [
         • De cada <strong>película</strong> se guarda título, productora, fecha y nacionalidadP.<br>
         • De cada <strong>director</strong> se guarda cédulaD, nombreD y nacionalidadD.<br>
         • De cada <strong>actor</strong> se guarda cédulaA, principal, sexo, nacionalidadA y nombreA.<br><br>
-        • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>.<br>
-        • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo es de una <strong>película</strong>.<br>
-        • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>.<br>
+        • Un <strong>cliente</strong> puede alquilar muchos <strong>ejemplares</strong> y un <strong>ejemplar</strong> puede ser alquilado por muchos <strong>clientes</strong>. Se registra fechaComienzo y fechaDevolución.<br>
+        • Una <strong>película</strong> puede tener muchos <strong>ejemplares</strong> pero un <strong>ejemplar</strong> solo pertenece a una <strong>película</strong>. Todo ejemplar debe estar asociado obligatoriamente a una película.<br>
+        • Un <strong>actor</strong> puede participar en muchas <strong>películas</strong> y en una <strong>película</strong> pueden participar muchos <strong>actores</strong>. Toda película debe tener al menos un actor.<br>
         • Un <strong>director</strong> puede dirigir muchas <strong>películas</strong> y una <strong>película</strong> solo es dirigida por un <strong>director</strong>. Toda película debe tener obligatoriamente un director asignado.`,
     hint: "",
     wordBank: ["CLIENTE", "CédulaC", "NombreC", "Dirección", "Teléfono",
@@ -496,11 +503,11 @@ const exercises = [
         { id: "t_1_left",  type: "totalidad", correctValue: "N", x: 42, y: 20, w: 28, h: 24 },
         { id: "t_1_right", type: "totalidad", correctValue: "S", x: 28, y: 20, w: 28, h: 24 },
         // participa (horizontal): from=ACTOR(e_4,x:82) → to=PELICULA(e_2,x:50)
-        { id: "t_2_left",  type: "totalidad", correctValue: "N", x: 72, y: 20, w: 28, h: 24 },
-        { id: "t_2_right", type: "totalidad", correctValue: "S", x: 58, y: 20, w: 28, h: 24 },
+        { id: "t_2_left",  type: "totalidad", correctValue: "S", x: 72, y: 20, w: 28, h: 24 },
+        { id: "t_2_right", type: "totalidad", correctValue: "N", x: 58, y: 20, w: 28, h: 24 },
         // dirige (vertical): from=DIRECTOR(e_3,y:85) → to=PELICULA(e_2,y:25)
-        { id: "t_3_left",  type: "totalidad", correctValue: "N", x: 44, y: 67, w: 28, h: 24 },
-        { id: "t_3_right", type: "totalidad", correctValue: "S", x: 44, y: 43, w: 28, h: 24 }
+        { id: "t_3_left",  type: "totalidad", correctValue: "S", x: 44, y: 67, w: 28, h: 24 },
+        { id: "t_3_right", type: "totalidad", correctValue: "N", x: 44, y: 43, w: 28, h: 24 }
     ],
     connections: [
         { from: "a_0", to: "e_0" },
@@ -540,7 +547,11 @@ const exercises = [
 //10 Ejercicio Fútbol
 {
     title: "⚽ Fútbol",
-    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de  fútbol.<br><br>• De cada CLUB se guarda Nombre, AñoFundación, Ubicación, Entrenador, Presidente y Estadio.<br>• De cada JUGADOR se guarda Ced, Nacionalidad, Estatura, Apodo, Nombre y  FechaNac.<br><br>• Un jugador juega_en muchos clubes y en un club pueden jugar muchos jugadores.<br>• Un club puede jugar con muchos clubes y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario.<br>`,
+    description: `En una asociación deportiva se desea almacenar información sobre clubes y partidos de fútbol.<br><br>
+        • De cada <strong>club</strong> se guarda nombre, añoFundación, ubicación, entrenador, presidente y estadio.<br>
+        • De cada <strong>jugador</strong> se guarda ced, nacionalidad, estatura, apodo, nombre y fechaNac.<br><br>
+        • Un jugador juega_en muchos clubes y en un club pueden jugar muchos jugadores.<br>
+        • Un club puede jugar con muchos clubes y viceversa. Cuando un club va a jugar a otro club se dice que es visitante y el otro es locatario.`,
     hint: "Recuerda de Fútbol no es una entidad",
     wordBank: ["CLUB", "Nombre", "AñoFundación", "Ubicación", "Entrenador", "Presidente", "Estadio", "JUGADOR", "Ced", "Nacionalidad", "Estatura", "Apodo", "Nombre", "FechaNac", "juega_en", "N", "N", "juega_con", "Fecha", "Resultado", "N", "N"],
     nodes: [

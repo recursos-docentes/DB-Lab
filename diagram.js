@@ -317,12 +317,37 @@ function renderTotalidadPanel(exercise) {
         const rel = exercise.nodes.find(n => n.type === 'relation' && n.id === `r_${relIndex}`);
         if (!rel) return;
 
+        // Buscar entidades conectadas: left = entidad → relación, right = relación → entidad
+        const leftConn   = exercise.connections.find(c => c.to === rel.id &&
+            exercise.nodes.find(n => n.id === c.from)?.type === 'entity');
+        const rightConn  = exercise.connections.find(c => c.from === rel.id &&
+            exercise.nodes.find(n => n.id === c.to)?.type === 'entity');
+        const leftEntity  = leftConn  ? exercise.nodes.find(n => n.id === leftConn.from)  : null;
+        const rightEntity = rightConn ? exercise.nodes.find(n => n.id === rightConn.to)   : null;
+
+        // Para relaciones horizontales, ordenar por x para que coincida con el diagrama
+        const dx = Math.abs((leftEntity?.x ?? 0) - (rightEntity?.x ?? 0));
+        const dy = Math.abs((leftEntity?.y ?? 0) - (rightEntity?.y ?? 0));
+        const isHorizontal = dx > dy;
+        const needsSwap = isHorizontal && leftEntity && rightEntity && leftEntity.x > rightEntity.x;
+
+        const labelA = needsSwap ? rightEntity?.correctValue : leftEntity?.correctValue;
+        const labelB = needsSwap ? leftEntity?.correctValue  : rightEntity?.correctValue;
+        const nodeA  = needsSwap ? sides.right : sides.left;
+        const nodeB  = needsSwap ? sides.left  : sides.right;
+
         const row = document.createElement('div');
         row.className = 'flex items-center justify-center gap-3 bg-slate-800/50 px-4 py-2.5 rounded-lg border border-violet-700/40';
         row.innerHTML = `
-            ${btnGroup(sides.left)}
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[10px] text-slate-400 font-semibold">${labelA ?? ''}</span>
+                ${btnGroup(nodeA)}
+            </div>
             <span class="text-sm font-bold text-violet-300 whitespace-nowrap">◆ ${rel.correctValue} ◆</span>
-            ${btnGroup(sides.right)}
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[10px] text-slate-400 font-semibold">${labelB ?? ''}</span>
+                ${btnGroup(nodeB)}
+            </div>
         `;
         questions.appendChild(row);
     });

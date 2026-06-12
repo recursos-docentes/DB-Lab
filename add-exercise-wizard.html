@@ -1233,10 +1233,10 @@ ${escapeHtml(configCode)}
                 const relX = (ent1Pos.x + ent2Pos.x) / 2;
                 const relId = `r_${idx}`;
 
-                // Detectar si cualquiera de las entidades es débil (relación doble)
+                // Relación doble solo si el usuario marcó ^ en el nombre
                 const ent1Data = entitiesData[rel.ent1];
                 const ent2Data = entitiesData[rel.ent2];
-                const isDoubleRelation = ent1Data.isWeak || ent2Data.isWeak;
+                const isDoubleRelation = rel.isDoubleRelation;
 
                 // ── Autorelación: posición y código especial ──────────────────────────
                 if (rel.isAutoRelation) {
@@ -1319,8 +1319,21 @@ ${escapeHtml(configCode)}
                 });
             });
 
-            // Convertir saltos de línea a <br> para HTML
-            const descriptionHTML = description.replace(/\n/g, '<br>');
+            // Convertir saltos de línea a <br> y envolver entidades/atributos en <strong>
+            function escapeRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+            const allTerms = [];
+            Object.entries(entitiesData).forEach(([name, data]) => {
+                allTerms.push(name);
+                if (data.key) allTerms.push(data.key);
+                data.attrs.forEach(a => allTerms.push(a));
+            });
+            allTerms.sort((a, b) => b.length - a.length);
+            let descriptionHTML = description.replace(/\n/g, '<br>');
+            allTerms.forEach(term => {
+                if (!term) return;
+                const rx = new RegExp('(?<![\w<])' + escapeRx(term) + '(?![\w>])', 'gi');
+                descriptionHTML = descriptionHTML.replace(rx, `<strong>${term.toLowerCase()}</strong>`);
+            });
 
             let code = `{
     title: "${title}",

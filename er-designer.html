@@ -419,7 +419,7 @@
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
     <script src="exercises.js?t=13"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
-    <script src="script.js?t=21"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="script.js?t=22"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
     <script src="diagram.js?t=20"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
     <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -431,93 +431,321 @@
                 <h2 class="text-white font-extrabold text-lg">📖 Conceptos E-R</h2>
                 <button onclick="closeConcepts()" class="text-slate-400 hover:text-white text-xl leading-none">✕</button>
             </div>
-            <div class="p-5 space-y-5">
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-sky-300 font-extrabold text-sm mb-2">Entidad</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Objeto o concepto del mundo real del que se guarda información. Se representa con un rectángulo. Ej: CLIENTE, PRODUCTO, PELÍCULA.</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-emerald-300 font-extrabold text-sm mb-2">Atributo</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Propiedad o característica de una entidad o relación. Se representa con un óvalo. Ej: nombre, fecha, precio. Los atributos clave se subrayan.</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-red-300 font-extrabold text-sm mb-2">Relación</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Vínculo o asociación entre entidades. Se representa con un rombo. Suele ser un verbo. Ej: compra, realiza, pertenece.</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-amber-300 font-extrabold text-sm mb-2">Cardinalidad</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Indica cuántas instancias de una entidad se relacionan con otra. Se representa con "1" (uno) o "N" (muchos). Ej: 1:N significa "uno a muchos".</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-violet-300 font-extrabold text-sm mb-2">Atributo Compuesto</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Atributo que puede dividirse en partes más pequeñas. Ej: Dirección (Calle, Número, Ciudad). Se anota como Nombre(Componente1, Componente2).</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-cyan-300 font-extrabold text-sm mb-2">Atributo Multivaluado</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Atributo que puede tener múltiples valores para la misma entidad. Se representa con doble borde. Ej: teléfonos, idiomas, actores de una película.</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-pink-300 font-extrabold text-sm mb-2">Atributo Derivado</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Atributo cuyo valor se puede calcular a partir de otros. Se representa con borde punteado. Ej: edad (se calcula de la fecha de nacimiento).</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4">
-                    <p class="text-teal-300 font-extrabold text-sm mb-2">Atributo de Relación</p>
-                    <p class="text-slate-300 text-xs leading-relaxed">Atributo que describe información del vínculo entre entidades, no de las entidades mismas. Se conecta al rombo de relación. Ej: fecha_compra en "cliente compra producto".</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4 border border-violet-700/50">
-                    <p class="text-violet-300 font-extrabold text-sm mb-2">⬤ Totalidad (Participación)</p>
-                    <p class="text-slate-300 text-xs leading-relaxed mb-3">Indica si <strong>todas</strong> las instancias de una entidad deben participar en una relación.</p>
-                    <div class="flex flex-col gap-2">
-                        <div class="flex items-start gap-2">
-                            <span class="mt-0.5 flex-shrink-0">
-                                <svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#1e293b"/></svg>
-                            </span>
-                            <p class="text-xs text-slate-300"><strong class="text-violet-300">S — Participación total:</strong> todas las instancias de esa entidad participan en la relación. El círculo se dibuja sobre la línea. Ej: todo ALUMNO cursa al menos una ASIGNATURA.</p>
+            <div class="p-4 space-y-1.5">
+
+                <!-- ── Entidad (padre) ── -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-sky-300 font-extrabold text-sm">Entidad</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-3 pb-3 pt-2 space-y-1.5">
+                        <p class="text-slate-400 text-[10px] px-1 pb-1">Objeto o concepto del mundo real del que se desea almacenar información. Se representa con un <span class="text-sky-300 font-semibold">rectángulo</span>. Hay dos tipos:</p>
+
+                        <!-- Fuerte -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-sky-300 font-bold text-xs">Fuerte</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="28" viewBox="0 0 64 28" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <rect x="3" y="4" width="58" height="20" rx="2" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.5"/>
+                                        <text x="32" y="18" font-size="8.5" fill="#7dd3fc" text-anchor="middle" font-family="monospace" font-weight="bold">CLIENTE</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Rectángulo de <span class="text-sky-300">borde simple</span></span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">Existe por sí misma; tiene clave propia que identifica unívocamente a cada instancia.</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> CLIENTE, PRODUCTO, EMPLEADO, ESTUDIANTE, SUCURSAL</p>
+                            </div>
                         </div>
-                        <div class="flex items-start gap-2">
-                            <span class="mt-0.5 text-slate-500 text-base leading-none flex-shrink-0">—</span>
-                            <p class="text-xs text-slate-300"><strong class="text-slate-400">N — Participación parcial:</strong> algunas instancias pueden no participar. Sin círculo. Ej: no toda ASIGNATURA es dictada (podría no tener docente asignado).</p>
+
+                        <!-- Débil -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-sky-300 font-bold text-xs">Débil</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="28" viewBox="0 0 64 28" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <rect x="2" y="3" width="60" height="22" rx="2" fill="#0f172a" stroke="#7dd3fc" stroke-width="1.5"/>
+                                        <rect x="5" y="6" width="54" height="16" rx="1" fill="none" stroke="#7dd3fc" stroke-width="1"/>
+                                        <text x="32" y="18" font-size="7.5" fill="#7dd3fc" text-anchor="middle" font-family="monospace" font-weight="bold">DEPENDIENTE</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Rectángulo de <span class="text-sky-300">doble borde</span></span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">No tiene clave propia; su existencia e identificación dependen de una entidad fuerte (su <span class="text-sky-300 font-semibold">propietaria</span>). Se vincula a ella mediante una <span class="text-sky-300 font-semibold">relación identificadora</span> (rombo doble).</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> DEPENDIENTE depende de EMPLEADO · ÍTEM_FACTURA depende de FACTURA · CUOTA depende de PRÉSTAMO</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ── RNE ── -->
-                <div class="pt-2 border-t border-slate-700">
-                    <p class="text-cyan-400 font-extrabold text-xs uppercase tracking-widest mb-1">📋 Restricciones No Estructurales (RNE)</p>
-                    <p class="text-slate-400 text-xs leading-relaxed">Reglas que no se pueden representar gráficamente en el diagrama. Se escriben en notación matemática. Hay dos tipos: <span class="text-cyan-300 font-semibold">estructurales</span> (ligadas al patrón del DER: auto-relación, categorización, agregación) y <span class="text-cyan-300 font-semibold">básicas</span> (restricciones de dominio que pueden aparecer en cualquier diagrama).</p>
-                </div>
-                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
-                    <p class="text-cyan-300 font-extrabold text-sm mb-1">RNE básica <span class="text-xs font-normal text-slate-400">(cualquier DER)</span></p>
-                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Condición que deben cumplir los valores de los atributos. No depende del patrón estructural del diagrama.</p>
-                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
-                        Salario &gt; 0<br>
-                        Fecha_nac ≤ fecha_actual<br>
-                        Edad ≥ 18
+                <!-- ── Atributo (padre) ── -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-emerald-300 font-extrabold text-sm">Atributo</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-3 pb-3 pt-2 space-y-1.5">
+                        <p class="text-slate-400 text-[10px] px-1 pb-1">Propiedad o característica de una entidad o relación. Se representa con un <span class="text-emerald-300 font-semibold">óvalo</span>. Existen varios tipos según su naturaleza:</p>
+
+                        <!-- Simple / Clave -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-emerald-300 font-bold text-xs">Simple / Clave</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="28" viewBox="0 0 64 28" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <ellipse cx="32" cy="14" rx="28" ry="11" fill="#0f172a" stroke="#6ee7b7" stroke-width="1.5"/>
+                                        <text x="32" y="18" font-size="8.5" fill="#6ee7b7" text-anchor="middle" font-family="monospace">nombre</text>
+                                    </svg>
+                                    <div>
+                                        <p class="text-[9px] text-slate-400">Simple: <span class="text-emerald-300">óvalo normal</span></p>
+                                        <p class="text-[9px] text-slate-400">Clave: nombre <span class="underline text-emerald-300">subrayado</span></p>
+                                    </div>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">El atributo <span class="text-emerald-300 font-semibold">clave</span> identifica de forma única a cada instancia. Se escribe subrayado.</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> nombre, fecha_nac, precio · <span class="underline">ci</span> (clave de PERSONA) · <span class="underline">cod_prod</span> (clave de PRODUCTO)</p>
+                            </div>
+                        </div>
+
+                        <!-- Compuesto -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-violet-300 font-bold text-xs">Compuesto</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="42" viewBox="0 0 64 42" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <ellipse cx="32" cy="10" rx="22" ry="8" fill="#0f172a" stroke="#c4b5fd" stroke-width="1.5"/>
+                                        <text x="32" y="13" font-size="7" fill="#c4b5fd" text-anchor="middle" font-family="monospace">Dirección</text>
+                                        <line x1="22" y1="17" x2="14" y2="28" stroke="#c4b5fd" stroke-width="1"/>
+                                        <ellipse cx="13" cy="34" rx="12" ry="6" fill="#0f172a" stroke="#c4b5fd" stroke-width="1.2"/>
+                                        <text x="13" y="37" font-size="6" fill="#c4b5fd" text-anchor="middle" font-family="monospace">Calle</text>
+                                        <line x1="42" y1="17" x2="50" y2="28" stroke="#c4b5fd" stroke-width="1"/>
+                                        <ellipse cx="51" cy="34" rx="12" ry="6" fill="#0f172a" stroke="#c4b5fd" stroke-width="1.2"/>
+                                        <text x="51" y="37" font-size="6" fill="#c4b5fd" text-anchor="middle" font-family="monospace">Ciudad</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Óvalo principal conectado a sub-óvalos</span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">Puede dividirse en partes con significado propio. Notación: <span class="text-violet-300 font-mono text-[10px]">Atrib(Comp1, Comp2)</span></p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> Dirección(Calle, Número, Departamento) · Nombre_completo(Nombre, Apellido)</p>
+                            </div>
+                        </div>
+
+                        <!-- Multivaluado -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-cyan-300 font-bold text-xs">Multivaluado</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="28" viewBox="0 0 64 28" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <ellipse cx="32" cy="14" rx="28" ry="11" fill="#0f172a" stroke="#67e8f9" stroke-width="1.5"/>
+                                        <ellipse cx="32" cy="14" rx="23" ry="7.5" fill="none" stroke="#67e8f9" stroke-width="1" opacity="0.55"/>
+                                        <text x="32" y="18" font-size="8" fill="#67e8f9" text-anchor="middle" font-family="monospace">teléfonos</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Óvalo de <span class="text-cyan-300">doble borde</span></span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">Puede tomar varios valores simultáneos para la misma instancia.</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> teléfonos de un cliente · idiomas de un empleado · titulaciones de un docente</p>
+                            </div>
+                        </div>
+
+                        <!-- Derivado -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-pink-300 font-bold text-xs">Derivado</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="28" viewBox="0 0 64 28" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <ellipse cx="32" cy="14" rx="28" ry="11" fill="#0f172a" stroke="#f9a8d4" stroke-width="1.5" stroke-dasharray="5,3"/>
+                                        <text x="32" y="18" font-size="8.5" fill="#f9a8d4" text-anchor="middle" font-family="monospace">edad</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Óvalo de <span class="text-pink-300">borde punteado</span></span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">Su valor se calcula a partir de otro atributo. No se almacena directamente en la BD.</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> edad ← desde fecha_nac · antigüedad ← desde fecha_ingreso</p>
+                            </div>
+                        </div>
+
+                        <!-- De Relación -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-teal-300 font-bold text-xs">De Relación</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <div class="flex items-center gap-3 mb-2 bg-slate-900 rounded px-2 py-1.5">
+                                    <svg width="64" height="42" viewBox="0 0 64 42" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                        <polygon points="24,6 44,17 24,28 4,17" fill="#0f172a" stroke="#5eead4" stroke-width="1.5"/>
+                                        <text x="24" y="20" font-size="6.5" fill="#5eead4" text-anchor="middle" font-family="monospace">compra</text>
+                                        <line x1="24" y1="28" x2="24" y2="34" stroke="#5eead4" stroke-width="1.2"/>
+                                        <ellipse cx="24" cy="38" rx="18" ry="5" fill="#0f172a" stroke="#5eead4" stroke-width="1.3"/>
+                                        <text x="24" y="41" font-size="6" fill="#5eead4" text-anchor="middle" font-family="monospace">fecha_compra</text>
+                                    </svg>
+                                    <span class="text-[9px] text-slate-400">Óvalo conectado <span class="text-teal-300">al rombo</span></span>
+                                </div>
+                                <p class="text-slate-300 text-xs leading-relaxed mb-1">Describe información del vínculo, no de las entidades. Aparece en relaciones N:N o relaciones con datos propios.</p>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> fecha_compra en <em>compra</em> (CLIENTE–PRODUCTO) · calificación en <em>cursa</em> (ESTUDIANTE–ASIGNATURA)</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
-                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Auto-relación</p>
-                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Una instancia no puede relacionarse consigo misma (restricción de reflexividad).</p>
-                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
-                        ∀ x ∈ ENTIDAD → (x,x) ∉ relacion
+
+                <!-- Relación -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-red-300 font-extrabold text-sm">Relación</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-4 pb-4 pt-2">
+                        <div class="flex items-center gap-3 mb-3 bg-slate-900/60 rounded-lg px-3 py-2">
+                            <svg width="72" height="36" viewBox="0 0 72 36" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                <polygon points="36,3 68,18 36,33 4,18" fill="#0f172a" stroke="#fca5a5" stroke-width="1.5"/>
+                                <text x="36" y="21" font-size="8" fill="#fca5a5" text-anchor="middle" font-family="monospace">compra</text>
+                            </svg>
+                            <span class="text-[10px] text-slate-400">Representación: <span class="text-red-300 font-semibold">rombo</span></span>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed mb-2">Vínculo o asociación entre dos o más entidades. Suele expresarse con un verbo de acción.</p>
+                        <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> CLIENTE <em>compra</em> PRODUCTO · ESTUDIANTE <em>cursa</em> ASIGNATURA · EMPLEADO <em>trabaja_en</em> DEPARTAMENTO</p>
                     </div>
                 </div>
-                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
-                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Categorización</p>
-                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Disjunción (subclases no se solapan) y/o cobertura total (toda instancia pertenece a alguna subclase).</p>
-                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
-                        SUBCLASE_A ∩ SUBCLASE_B = ∅<br>
-                        SUPERCLASE = SUBCLASE_A ∪ SUBCLASE_B
+
+                <!-- Cardinalidad -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-amber-300 font-extrabold text-sm">Cardinalidad</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-4 pb-4 pt-2">
+                        <div class="flex items-center gap-3 mb-3 bg-slate-900/60 rounded-lg px-3 py-2">
+                            <svg width="72" height="36" viewBox="0 0 72 36" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                <rect x="2" y="10" width="18" height="16" rx="1" fill="#0f172a" stroke="#fcd34d" stroke-width="1.2"/>
+                                <line x1="20" y1="18" x2="30" y2="18" stroke="#fcd34d" stroke-width="1.2"/>
+                                <text x="25" y="14" font-size="9" fill="#fcd34d" text-anchor="middle" font-family="monospace" font-weight="bold">1</text>
+                                <polygon points="36,7 52,18 36,29 20,18" fill="#0f172a" stroke="#fcd34d" stroke-width="1.2"/>
+                                <line x1="52" y1="18" x2="62" y2="18" stroke="#fcd34d" stroke-width="1.2"/>
+                                <text x="57" y="14" font-size="9" fill="#fcd34d" text-anchor="middle" font-family="monospace" font-weight="bold">N</text>
+                                <rect x="62" y="10" width="8" height="16" rx="1" fill="#0f172a" stroke="#fcd34d" stroke-width="1.2"/>
+                            </svg>
+                            <span class="text-[10px] text-slate-400">Representación: <span class="text-amber-300 font-semibold">etiqueta sobre la línea</span> (1 o N)</span>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed mb-2">Indica cuántas instancias de una entidad pueden asociarse con instancias de la otra. Se usa solo <span class="text-amber-300 font-semibold">1</span> (uno) y <span class="text-amber-300 font-semibold">N</span> (muchos).</p>
+                        <div class="grid grid-cols-3 gap-1.5 mt-1 mb-2">
+                            <div class="bg-slate-900 rounded px-2 py-1 text-center"><span class="text-amber-300 font-mono text-xs font-bold">1:1</span><p class="text-[9px] text-slate-500 mt-0.5">uno a uno</p></div>
+                            <div class="bg-slate-900 rounded px-2 py-1 text-center"><span class="text-amber-300 font-mono text-xs font-bold">1:N</span><p class="text-[9px] text-slate-500 mt-0.5">uno a muchos</p></div>
+                            <div class="bg-slate-900 rounded px-2 py-1 text-center"><span class="text-amber-300 font-mono text-xs font-bold">N:N</span><p class="text-[9px] text-slate-500 mt-0.5">muchos a muchos</p></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> 1:N — un CLIENTE tiene muchas FACTURAS · N:N — un ESTUDIANTE cursa muchas ASIGNATURAS y viceversa</p>
                     </div>
                 </div>
-                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
-                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Agregación</p>
-                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Para que exista la relación externa, debe existir la tupla en la relación base.</p>
-                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
-                        ∀ a ∈ ENT_A, ∀ b ∈ ENT_B, ∀ c ∈ ENT_C,<br>
-                        ((a,b),c) ∈ rel_externa  si  (a,b) ∈ rel_base
+
+                <!-- Totalidad -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-violet-700/40">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-violet-300 font-extrabold text-sm">⬤ Totalidad (Participación)</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-4 pb-4 pt-2">
+                        <div class="flex items-center gap-3 mb-3 bg-slate-900/60 rounded-lg px-3 py-2">
+                            <svg width="72" height="44" viewBox="0 0 72 44" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                <text x="2" y="10" font-size="7" fill="#c4b5fd" font-family="sans-serif" font-weight="bold">S — total</text>
+                                <line x1="2" y1="17" x2="70" y2="17" stroke="#c4b5fd" stroke-width="1.5"/>
+                                <circle cx="22" cy="17" r="4" fill="#1e1b4b" stroke="#c4b5fd" stroke-width="1.5"/>
+                                <text x="2" y="30" font-size="7" fill="#64748b" font-family="sans-serif">N — parcial</text>
+                                <line x1="2" y1="38" x2="70" y2="38" stroke="#64748b" stroke-width="1.5"/>
+                            </svg>
+                            <span class="text-[10px] text-slate-400">Representación: <span class="text-violet-300 font-semibold">círculo sobre la línea</span> = total · sin círculo = parcial</span>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed mb-2">Indica si <strong>todas</strong> las instancias de una entidad deben participar en la relación.</p>
+                        <div class="flex flex-col gap-1.5">
+                            <p class="text-xs text-slate-300"><span class="text-violet-300 font-semibold">S (total):</span> toda instancia debe participar. Ej: todo EMPLEADO trabaja en al menos un DEPARTAMENTO.</p>
+                            <p class="text-xs text-slate-300"><span class="text-slate-400 font-semibold">N (parcial):</span> puede haber instancias que no participen. Ej: no todo PRODUCTO está en una OFERTA vigente.</p>
+                        </div>
                     </div>
                 </div>
+
+                <!-- ── RNE (padre) ── -->
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-cyan-800/40">
+                    <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-700/50 transition">
+                        <span class="text-cyan-300 font-extrabold text-sm">📋 Restricciones No Estructurales</span>
+                        <span class="concept-chevron text-slate-500 text-[10px]" style="transition:transform .2s">▼</span>
+                    </button>
+                    <div class="hidden px-3 pb-3 pt-2 space-y-1.5">
+                        <p class="text-slate-400 text-[10px] px-1 pb-1">Reglas que no se pueden representar gráficamente en el diagrama. Se escriben en notación matemática. Hay dos tipos: <span class="text-cyan-300">básicas</span> (dominio de atributos) y <span class="text-cyan-300">estructurales</span> (ligadas al patrón del DER).</p>
+
+                        <!-- RNE básica -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-cyan-300 font-bold text-xs">Básica <span class="text-[10px] font-normal text-slate-500">(cualquier DER)</span></span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <p class="text-slate-300 text-xs leading-relaxed mb-2">Restricción sobre el dominio de un atributo. Puede aparecer en cualquier diagrama.</p>
+                                <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed mb-2">
+                                    Salario &gt; 0<br>Fecha_nac ≤ fecha_actual<br>Edad ≥ 18
+                                </div>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> salario mayor que cero · fecha de nacimiento no futura · edad mínima 18 años</p>
+                            </div>
+                        </div>
+
+                        <!-- Auto-relación -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-cyan-300 font-bold text-xs">Auto-relación</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <p class="text-slate-300 text-xs leading-relaxed mb-2">Irreflexividad: una instancia no puede relacionarse consigo misma.</p>
+                                <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed mb-2">
+                                    ∀ x ∈ ENTIDAD → (x,x) ∉ relacion
+                                </div>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> un EMPLEADO no puede ser su propio supervisor</p>
+                            </div>
+                        </div>
+
+                        <!-- Categorización -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-cyan-300 font-bold text-xs">Categorización</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <p class="text-slate-300 text-xs leading-relaxed mb-2">Disjunción (subclases no se solapan) y/o cobertura total (toda instancia pertenece a alguna subclase).</p>
+                                <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed mb-2">
+                                    SUBCLASE_A ∩ SUBCLASE_B = ∅<br>SUPERCLASE = SUBCLASE_A ∪ SUBCLASE_B
+                                </div>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> DOCENTE y ESTUDIANTE son subclases de PERSONA — no pueden solaparse y toda persona es una u otra</p>
+                            </div>
+                        </div>
+
+                        <!-- Agregación -->
+                        <div class="bg-slate-900/70 rounded-lg overflow-hidden">
+                            <button onclick="toggleConcept(this)" class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-800 transition">
+                                <span class="text-cyan-300 font-bold text-xs">Agregación</span>
+                                <span class="concept-chevron text-slate-600 text-[9px]" style="transition:transform .2s">▼</span>
+                            </button>
+                            <div class="hidden px-3 pb-3 pt-1">
+                                <p class="text-slate-300 text-xs leading-relaxed mb-2">Para que exista la relación externa, debe existir la tupla en la relación base.</p>
+                                <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed mb-2">
+                                    ∀ a ∈ ENT_A, ∀ b ∈ ENT_B, ∀ c ∈ ENT_C,<br>((a,b),c) ∈ rel_externa  si  (a,b) ∈ rel_base
+                                </div>
+                                <p class="text-[10px] text-slate-400"><span class="text-slate-300 font-semibold">Ej:</span> para que un INSTITUTO dicte un CURSO a un ALUMNO, debe existir (INSTITUTO, CURSO) en <em>ofrece</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

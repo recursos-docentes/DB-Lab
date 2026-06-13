@@ -1,3 +1,12 @@
+// ── Acordeón glosario ──────────────────────────────────────
+function toggleConcept(btn) {
+    const body    = btn.nextElementSibling;
+    const chevron = btn.querySelector('.concept-chevron');
+    const open    = !body.classList.contains('hidden');
+    body.classList.toggle('hidden', open);
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+}
+
 let activeExercise  = 0;
 let highlightedWord = null;
 let analysisAttempts = 0;

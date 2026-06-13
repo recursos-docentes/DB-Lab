@@ -835,6 +835,45 @@ async function saveAsPNG() {
         }
     }
 
+    // ── RNE (banda inferior si hay texto — aplica a cualquier ejercicio) ──────
+    {
+        const rneText = (localStorage.getItem('rne_' + activeExercise) || '').trim();
+        if (rneText) {
+            const curH = off.height / SCALE;
+            // Medir y partir el texto en líneas
+            ctx.font = '10px "Plus Jakarta Sans",sans-serif';
+            const maxW = W - 24;
+            const words = ('RNE: ' + rneText).split('');
+            // wrap char a char para manejar símbolos matemáticos correctamente
+            const lines = [];
+            let line = '';
+            for (const ch of ('RNE: ' + rneText).split(' ')) {
+                const test = line ? line + ' ' + ch : ch;
+                if (ctx.measureText(test).width > maxW && line) {
+                    lines.push(line); line = ch;
+                } else { line = test; }
+            }
+            if (line) lines.push(line);
+            const rneH = lines.length * 16 + 18;
+            const oldD2 = ctx.getImageData(0, 0, W*SCALE, off.height);
+            off.height = (curH + rneH) * SCALE;
+            ctx.putImageData(oldD2, 0, 0);
+            ctx.scale(SCALE, SCALE);
+            // Fondo de la banda RNE
+            ctx.fillStyle = '#042f3d';
+            ctx.fillRect(0, curH, W, rneH);
+            ctx.strokeStyle = '#164e63';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, curH); ctx.lineTo(W, curH); ctx.stroke();
+            // Texto
+            ctx.fillStyle = '#67e8f9';
+            ctx.font = '10px "Plus Jakarta Sans",sans-serif';
+            ctx.textBaseline = 'top';
+            ctx.textAlign = 'left';
+            lines.forEach((l, i) => ctx.fillText(l, 12, curH + 9 + i * 16));
+        }
+    }
+
     // Descarga
     try {
         const nombre = exercises[activeExercise].title.replace(/[^a-zA-Z0-9]/g,'_');

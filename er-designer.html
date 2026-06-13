@@ -40,6 +40,24 @@
             <button id="tab-sql" disabled class="stage-tab">💾 SQL 🔒</button>
 
             <div class="ml-auto flex items-center gap-2">
+
+                <!-- Avisos del ejercicio -->
+                <div id="notices-wrapper" class="hidden relative">
+                    <button id="notices-btn" onclick="toggleNoticesPanel()"
+                        title="Avisos de este ejercicio"
+                        class="w-8 h-8 rounded-lg bg-slate-800 border flex items-center justify-center transition text-sm font-bold"
+                        style="border-color:#7c3aed;color:#c4b5fd;">⚠️</button>
+                    <div id="notices-panel" class="hidden absolute right-0 top-10 z-[10010]" style="width:340px;">
+                        <div class="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-800">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Avisos del ejercicio</span>
+                                <button onclick="toggleNoticesPanel()" class="text-slate-500 hover:text-white transition text-xs leading-none">✕</button>
+                            </div>
+                            <div id="notices-content" class="p-3 flex flex-col gap-2"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <button onclick="showConcepts()" title="Conceptos E-R"
                     class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-sky-400 transition text-sm font-bold">📖</button>
                 <button onclick="showTutorial()" title="¿Cómo usar la herramienta?"
@@ -336,6 +354,48 @@
                 <div id="totalidad-questions" class="space-y-2"></div>
             </div>
 
+            <!-- ── Toggle RNE básica (visible para todos los ejercicios en tab diseño) ── -->
+            <div id="rne-toggle-row" class="no-print hidden mt-3">
+                <label class="flex items-center gap-2 cursor-pointer group w-fit">
+                    <input type="checkbox" id="rne-toggle-cb" onchange="onRneToggle()"
+                        class="w-4 h-4 cursor-pointer accent-cyan-500 rounded">
+                    <span class="text-xs font-semibold text-cyan-600 group-hover:text-cyan-400 transition select-none">
+                        📋 Activar panel RNE
+                    </span>
+                </label>
+            </div>
+
+            <!-- ── Panel de Restricciones No Estructurales (RNE) ── -->
+            <div id="rne-panel" class="no-print hidden mt-2 p-4 bg-cyan-950/40 rounded-xl border border-cyan-800/40 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-extrabold text-cyan-400 uppercase tracking-wider">📋 Restricciones No Estructurales (RNE)</span>
+                </div>
+                <p id="rne-hint" class="text-xs text-cyan-200/80 leading-relaxed"></p>
+                <textarea id="rne-textarea" rows="3"
+                    placeholder="Escribir la RNE aquí usando la notación matemática..."
+                    class="w-full bg-slate-800 border border-cyan-700/50 rounded-lg p-2.5 text-xs text-cyan-100 placeholder-cyan-900 focus:outline-none focus:ring-1 focus:ring-cyan-500 font-mono resize-none"
+                    oninput="saveRNE()"></textarea>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-[10px] text-cyan-600 font-bold uppercase tracking-wider mr-1">Insertar:</span>
+                    <button onclick="insertRNEChar('∀')" title="Para todo" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∀</button>
+                    <button onclick="insertRNEChar('∈')" title="Pertenece" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∈</button>
+                    <button onclick="insertRNEChar('∉')" title="No pertenece" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∉</button>
+                    <button onclick="insertRNEChar('∩')" title="Intersección" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∩</button>
+                    <button onclick="insertRNEChar('∪')" title="Unión" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∪</button>
+                    <button onclick="insertRNEChar('∅')" title="Conjunto vacío" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">∅</button>
+                    <button onclick="insertRNEChar('→')" title="Implica" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">→</button>
+                    <button onclick="insertRNEChar('⊂')" title="Subconjunto" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">⊂</button>
+                    <button onclick="insertRNEChar(' si ')" class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">si</button>
+                    <span class="text-cyan-800 mx-0.5 select-none">|</span>
+                    <button onclick="insertRNEChar(' > ')"  title="Mayor que"         class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">&gt;</button>
+                    <button onclick="insertRNEChar(' ≥ ')"  title="Mayor o igual que"  class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">≥</button>
+                    <button onclick="insertRNEChar(' < ')"  title="Menor que"          class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">&lt;</button>
+                    <button onclick="insertRNEChar(' ≤ ')"  title="Menor o igual que"  class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">≤</button>
+                    <button onclick="insertRNEChar(' = ')"  title="Igual"              class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">=</button>
+                    <button onclick="insertRNEChar(' ≠ ')"  title="Distinto de"        class="px-2 py-1 bg-cyan-900/40 hover:bg-cyan-800/60 border border-cyan-700/40 rounded text-xs text-cyan-300 transition font-mono">≠</button>
+                </div>
+            </div>
+
         </section>
 
     </main>
@@ -359,9 +419,9 @@
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
     <script src="exercises.js?t=13"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
-    <script src="script.js?t=14"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
-    <script src="diagram.js?t=16"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
-    <script src="analysis.js?t=2"></script>   <!-- análisis: modo eval, panel, clasificación -->
+    <script src="script.js?t=21"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="diagram.js?t=20"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
+    <script src="analysis.js?t=5"></script>   <!-- análisis: modo eval, panel, clasificación -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->
@@ -418,6 +478,44 @@
                             <span class="mt-0.5 text-slate-500 text-base leading-none flex-shrink-0">—</span>
                             <p class="text-xs text-slate-300"><strong class="text-slate-400">N — Participación parcial:</strong> algunas instancias pueden no participar. Sin círculo. Ej: no toda ASIGNATURA es dictada (podría no tener docente asignado).</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- ── RNE ── -->
+                <div class="pt-2 border-t border-slate-700">
+                    <p class="text-cyan-400 font-extrabold text-xs uppercase tracking-widest mb-1">📋 Restricciones No Estructurales (RNE)</p>
+                    <p class="text-slate-400 text-xs leading-relaxed">Reglas que no se pueden representar gráficamente en el diagrama. Se escriben en notación matemática. Hay dos tipos: <span class="text-cyan-300 font-semibold">estructurales</span> (ligadas al patrón del DER: auto-relación, categorización, agregación) y <span class="text-cyan-300 font-semibold">básicas</span> (restricciones de dominio que pueden aparecer en cualquier diagrama).</p>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
+                    <p class="text-cyan-300 font-extrabold text-sm mb-1">RNE básica <span class="text-xs font-normal text-slate-400">(cualquier DER)</span></p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Condición que deben cumplir los valores de los atributos. No depende del patrón estructural del diagrama.</p>
+                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
+                        Salario &gt; 0<br>
+                        Fecha_nac ≤ fecha_actual<br>
+                        Edad ≥ 18
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
+                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Auto-relación</p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Una instancia no puede relacionarse consigo misma (restricción de reflexividad).</p>
+                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
+                        ∀ x ∈ ENTIDAD → (x,x) ∉ relacion
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
+                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Categorización</p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Disjunción (subclases no se solapan) y/o cobertura total (toda instancia pertenece a alguna subclase).</p>
+                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
+                        SUBCLASE_A ∩ SUBCLASE_B = ∅<br>
+                        SUPERCLASE = SUBCLASE_A ∪ SUBCLASE_B
+                    </div>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-4 border border-cyan-800/40">
+                    <p class="text-cyan-300 font-extrabold text-sm mb-1">Agregación</p>
+                    <p class="text-slate-300 text-xs leading-relaxed mb-2">Para que exista la relación externa, debe existir la tupla en la relación base.</p>
+                    <div class="bg-slate-900 rounded-lg px-3 py-2 font-mono text-xs text-cyan-200 leading-relaxed">
+                        ∀ a ∈ ENT_A, ∀ b ∈ ENT_B, ∀ c ∈ ENT_C,<br>
+                        ((a,b),c) ∈ rel_externa  si  (a,b) ∈ rel_base
                     </div>
                 </div>
             </div>
@@ -477,6 +575,7 @@
                     </div>
                     <div><p class="text-emerald-300 font-extrabold text-sm mb-1">Atributo de relación</p><p class="text-slate-300 text-xs leading-relaxed">Describe información propia del vínculo entre entidades (no de las entidades en sí). Se conecta al rombo. Ej: fecha_entrada, observación en la relación "recibe".</p></div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -508,13 +607,24 @@
                     </div>
                     <!-- Step 4 -->
                     <div class="tutorial-step hidden" data-step="3">
+                        <p class="text-4xl mb-3">📋</p>
+                        <h3 class="text-white font-extrabold text-xl mb-2">Restricciones No Estructurales (RNE)</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Una <strong class="text-cyan-300">RNE</strong> es una regla del negocio que no se puede representar en el diagrama E-R. Puede ser <strong class="text-cyan-300">básica</strong> (ej: Salario &gt; 0, Edad ≥ 18) o <strong class="text-cyan-300">estructural</strong> (auto-relación, categorización, agregación).</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-2">Cuando aplica, aparece un <strong class="text-cyan-300">panel azul</strong> debajo del diagrama con una guía y botones para insertar los símbolos matemáticos (∀, ∈, ∩, ∪…).</p>
+                        <div class="bg-cyan-950/40 border border-cyan-800/40 rounded-xl p-3 text-xs text-cyan-200 font-mono leading-relaxed">
+                            Ej. auto-relación:<br>
+                            ∀ x ∈ DOCENTE → (x,x) ∉ supervisa
+                        </div>
+                    </div>
+                    <!-- Step 5 -->
+                    <div class="tutorial-step hidden" data-step="4">
                         <p class="text-4xl mb-3">💡</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Consejos útiles</h3>
                         <ul class="text-slate-300 text-sm leading-relaxed space-y-2">
                             <li>• Podés consultar el <button onclick="closeTutorial();showGlossary()" class="text-indigo-300 underline hover:text-white">📖 Glosario</button> en cualquier momento.</li>
                             <li>• Si algo quedó rojo, no te preocupes — podés intentarlo de nuevo.</li>
                             <li>• Usá el botón <strong class="text-white">Ver pista de diseño</strong> si necesitás ayuda.</li>
-                            <li>• En el botón <strong class="text-white">⊙</strong> del menú podés activar alto contraste.</li>
+                            <li>• En el botón <strong class="text-white">⚠️</strong> del menú podés volver a ver los avisos del ejercicio.</li>
                         </ul>
                     </div>
                 </div>
@@ -524,6 +634,7 @@
                     <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="1"></span>
                     <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="2"></span>
                     <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="3"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600" data-dot="4"></span>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="closeTutorial()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-xl text-sm transition">Saltar</button>

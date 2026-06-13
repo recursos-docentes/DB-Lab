@@ -102,6 +102,68 @@ function toggleAccessibility() {
 function toggleHint() {
     document.getElementById('hint-box').classList.toggle('hidden');
 }
+// ── Avisos del ejercicio (panel anclado al nav) ──────────
+let _noticesTimeout = null;  // usado también en setStage (analysis.js)
+
+function showExerciseToasts(exercise) {
+    const content = document.getElementById('notices-content');
+    const btn     = document.getElementById('notices-btn');
+    const wrapper = document.getElementById('notices-wrapper');
+    if (!content) return;
+
+    const notices = [];
+    if (exercise.nodes.some(n => n.type === 'totalidad')) {
+        notices.push({
+            icon: '🔵',
+            text: '<strong>Este ejercicio tiene participación total.</strong> Al completar el diagrama, recordar marcar la totalidad en el panel inferior.',
+            border: '#7c3aed', bg: 'rgba(46,16,101,0.55)', color: '#ede9fe'
+        });
+    }
+    // Detectar RNE: campo explícito tiene precedencia; si no, inferir por concepto
+    const rneConceptos = ['autorelacion', 'generalizacion', 'agregacion'];
+    const hasRNE = exercise.rne != null || rneConceptos.includes(exercise.concept);
+    if (hasRNE) {
+        notices.push({
+            icon: '📋',
+            text: '<strong>Este ejercicio requiere RNE.</strong> Al terminar el diagrama, no olvidar escribir las Restricciones No Estructurales.',
+            border: '#0891b2', bg: 'rgba(8,51,68,0.70)', color: '#cffafe'
+        });
+    }
+
+    // Vaciar contenido (ocultar wrapper hasta que se vaya al tab de diseño)
+    content.innerHTML = '';
+    if (wrapper) wrapper.classList.add('hidden');
+
+    if (notices.length === 0) return;
+
+    // Poblar contenido del panel
+    notices.forEach(n => {
+        const div = document.createElement('div');
+        div.style.cssText = `background:${n.bg};border:1px solid ${n.border};color:${n.color};
+            border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;
+            gap:8px;font-size:12px;line-height:1.6;`;
+        div.innerHTML = `<span style="font-size:1.25em;flex-shrink:0;margin-top:1px;">${n.icon}</span><span>${n.text}</span>`;
+        content.appendChild(div);
+    });
+
+    // Color del botón: cyan si tiene RNE, violeta si solo totalidad
+    if (btn) {
+        btn.style.borderColor = hasRNE ? '#0891b2' : '#7c3aed';
+        btn.style.color       = hasRNE ? '#67e8f9' : '#c4b5fd';
+    }
+    // La visibilidad del wrapper la maneja setStage() en analysis.js
+}
+
+function toggleNoticesPanel() {
+    const panel = document.getElementById('notices-panel');
+    if (!panel) return;
+    // Si se abre manualmente, cancelar el auto-cierre
+    if (!panel.classList.contains('hidden') && _noticesTimeout) {
+        clearTimeout(_noticesTimeout); _noticesTimeout = null;
+    }
+    panel.classList.toggle('hidden');
+}
+
 // ── Cargar ejercicio ─────────────────────────────────────
 function loadExercise(index) {
     activeExercise  = parseInt(index);
@@ -140,11 +202,13 @@ function loadExercise(index) {
     });
     renderInteractiveCanvas(cur);
     renderTotalidadPanel(cur);
+    renderRNEPanel(cur);
     updateWordBankVisuals();
     renderAnalysisPanel(activeExercise);
     _resetCorregirBtn();
     diagramAttemptScores  = [];
     analysisAttemptScores = [];
+    showExerciseToasts(cur);
     setStage('analyze');
 }
 // ── Actualizar estado visual de palabras usadas ──────────
@@ -372,6 +436,96 @@ function renderTotalidadPanel(exercise) {
         questions.appendChild(relDiv);
     });
 }
+// ── Panel de Restricciones No Estructurales (RNE) ─────────
+const RNE_HINTS = {
+    autorelacion:  'Auto-relación: expresar que una instancia no puede relacionarse consigo misma. ' +
+                   'Ej: ∀ x ∈ ENTIDAD → (x,x) ∉ relacion',
+    generalizacion:'Categorización: indicar si las subclases son disjuntas (A ∩ B = ∅) ' +
+                   'y/o si la cobertura es total (SUPER = A ∪ B).',
+    agregacion:    'Agregación: para que exista la relación externa, debe existir la tupla en la relación base. ' +
+                   'Ej: ∀ a ∈ ENT_A, ∀ b ∈ ENT_B, ∀ c ∈ ENT_C, ((a,b),c) ∈ rel_externa si (a,b) ∈ rel_base',
+    basica:        'Restricción de dominio: expresar la condición que deben cumplir los valores ' +
+                   'de los atributos. Ej: Salario > 0,  Fecha_nac ≤ fecha_actual,  Edad ≥ 18'
+};
+
+function renderRNEPanel(exercise) {
+    const panel      = document.getElementById('rne-panel');
+    const hintEl     = document.getElementById('rne-hint');
+    const ta         = document.getElementById('rne-textarea');
+    const cb         = document.getElementById('rne-toggle-cb');
+    const toggleRow  = document.getElementById('rne-toggle-row');
+    if (!panel) return;
+
+    // Mostrar siempre el toggle (setStage lo oculta/muestra según tab)
+    if (toggleRow) toggleRow.classList.remove('hidden');
+
+    // Determinar si es RNE estructural (auto-activa) o requiere toggle manual
+    const rneConceptos = ['autorelacion', 'generalizacion', 'agregacion'];
+    const isStructural = exercise.rne != null
+        ? !['basica'].includes(exercise.rne)
+        : rneConceptos.includes(exercise.concept);
+
+    // Tipo de RNE para el hint
+    const rneType = exercise.rne != null
+        ? exercise.rne
+        : (rneConceptos.includes(exercise.concept) ? exercise.concept : 'basica');
+
+    // Estado activo: estructural siempre activo, básica según toggle guardado o texto existente
+    const savedToggle = localStorage.getItem('rne_active_' + activeExercise);
+    const savedText   = (localStorage.getItem('rne_' + activeExercise) || '').trim();
+    const isActive    = isStructural || savedToggle === '1' || savedText.length > 0;
+
+    if (cb) cb.checked = isActive;
+
+    if (isActive) {
+        panel.classList.remove('hidden');
+        if (hintEl) hintEl.textContent = RNE_HINTS[rneType] || RNE_HINTS.basica;
+        if (ta) ta.value = localStorage.getItem('rne_' + activeExercise) || '';
+    } else {
+        panel.classList.add('hidden');
+    }
+}
+
+function onRneToggle() {
+    const cb     = document.getElementById('rne-toggle-cb');
+    const panel  = document.getElementById('rne-panel');
+    const hintEl = document.getElementById('rne-hint');
+    const ta     = document.getElementById('rne-textarea');
+    if (!cb || !panel) return;
+
+    const cur = exercises[activeExercise];
+    if (cb.checked) {
+        panel.classList.remove('hidden');
+        localStorage.setItem('rne_active_' + activeExercise, '1');
+        // Hint para básica si no hay rne estructural
+        const rneConceptos = ['autorelacion', 'generalizacion', 'agregacion'];
+        const rneType = (cur.rne != null && !['basica'].includes(cur.rne))
+            ? cur.rne
+            : (rneConceptos.includes(cur.concept) ? cur.concept : 'basica');
+        if (hintEl) hintEl.textContent = RNE_HINTS[rneType] || RNE_HINTS.basica;
+        if (ta) ta.value = localStorage.getItem('rne_' + activeExercise) || '';
+        if (ta) ta.focus();
+    } else {
+        panel.classList.add('hidden');
+        localStorage.removeItem('rne_active_' + activeExercise);
+    }
+}
+
+function saveRNE() {
+    const ta = document.getElementById('rne-textarea');
+    if (ta) localStorage.setItem('rne_' + activeExercise, ta.value);
+}
+
+function insertRNEChar(char) {
+    const ta = document.getElementById('rne-textarea');
+    if (!ta) return;
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    ta.value = ta.value.slice(0, s) + char + ta.value.slice(e);
+    ta.selectionStart = ta.selectionEnd = s + char.length;
+    ta.focus();
+    saveRNE();
+}
+
 // ── Pegar palabra en un slot ──────────────────────────────
 function fillSlot(nodeId) {
     const inp = document.getElementById(`input-${nodeId}`);

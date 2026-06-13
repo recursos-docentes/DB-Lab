@@ -218,7 +218,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 mb-2">📚 Concepto E-R</label>
                                 <p class="text-xs text-slate-600 mb-2">Selecciona qué concepto enseña este ejercicio</p>
-                                <select id="concept-select" class="input-field" style="width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;">
+                                <select id="concept-select" class="input-field" onchange="onConceptChange()" style="width: 100%; background-color: #fef3c7; border: 2px solid #f59e0b;">
                                     <option value="">-- Seleccionar concepto --</option>
                                     <option value="relaciones_simples">Relaciones simples (1:N)</option>
                                     <option value="atributos_especiales">Atributos especiales / Relaciones N:N</option>
@@ -229,6 +229,16 @@
                                     <option value="agregacion">Agregación 🔒</option>
                                 </select>
                                 <p class="text-xs text-slate-500 mt-1">Los conceptos con 🔒 aún no tienen sección en el inicio.</p>
+                            </div>
+
+                            <!-- RNE -->
+                            <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
+                                <label class="flex items-center gap-2 cursor-pointer mb-1">
+                                    <input type="checkbox" id="hasRne" onchange="updatePreview()">
+                                    <span class="text-sm font-semibold text-slate-700">📋 ¿Tiene RNE?</span>
+                                    <span class="text-xs text-slate-500">(Restricciones No Estructurales)</span>
+                                </label>
+                                <p id="rne-wizard-hint" class="text-xs text-cyan-700 hidden"></p>
                             </div>
 
                             <div class="flex gap-2">
@@ -1001,6 +1011,31 @@
             });
         }
 
+        function onConceptChange() {
+            const concept = document.getElementById('concept-select').value;
+            const structural = ['autorelacion', 'generalizacion', 'agregacion'];
+            const hintEl = document.getElementById('rne-wizard-hint');
+            const cb = document.getElementById('hasRne');
+            if (structural.includes(concept)) {
+                // auto-sugerir RNE para conceptos estructurales
+                if (cb && !cb.checked) cb.checked = true;
+                if (hintEl) {
+                    hintEl.textContent = '💡 Este concepto suele requerir RNE estructural. Se generará rne: "' + concept + '".';
+                    hintEl.classList.remove('hidden');
+                }
+            } else {
+                if (hintEl) {
+                    if (cb && cb.checked) {
+                        hintEl.textContent = '💡 Se generará rne: "basica" (restricción de dominio/atributo).';
+                        hintEl.classList.remove('hidden');
+                    } else {
+                        hintEl.classList.add('hidden');
+                    }
+                }
+            }
+            updatePreview();
+        }
+
         function generateCode() {
             const emoji = document.getElementById('emoji').value.trim() || '🏫';
             const title = `${emoji} ${document.getElementById('title').value.trim()}`;
@@ -1013,6 +1048,9 @@
             const concept = document.getElementById('concept-select').value;
             const requireSubtypes = document.getElementById('requireSubtypes').checked;
             const enabled = document.getElementById('enabledCheck')?.checked ?? true;
+            const hasRne = document.getElementById('hasRne')?.checked ?? false;
+            const structuralRne = ['autorelacion', 'generalizacion', 'agregacion'];
+            const rneValue = hasRne ? (structuralRne.includes(concept) ? concept : 'basica') : null;
 
             if (!concept) {
                 alert('⚠️ Por favor selecciona un concepto E-R antes de continuar.');
@@ -1319,19 +1357,14 @@ ${escapeHtml(configCode)}
                 });
             });
 
-            // Convertir saltos de línea a <br> y envolver entidades/atributos en <strong>
+            // Convertir saltos de línea a <br> y envolver nombres de entidades en <strong>
             function escapeRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-            const allTerms = [];
-            Object.entries(entitiesData).forEach(([name, data]) => {
-                allTerms.push(name);
-                if (data.key) allTerms.push(data.key);
-                data.attrs.forEach(a => allTerms.push(a));
-            });
-            allTerms.sort((a, b) => b.length - a.length);
+            const entityNames = Object.keys(entitiesData);
+            entityNames.sort((a, b) => b.length - a.length);
             let descriptionHTML = description.replace(/\n/g, '<br>');
-            allTerms.forEach(term => {
+            entityNames.forEach(term => {
                 if (!term) return;
-                const rx = new RegExp('(?<![\w<])' + escapeRx(term) + '(?![\w>])', 'gi');
+                const rx = new RegExp('(?<![\\w<])' + escapeRx(term) + '(?![\\w>])', 'gi');
                 descriptionHTML = descriptionHTML.replace(rx, `<strong>${term.toLowerCase()}</strong>`);
             });
 
@@ -1347,7 +1380,7 @@ ${nodes.join(',\n')}
 ${connections.join(',\n')}
     ],
     // METADATOS
-    concept: "${concept}",
+    concept: "${concept}",${rneValue ? `\n    rne: "${rneValue}",` : ''}
     availableFor: ["class", "home", "eval"],
     enabled: ${enabled}
 }`;

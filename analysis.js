@@ -17,7 +17,37 @@ function setStage(stage) {
         if (tab && !tab.disabled) tab.classList.toggle('active', s === stage);
     });
     hidePopup();
-    if (stage === 'diagram') requestAnimationFrame(drawCrispConnectors);
+    if (stage === 'diagram') {
+        requestAnimationFrame(drawCrispConnectors);
+        // Mostrar avisos si el ejercicio los tiene
+        const wrapper = document.getElementById('notices-wrapper');
+        const panel   = document.getElementById('notices-panel');
+        const content = document.getElementById('notices-content');
+        if (wrapper && content && content.children.length > 0) {
+            wrapper.classList.remove('hidden');
+            // Abrir el panel y programar auto-cierre
+            if (panel) {
+                panel.classList.remove('hidden');
+                if (_noticesTimeout) clearTimeout(_noticesTimeout);
+                _noticesTimeout = setTimeout(() => panel.classList.add('hidden'), 7000);
+            }
+        }
+        // Restaurar toggle y panel RNE al volver al tab de diseño
+        if (typeof renderRNEPanel === 'function' && exercises && exercises[activeExercise]) {
+            renderRNEPanel(exercises[activeExercise]);
+        }
+    } else {
+        // En otras etapas, ocultar el wrapper, el panel de avisos y el toggle RNE
+        const wrapper = document.getElementById('notices-wrapper');
+        const panel   = document.getElementById('notices-panel');
+        if (wrapper) wrapper.classList.add('hidden');
+        if (panel)   panel.classList.add('hidden');
+        if (_noticesTimeout) { clearTimeout(_noticesTimeout); _noticesTimeout = null; }
+        const rneToggleRow = document.getElementById('rne-toggle-row');
+        const rnePanel     = document.getElementById('rne-panel');
+        if (rneToggleRow) rneToggleRow.classList.add('hidden');
+        if (rnePanel)     rnePanel.classList.add('hidden');
+    }
 }
 // ── Render analysis panel ─────────────────────────────
 function renderAnalysisPanel(exerciseIndex) {

@@ -766,8 +766,62 @@ const exercises = [
     concept: "autorelacion",
     availableFor: ["class", "home", "eval"],
     enabled: true
+},
+// ── Ejercicio 14: Instituto ──────────────────────────────────────────────────────────
+
+{
+    title: "🏫 Instituto",
+    description: `En un instituto, los docentes dictan cursos y el director supervisa ese dictado.<br><br>
+• De cada <strong>curso</strong> se guarda código y nom_curso.<br>
+• De cada <strong>docente</strong> se guarda ci_doc y nom_docente.<br>
+• De cada <strong>director</strong> se guarda ci_dir, nom_director y teléfono.<br><br>
+• Un <strong>docente</strong> puede dictar varios cursos, pero un <strong>curso</strong> solo es dictado por un <strong>docente</strong>.<br>
+• El <strong>director</strong> supervisa el dictado de todos los cursos.`,
+    hint: "",
+    wordBank: ["CURSO", "Código", "Nom_Curso", "DOCENTE", "CI_Doc", "Nom_Docente", "DIRECTOR", "CI_Dir", "Nom_Director", "Teléfono", "dicta", "N", "1", "supervisa", "N", "1"],
+    nodes: [
+        // Caja de agregación (visual, sin input) — encierra CURSO + dicta + DOCENTE + sus atributos
+        { id: "agg_0", type: "aggregation", x: 27, y: 38, w: 520, h: 190 },
+        // CURSO
+        { id: "e_0", type: "entity",    correctValue: "CURSO",       x: 13, y: 45, w: 110, h: 52 },
+        { id: "a_0", type: "attribute", isKey: true, correctValue: "Código",      x:  8, y: 28, w: 92, h: 40 },
+        { id: "a_1", type: "attribute", correctValue: "Nom_Curso",   x: 19, y: 28, w: 92, h: 40 },
+        // DOCENTE
+        { id: "e_1", type: "entity",    correctValue: "DOCENTE",     x: 42, y: 45, w: 110, h: 52 },
+        { id: "a_2", type: "attribute", isKey: true, correctValue: "CI_Doc",      x: 33, y: 28, w: 92, h: 40 },
+        { id: "a_3", type: "attribute", correctValue: "Nom_Docente", x: 44, y: 28, w: 92, h: 40 },
+        // dicta
+        { id: "r_0",   type: "relation",    correctValue: "dicta", x: 27, y: 45, w: 80, h: 80 },
+        { id: "c_0_n", type: "cardinality", correctValue: "N",     x: 21, y: 45, w: 30, h: 30 },
+        { id: "c_0_1", type: "cardinality", correctValue: "1",     x: 33, y: 45, w: 30, h: 30 },
+        // supervisa (ambos lados totalidad S — todos los cursos son supervisados)
+        { id: "r_1",   type: "relation",    totalityLeft: true, totalityRight: true, correctValue: "supervisa", x: 65, y: 39, w: 80, h: 80 },
+        { id: "c_1_n", type: "cardinality", correctValue: "N",         x: 59, y: 39, w: 30, h: 30 },
+        { id: "c_1_1", type: "cardinality", correctValue: "1",         x: 71, y: 39, w: 30, h: 30 },
+        { id: "t_1_left",  type: "totalidad", correctValue: "S", x: 51, y: 39, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "S", x: 68, y: 39, w: 28, h: 24 },
+        // DIRECTOR
+        { id: "e_2", type: "entity",    correctValue: "DIRECTOR",     x: 82, y: 40, w: 110, h: 52 },
+        { id: "a_4", type: "attribute", isKey: true, correctValue: "CI_Dir",       x: 72, y: 62, w: 92, h: 40 },
+        { id: "a_5", type: "attribute", correctValue: "Nom_Director", x: 82, y: 62, w: 92, h: 40 },
+        { id: "a_6", type: "attribute", correctValue: "Teléfono",     x: 92, y: 62, w: 92, h: 40 }
+    ],
+    connections: [
+        { from: "a_0", to: "e_0" }, { from: "a_1", to: "e_0" },
+        { from: "a_2", to: "e_1" }, { from: "a_3", to: "e_1" },
+        { from: "e_0", to: "r_0" }, { from: "r_0", to: "e_1" },
+        { from: "c_0_n", to: "r_0" }, { from: "c_0_1", to: "r_0" },
+        { from: "agg_0", to: "r_1" }, { from: "r_1", to: "e_2" },
+        { from: "c_1_n", to: "r_1" }, { from: "c_1_1", to: "r_1" },
+        { from: "a_4", to: "e_2" }, { from: "a_5", to: "e_2" }, { from: "a_6", to: "e_2" }
+    ],
+    // METADATOS
+    concept: "agregacion",
+    availableFor: ["class", "home", "eval"],
+    enabled: true
 }
-// ── Ejercicio 14 ──────────────────────────────────────────────────────────
+
+// ── Ejercicio 15:  ──────────────────────────────────────────
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟢 PEGAR AQUÍ: 1er BLOQUE (ejercicio completo) del asistente            │
     // │ AGREGAR COMA después del último ejercicio (arriba ↑) y antes de esto    │
@@ -1037,7 +1091,42 @@ const analyzeData = [
         ") y a su vez ser componente de muchas piezas (rol: ",
         {word:"compuesto",type:"relacion"},
         ").\n"
+    ],
+
+    // ── Ejercicio 13: Instituto ──────────────────────────────────────────────────
+    [
+        "• De cada ",
+        {word:"CURSO",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"Código",type:"atributo",attrType:"clave"},
+        " y ",
+        {word:"Nom_Curso",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• De cada ",
+        {word:"DOCENTE",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"CI_Doc",type:"atributo",attrType:"clave"},
+        " y ",
+        {word:"Nom_Docente",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• De cada ",
+        {word:"DIRECTOR",type:"entidad",entityType:"fuerte"},
+        " se guarda ",
+        {word:"CI_Dir",type:"atributo",attrType:"clave"},
+        ", ",
+        {word:"Nom_Director",type:"atributo",attrType:"simple"},
+        " y ",
+        {word:"Teléfono",type:"atributo",attrType:"simple"},
+        ".\n",
+        "• Un DOCENTE puede ",
+        {word:"dicta",type:"relacion"},
+        " varios cursos, pero un CURSO solo es dictado por un DOCENTE.\n",
+        "• El DIRECTOR ",
+        {word:"supervisa",type:"relacion"},
+        " el dictado de todos los cursos.\n"
     ]
+
+    //15
 
     // ┌─────────────────────────────────────────────────────────────────────────┐
     // │ 🟡 PEGAR AQUÍ: 2do BLOQUE (analyzeData) del asistente                   │
@@ -1085,5 +1174,8 @@ const analyzeConfig = [
     { requireSubtypes: true  },
 
     // ── Ejercicio 12: Almacén de Piezas ───────────────────────────────────────
-    { requireSubtypes: true  }
+    { requireSubtypes: true  },
+ 
+    // ── Ejercicio 13: Instituto ──────────────────────────────────────────────────
+    { requireSubtypes: false }
 ];

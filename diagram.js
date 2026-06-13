@@ -198,7 +198,7 @@ function drawCrispConnectors() {
                 const otherId = conn.from === relId ? conn.to : (conn.to === relId ? conn.from : null);
                 if (!otherId) return;
                 const otherNode = cur.nodes.find(nd => nd.id === otherId);
-                if (otherNode?.type !== 'entity') return;
+                if (!['entity','aggregation'].includes(otherNode?.type)) return;
                 const dist = Math.hypot(otherNode.x - n.x, otherNode.y - n.y);
                 if (dist < minDist) { minDist = dist; entityEl = document.getElementById(otherId); }
             });
@@ -714,6 +714,11 @@ async function saveAsPNG() {
             ctx.textAlign='center'; ctx.textBaseline='middle';
             ctx.fillText('ISA',c.x,c.y+6);
             ctx.restore(); return;
+        } else if (n.type==='aggregation') {
+            ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.rect(c.l,c.t,c.w,c.h);
+            ctx.stroke();
+            ctx.restore(); return;
         }
 
         // Texto
@@ -763,7 +768,7 @@ async function saveAsPNG() {
                               : conn.to   === 'r_'+match[1] ? conn.from : null;
                 if (!otherId) return;
                 const otherNode = cur.nodes.find(nd => nd.id === otherId);
-                if (otherNode?.type !== 'entity') return;
+                if (!['entity','aggregation'].includes(otherNode?.type)) return;
                 const dist = Math.hypot(otherNode.x - n.x, otherNode.y - n.y);
                 if (dist < minDist) { minDist = dist; entityEl = document.getElementById(otherId); }
             });

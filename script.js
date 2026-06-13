@@ -283,11 +283,94 @@ function renderInteractiveCanvas(exercise) {
                     <span class="text-[9px] font-extrabold text-slate-500 tracking-widest select-none" style="margin-top:18px;">ISA</span>
                 </div>
             `;
+        } else if (node.type === "aggregation") {
+            el.className = "z-10 pointer-events-none";
+            el.style.border = "2px solid #94a3b8";
+            el.style.borderRadius = "4px";
+            html = "";
         }
         el.innerHTML = html;
         container.appendChild(el);
     });
     setTimeout(drawCrispConnectors, 150);
+}
+// ── Panel de Totalidad ────────────────────────────────────
+function renderTotalidadPanel(exercise) {
+    const panel     = document.getElementById('totalidad-panel');
+    const questions = document.getElementById('totalidad-questions');
+    if (!panel || !questions) return;
+
+    const totalidadNodes = exercise.nodes.filter(n => n.type === 'totalidad');
+    if (totalidadNodes.length === 0) { panel.classList.add('hidden'); return; }
+    panel.classList.remove('hidden');
+    questions.innerHTML = '';
+
+    // Agrupar por índice de relación (formato id: t_{idx}_{left|right})
+    const groups = {};
+    totalidadNodes.forEach(n => {
+        const m = n.id.match(/t_(.+?)_(left|right)/);
+        if (!m) return;
+        if (!groups[m[1]]) groups[m[1]] = {};
+        groups[m[1]][m[2]] = n;
+    });
+
+    Object.keys(groups).sort().forEach(relIdx => {
+        const relNode   = exercise.nodes.find(n => n.id === `r_${relIdx}`);
+        const relName   = relNode?.correctValue || `r_${relIdx}`;
+        const leftConn  = exercise.connections.find(c => c.to === `r_${relIdx}` && !c.from.startsWith('c_'));
+        const rightConn = exercise.connections.find(c => c.from === `r_${relIdx}` && !c.to.startsWith('c_'));
+        const leftNode  = leftConn  ? exercise.nodes.find(n => n.id === leftConn.from)  : null;
+        const rightNode = rightConn ? exercise.nodes.find(n => n.id === rightConn.to)   : null;
+
+        function sideLabel(node) {
+            if (!node) return '?';
+            if (node.type === 'aggregation') return '(agregación)';
+            return node.correctValue || node.id;
+        }
+
+        const relDiv = document.createElement('div');
+        relDiv.className = 'flex flex-col gap-1.5 p-3 bg-slate-800/60 rounded-xl border border-slate-700/50';
+
+        const relTitle = document.createElement('p');
+        relTitle.className = 'text-xs font-bold text-violet-300 mb-1';
+        relTitle.textContent = `Relación: ${relName}`;
+        relDiv.appendChild(relTitle);
+
+        ['left', 'right'].forEach(side => {
+            const tNode = groups[relIdx][side];
+            if (!tNode) return;
+            const label = side === 'left' ? sideLabel(leftNode) : sideLabel(rightNode);
+
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2';
+
+            const lbl = document.createElement('span');
+            lbl.className = 'text-xs text-slate-300 flex-1 truncate';
+            lbl.textContent = label;
+            row.appendChild(lbl);
+
+            ['S', 'N'].forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = 'totalidad-btn px-3 py-1 text-xs font-extrabold border rounded-lg transition-all active:scale-95 bg-slate-700 border-slate-600 text-white';
+                btn.textContent = val;
+                btn.setAttribute('data-nodeid', tNode.id);
+                btn.setAttribute('data-value', val);
+                btn.onclick = () => {
+                    tNode.userValue = val;
+                    document.querySelectorAll(`.totalidad-btn[data-nodeid="${tNode.id}"]`).forEach(b => {
+                        const active = b.getAttribute('data-value') === val;
+                        b.classList.remove('bg-blue-600','border-blue-500','bg-slate-700','border-slate-600');
+                        b.classList.add(active ? 'bg-blue-600' : 'bg-slate-700', active ? 'border-blue-500' : 'border-slate-600');
+                    });
+                };
+                row.appendChild(btn);
+            });
+
+            relDiv.appendChild(row);
+        });
+
+        questions.appendChild(relDiv);
+    });
 }
 // ── Pegar palabra en un slot ──────────────────────────────
 function fillSlot(nodeId) {

@@ -241,8 +241,7 @@ function resetExercise() {
         // Limpiar userValue de totalidad
         if (n.type === 'totalidad') { n.userValue = undefined; }
     });
-    _totalidadCorrectMap = null; // limpiar mapa para que drawCrispConnectors no redibuje
-    // Eliminar círculos de totalidad del SVG
+    _totalidadCorrectMap = null;
     document.querySelectorAll('.totalidad-circle').forEach(c => c.remove());
     document.getElementById('feedback-alert').classList.add('hidden');
     const gb = document.getElementById('grade-box');
@@ -252,6 +251,16 @@ function resetExercise() {
     document.querySelectorAll('.totalidad-btn').forEach(btn => {
         btn.className = 'totalidad-btn px-3 py-1 text-xs font-bold bg-slate-700 border border-slate-600 rounded';
     });
+    // Resetear contadores de intentos del diagrama
+    diagramAttemptScores = [];
+    // Limpiar palabra seleccionada
+    highlightedWord = null;
+    const ss = document.getElementById('selection-status');
+    if (ss) ss.innerText = "";
+    document.querySelectorAll('#word-bank .word-tag').forEach(b => b.classList.remove('ring-2','ring-yellow-400','bg-yellow-900/40'));
+    // Re-habilitar botón Corregir y actualizar banco de palabras
+    if (typeof _resetCorregirBtn === 'function') _resetCorregirBtn();
+    if (typeof updateWordBankVisuals === 'function') updateWordBankVisuals();
 }
 // ── Siguiente ejercicio ──────────────────────────────────
 function nextExercise() {

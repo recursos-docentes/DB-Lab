@@ -85,7 +85,7 @@ Si `rne` se omite, la lógica infiere el tipo a partir del campo `concept` para 
 | 📋 **Panel RNE** | En el tab Diseño E-R, todos los ejercicios muestran un checkbox "Activar panel RNE" para escribir restricciones no estructurales. Los ejercicios con RNE estructural (autorelación, categorización, agregación) lo activan automáticamente. El texto persiste en `localStorage` y se incluye como banda inferior en el PNG exportado. |
 | 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. |
 | ? **Tutorial** | Modal de 4 pasos automático en el primer uso, reabrble con `?`. |
-| 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación. |
+| 💡 **Ver respuestas** | Botón en el **tab Analizar el problema**: aparece en el feedback tras 2 intentos fallidos en modo ejercitación. Muestra la clasificación correcta de cada término (en violeta) directamente sobre las fichas del panel. Solo disponible en modo ejercitación, nunca en evaluación. |
 | ⬆️ **Comparación de intentos** | Muestra si mejoró, empeoró o se mantuvo respecto al intento anterior. |
 
 ---
@@ -113,19 +113,20 @@ merTutor-main/
 
 | Índice | Caso | Concepto | Estado |
 |--------|------|---------|--------|
-| 0 | 🔧 Taller Mecánico | Atributos especiales (atributo de relación) | ✅ |
-| 1 | 📚 Biblioteca Escolar | Atributos especiales (atributo de relación) | ✅ |
+| 0 | 🔧 Taller Mecánico | Atributos especiales (atributo de relación, N:N) | ✅ |
+| 1 | 📚 Biblioteca Escolar | Atributos especiales (atributo de relación, N:N) | ✅ |
 | 2 | 🛒 Tienda Online | Relaciones simples (1:N) | ✅ |
-| 3 | 🌐 Red Social | Generalización/ISA | ✅ |
+| 3 | 🌐 Red Social | Generalización / ISA | ✅ |
 | 4 | 📺 Plataforma de Streaming | Atributos especiales (compuesto, multivaluado) | ✅ |
 | 5 | 🏥 Sistema Hospitalario | Relaciones simples (1:N) | ✅ |
-| 6 | 🏫 Institución educativa | Atributos especiales (compuesto, derivado) | ✅ |
+| 6 | 🏫 Institución educativa | Atributos especiales (compuesto, derivado, N:N) | ✅ |
 | 7 | 🏫 Colegio | Totalidad / Participación | ✅ |
 | 8 | 🎬 Película | Entidad débil | ✅ |
 | 9 | ⚽ Fútbol | Autorelación | ✅ |
 | 10 | 🎵 Música | Relaciones simples (N:N, N:1) | ✅ |
 | 11 | 📖 Biblioteca2 | Entidad débil | ✅ |
 | 12 | 🔩 Almacén de Piezas | Autorelación + entidad débil | ✅ |
+| 13 | 🏫 Instituto | Agregación | ✅ |
 
 ---
 

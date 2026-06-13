@@ -52,13 +52,37 @@ er-designer.html?ejercicio=2&ex=1
 - **Historial de intentos:** muestra el puntaje de cada intento (hasta 3) en el banner y en el PNG exportado.
 - **Ver respuestas:** después de 2 intentos fallidos en modo ejercitación.
 
+## Panel RNE (Restricciones No Estructurales)
+
+Disponible en el tab **Diseño E-R** para todos los ejercicios mediante el checkbox "📋 Activar panel RNE".
+
+- **Activación automática** en ejercicios con `rne: "autorelacion"`, `"generalizacion"` o `"agregacion"`.
+- **Activación manual** (checkbox) para RNE básicas de dominio en cualquier otro ejercicio.
+- El panel muestra una **pista contextual** según el tipo de RNE (auto-relación, categorización, agregación, o restricción básica de dominio).
+- La barra **INSERTAR** permite insertar rápidamente símbolos: `∀ ∈ ∉ ∩ ∪ ∅ → si` y operadores de comparación `> ≥ < ≤ = ≠`.
+- El texto se guarda en `localStorage` con clave `rne_<índice>` y se restaura al volver al tab.
+- Al exportar como **PNG**, el texto RNE se incluye como banda inferior en el diagrama si hay contenido.
+
+### Campo `rne` en `exercises[]`
+
+```js
+rne: "basica"        // restricción de dominio (cualquier ejercicio)
+rne: "autorelacion"  // activa hint de irreflexividad
+rne: "generalizacion"// activa hint de disjunción/cobertura
+rne: "agregacion"    // activa hint de existencia en relación base
+// (omitir el campo → sin RNE predefinida; el checkbox sigue disponible)
+```
+
+Si `rne` se omite, la lógica infiere el tipo a partir del campo `concept` para los tres conceptos estructurales; en cualquier otro caso usa `"basica"`.
+
 ---
 
 ## Accesibilidad y soporte para estudiantes con dificultades
 
 | Función | Descripción |
 |---------|-------------|
-| 📖 **Conceptos E-R** | Modal con teoría sobre entidades, atributos, relaciones, cardinalidad, totalidad y más. |
+| 📖 **Conceptos E-R** | Modal con teoría en formato **acordeón** (clic para expandir). 6 ítems de primer nivel: Entidad, Atributo, Relación, Cardinalidad, Totalidad, RNE. Entidad y Atributo se subdividen en sub-ítems (fuerte/débil; simple-clave/compuesto/multivaluado/derivado/de relación). Cada sub-ítem incluye mini SVG de la representación gráfica y ejemplos contextualizados. |
+| 📋 **Panel RNE** | En el tab Diseño E-R, todos los ejercicios muestran un checkbox "Activar panel RNE" para escribir restricciones no estructurales. Los ejercicios con RNE estructural (autorelación, categorización, agregación) lo activan automáticamente. El texto persiste en `localStorage` y se incluye como banda inferior en el PNG exportado. |
 | 📚 **Glosario** | Modal con formas SVG y definición de cada concepto E-R. |
 | ? **Tutorial** | Modal de 4 pasos automático en el primer uso, reabrble con `?`. |
 | 💡 **Ver respuestas** | Aparece tras 2 intentos fallidos en modo ejercitación. |

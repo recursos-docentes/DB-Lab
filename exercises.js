@@ -240,7 +240,7 @@ const exercises = [
         • Un paciente puede tener muchas consultas; cada consulta es de un médico.<br>
         • Un médico puede atender muchos pacientes y un paciente se puede atender con muchos médicos.`,
         hint: "Recuerda que Cédula es la clave primaria de PACIENTE y Matrícula de MÉDICO. Las relaciones 'realiza' y 'atiende' conectan las entidades.",
-        wordBank: ["PACIENTE", "MÉDICO", "CONSULTA", "realiza", "atiende", "Cédula", "Nombre", "Teléfono", "Matrícula", "Especialidad", "Número", "Fecha", "Diagnóstico", "N", "1", "N", "1"],
+        wordBank: ["PACIENTE", "MÉDICO", "CONSULTA", "realiza", "atiende", "Cédula", "Nombre", "Nombre", "Teléfono", "Matrícula", "Especialidad", "Número", "Fecha", "Diagnóstico", "N", "1", "N", "1"],
         nodes: [
             { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 15,   y: 50,   w: 120, h: 55 },
             { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 50,   y: 50,   w: 120, h: 55 },

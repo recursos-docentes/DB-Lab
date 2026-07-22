@@ -17,6 +17,9 @@ function setStage(stage) {
         if (tab && !tab.disabled) tab.classList.toggle('active', s === stage);
     });
     hidePopup();
+    if (stage === 'tables') {
+        if (typeof renderTablesPanel === 'function') renderTablesPanel(activeExercise);
+    }
     if (stage === 'diagram') {
         requestAnimationFrame(drawCrispConnectors);
         // Mostrar avisos si el ejercicio los tiene

@@ -524,6 +524,15 @@ function checkAnswers() {
             ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
             : ['bg-amber-950',  'text-amber-300', 'border-amber-700'])
     );
+    // Desbloquear pestaña Pasaje a Tablas si puntaje ≥ 50%
+    if (!evalMode && pct >= 50) {
+        const tabTables = document.getElementById('tab-tables');
+        if (tabTables && tabTables.disabled) {
+            tabTables.disabled = false;
+            tabTables.onclick  = () => setStage('tables');
+            tabTables.textContent = tabTables.textContent.replace(' 🔒', '');
+        }
+    }
     // Registrar intento
     if (!evalMode) {
         diagramAttemptScores.push({ hits, total, grade });

@@ -401,14 +401,7 @@
     </main>
 
     <!-- ══ Pasaje a tablas ════════════════════════════════ -->
-    <div id="stage-tables" class="no-print hidden flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-5 flex items-center justify-center" style="min-height:640px;">
-        <div class="text-center flex flex-col items-center gap-4">
-            <span class="text-6xl">📊</span>
-            <h2 class="text-2xl font-extrabold text-white">Pasaje a Tablas</h2>
-            <p class="text-slate-400 text-sm max-w-xs">Convertí tu modelo E-R en tablas relacionales. Esta sección estará disponible próximamente.</p>
-            <span class="px-4 py-2 bg-rose-950/60 border border-rose-700/40 text-rose-300/80 text-sm font-extrabold rounded-full animate-pulse">🔒 Próximamente</span>
-        </div>
-    </div>
+    <div id="stage-tables" class="no-print hidden flex-1 w-full overflow-y-auto" style="min-height:640px;"></div>
 
     <!-- Footer -->
     <footer class="no-print bg-slate-950 text-slate-500 text-xs py-4 text-center border-t border-slate-800">
@@ -418,10 +411,12 @@
     </footer>
 
     <!-- ══════════════════════════════════════════ SCRIPT (dividido en 4 archivos) -->
-    <script src="exercises.js?t=14"></script>  <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
-    <script src="script.js?t=22"></script>     <!-- UI: vars globales, loadExercise, canvas render -->
-    <script src="diagram.js?t=21"></script>    <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
-    <script src="analysis.js?t=6"></script>   <!-- análisis: modo eval, panel, clasificación -->
+    <script src="exercises.js?t=14"></script>   <!-- datos: exercises[], analyzeData[], analyzeConfig[] -->
+    <script src="script.js?t=22"></script>      <!-- UI: vars globales, loadExercise, canvas render -->
+    <script src="diagram.js?t=21"></script>     <!-- diagrama: drawCrispConnectors, checkAnswers, totalidad, PNG -->
+    <script src="analysis.js?t=6"></script>    <!-- análisis: modo eval, panel, clasificación -->
+    <script src="tablesData.js?t=1"></script>   <!-- esquemas de tablas por ejercicio -->
+    <script src="tables.js?t=1"></script>       <!-- pestaña Pasaje a Tablas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- ── Modal de Conceptos E-R ── -->

@@ -1,75 +1,74 @@
-// tablesData.js — Esquemas relacionales para el tab "Pasaje a Tablas"
-// Alineado con exercises[i]. Cada entrada define las tablas resultantes
-// y los pasos de derivación visibles en el panel izquierdo.
+// tablesData.js — Datos para el tab "Pasaje a Tablas" (v2 — flujo guiado)
+// Estructura por ejercicio:
+//   entityTables[]  — tablas que derivan de entidades (incl. débiles, ISA, multivaluados)
+//   relations[]     — relaciones binarias del MER con decisión genera/no genera tabla
 //
-// Campo de cada tabla:
-//   name       : nombre visible del campo
-//   isPK       : true si es clave primaria
-//   isFK       : true si es clave foránea
-//   fkTo       : nombre de la tabla referenciada (si isFK)
+// Convenciones de campos:
+//   isPK        → clave primaria (se muestra subrayada en notación relacional)
+//   isFK        → clave foránea
+//   fkTo        → tabla referenciada
+//   fkRefField  → campo PK referenciado (solo si difiere del nombre del campo FK)
 //
-// Convenciones:
-//   - Atributos derivados se EXCLUYEN (no aparecen en tablas relacionales)
-//   - Atributos compuestos se EXPANDEN (sus subatributos aparecen directamente)
-//   - Atributos multivaluados generan una tabla separada
-//   - Cardinalidades 1:N con totalidad implícita → FK en la tabla del lado N
-//   - N:N siempre genera tabla intermedia
+// Diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude — CC BY-SA 4.0
 
 const tablesData = [
 
 // ── Ejercicio 1: Taller Mecánico ──────────────────────────────────────────
 {
-    derivation: [
-        { element: "CLIENTE",         icon: "📋", rule: "Entidad → tabla",                   note: "Tabla con PK: CI" },
-        { element: "AUTO",            icon: "📋", rule: "Entidad → tabla",                   note: "Tabla con PK: Matrícula" },
-        { element: "REPARACIÓN",      icon: "📋", rule: "Entidad → tabla",                   note: "Tabla con PK: Código" },
-        { element: "tiene (1:N)",     icon: "🔗", rule: "N:1 sin totalidad → tabla nueva",   note: "Tabla: tiene (PK = Matrícula del lado N)" },
-        { element: "recibe (N:N)",    icon: "🔀", rule: "N:N → tabla intermedia",            note: "Tabla: recibe con PK compuesta" }
+    entityTables: [
+        {
+            name: "CLIENTE", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "CI",       isPK: true  },
+                { name: "Nombre",   isPK: false },
+                { name: "Apellido", isPK: false }
+            ]
+        },
+        {
+            name: "AUTO", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Matrícula",   isPK: true  },
+                { name: "Marca",       isPK: false },
+                { name: "Modelo",      isPK: false },
+                { name: "Combustible", isPK: false }
+            ]
+        },
+        {
+            name: "REPARACIÓN", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Código",      isPK: true  },
+                { name: "Descripción", isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "CLIENTE", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "CI",       isPK: true,  isFK: false },
-                { name: "Nombre",   isPK: false, isFK: false },
-                { name: "Apellido", isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "AUTO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Matrícula",   isPK: true,  isFK: false },
-                { name: "Marca",       isPK: false, isFK: false },
-                { name: "Modelo",      isPK: false, isFK: false },
-                { name: "Combustible", isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "REPARACIÓN", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Código",      isPK: true,  isFK: false },
-                { name: "Descripción", isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "tiene", ruleLabel: "Rel. N:1 sin totalidad",
-            ruleNote: "N:1 sin totalidad del lado N → nueva tabla. PK = clave de la entidad del lado N.",
-            fields: [
-                { name: "Matrícula", isPK: true,  isFK: true, fkTo: "AUTO" },
+            name: "tiene",
+            cardHint: "CLIENTE 1:N AUTO (sin totalidad)",
+            ruleHint: "Sin totalidad del lado 1 → nueva tabla con PK = clave del lado N",
+            generatesTable: true,
+            tableName: "tiene",
+            tableNote: "PK = Matrícula (clave de AUTO, lado N). CI es FK hacia CLIENTE.",
+            tableFields: [
+                { name: "Matrícula", isPK: true,  isFK: true, fkTo: "AUTO"    },
                 { name: "CI",        isPK: false, isFK: true, fkTo: "CLIENTE" }
             ]
         },
         {
-            name: "recibe", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia. La PK compuesta agrupa las claves de ambas entidades.",
-            fields: [
-                { name: "Matrícula",    isPK: true,  isFK: true,  fkTo: "AUTO" },
-                { name: "Código",       isPK: true,  isFK: true,  fkTo: "REPARACIÓN" },
-                { name: "Fecha_entrada",isPK: false, isFK: false },
-                { name: "Observación",  isPK: false, isFK: false }
+            name: "recibe",
+            cardHint: "AUTO N:N REPARACIÓN",
+            ruleHint: "N:N → siempre genera tabla intermedia con PK compuesta",
+            generatesTable: true,
+            tableName: "recibe",
+            tableNote: "PK compuesta: Matrícula (FK→AUTO) + Código (FK→REPARACIÓN). Incluye atributos de la relación.",
+            tableFields: [
+                { name: "Matrícula",     isPK: true,  isFK: true,  fkTo: "AUTO"       },
+                { name: "Código",        isPK: true,  isFK: true,  fkTo: "REPARACIÓN" },
+                { name: "Fecha_entrada", isPK: false, isFK: false },
+                { name: "Observación",   isPK: false, isFK: false }
             ]
         }
     ]
@@ -77,38 +76,39 @@ const tablesData = [
 
 // ── Ejercicio 2: Biblioteca Escolar ──────────────────────────────────────
 {
-    derivation: [
-        { element: "SOCIO",        icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Id_socio" },
-        { element: "LIBRO",        icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Isbn" },
-        { element: "préstamo (N:N)",icon: "🔀", rule: "N:N → tabla intermedia", note: "Tabla: préstamo con PK compuesta" }
+    entityTables: [
+        {
+            name: "SOCIO", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Id_socio", isPK: true  },
+                { name: "Nombre",   isPK: false },
+                { name: "Teléfono", isPK: false }
+            ]
+        },
+        {
+            name: "LIBRO", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Isbn",   isPK: true  },
+                { name: "Título", isPK: false },
+                { name: "Autor",  isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "SOCIO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Id_socio",  isPK: true,  isFK: false },
-                { name: "Nombre",    isPK: false, isFK: false },
-                { name: "Teléfono", isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "LIBRO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Isbn",   isPK: true,  isFK: false },
-                { name: "Título", isPK: false, isFK: false },
-                { name: "Autor",  isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "préstamo", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia. Los atributos propios de la relación también se incluyen.",
-            fields: [
-                { name: "Id_socio",      isPK: true,  isFK: true,  fkTo: "SOCIO" },
-                { name: "Isbn",          isPK: true,  isFK: true,  fkTo: "LIBRO" },
-                { name: "Fecha_prestamo",isPK: false, isFK: false },
-                { name: "Devuelto",      isPK: false, isFK: false }
+            name: "préstamo",
+            cardHint: "SOCIO N:N LIBRO",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "préstamo",
+            tableNote: "PK compuesta: Id_socio + Isbn. Incluye atributos de la relación.",
+            tableFields: [
+                { name: "Id_socio",       isPK: true,  isFK: true,  fkTo: "SOCIO" },
+                { name: "Isbn",           isPK: true,  isFK: true,  fkTo: "LIBRO" },
+                { name: "Fecha_prestamo", isPK: false, isFK: false },
+                { name: "Devuelto",       isPK: false, isFK: false }
             ]
         }
     ]
@@ -116,245 +116,288 @@ const tablesData = [
 
 // ── Ejercicio 3: Tienda Online ────────────────────────────────────────────
 {
-    derivation: [
-        { element: "CLIENTE",       icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: Id_cliente" },
-        { element: "PEDIDO",        icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: Nro_pedido" },
-        { element: "realiza (1:N)", icon: "🔗", rule: "N:1 con totalidad → FK",  note: "Cada pedido pertenece a un cliente → FK Id_cliente en PEDIDO" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "CLIENTE", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "CLIENTE", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Id_cliente", isPK: true,  isFK: false },
-                { name: "Nombre",     isPK: false, isFK: false },
-                { name: "Email",      isPK: false, isFK: false }
+                { name: "Id_cliente", isPK: true  },
+                { name: "Nombre",     isPK: false },
+                { name: "Email",      isPK: false }
             ]
         },
         {
-            name: "PEDIDO", ruleLabel: "Entidad + FK de realiza",
-            ruleNote: "N:1 con totalidad del lado N → no se crea tabla nueva. La clave de CLIENTE se incorpora como FK en PEDIDO.",
+            name: "PEDIDO", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'realiza'",
             fields: [
-                { name: "Nro_pedido",   isPK: true,  isFK: false },
-                { name: "Fecha_pedido", isPK: false, isFK: false },
-                { name: "Total",        isPK: false, isFK: false },
-                { name: "Id_cliente",   isPK: false, isFK: true,  fkTo: "CLIENTE" }
+                { name: "Nro_pedido",   isPK: true  },
+                { name: "Fecha_pedido", isPK: false },
+                { name: "Total",        isPK: false }
             ]
+        }
+    ],
+    relations: [
+        {
+            name: "realiza",
+            cardHint: "CLIENTE 1:N PEDIDO (con totalidad)",
+            ruleHint: "Con totalidad del lado N → no genera tabla; FK en la tabla del lado N",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "PEDIDO",
+                reason: "Cada pedido pertenece obligatoriamente a un cliente (totalidad) → FK Id_cliente en PEDIDO",
+                fkFields: [
+                    { name: "Id_cliente", isFK: true, fkTo: "CLIENTE" }
+                ]
+            }
         }
     ]
 },
 
 // ── Ejercicio 4: Red Social ───────────────────────────────────────────────
 {
-    derivation: [
-        { element: "USUARIO",         icon: "📋", rule: "Entidad → tabla",                  note: "Tabla con PK: Id_usuario" },
-        { element: "CONTENIDO",       icon: "📋", rule: "Entidad → tabla",                  note: "Tabla con PK: Nro_contenido" },
-        { element: "publica (1:N)",   icon: "🔗", rule: "N:1 con totalidad → FK",           note: "Cada contenido es de un usuario → FK Id_usuario en CONTENIDO" },
-        { element: "CREADOR (ISA)",   icon: "🔺", rule: "Categorización → hereda PK",       note: "CREADOR hereda Id_usuario de USUARIO" },
-        { element: "ESPECTADOR (ISA)",icon: "🔺", rule: "Categorización → hereda PK",       note: "ESPECTADOR hereda Id_usuario de USUARIO" },
-        { element: "Teléfono (mv.)",  icon: "📋", rule: "Atributo multivaluado → tabla",    note: "Tabla separada con FK → ESPECTADOR" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "USUARIO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "USUARIO", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Id_usuario",  isPK: true,  isFK: false },
-                { name: "Email",       isPK: false, isFK: false },
-                { name: "Año_ingreso", isPK: false, isFK: false }
+                { name: "Id_usuario",  isPK: true  },
+                { name: "Email",       isPK: false },
+                { name: "Año_ingreso", isPK: false }
             ]
         },
         {
-            name: "CONTENIDO", ruleLabel: "Entidad + FK de publica",
-            ruleNote: "N:1 con totalidad del lado N → FK Id_usuario en CONTENIDO.",
+            name: "CONTENIDO", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'publica'",
             fields: [
-                { name: "Nro_contenido", isPK: true,  isFK: false },
-                { name: "Título",        isPK: false, isFK: false },
-                { name: "Fecha",         isPK: false, isFK: false },
-                { name: "Id_usuario",    isPK: false, isFK: true,  fkTo: "USUARIO" }
+                { name: "Nro_contenido", isPK: true  },
+                { name: "Título",        isPK: false },
+                { name: "Fecha",         isPK: false }
             ]
         },
         {
-            name: "CREADOR", ruleLabel: "Categorización (ISA)",
-            ruleNote: "Las subentidades heredan la PK de la superentidad como FK.",
+            name: "CREADOR", sourceType: "isa",
+            note: "Subentidad (ISA) — hereda PK de USUARIO como PK+FK",
             fields: [
-                { name: "Id_usuario",    isPK: true,  isFK: true,  fkTo: "USUARIO" },
-                { name: "Cant_seguidores",isPK: false, isFK: false }
+                { name: "Id_usuario",     isPK: true,  isFK: true, fkTo: "USUARIO" },
+                { name: "Cant_seguidores",isPK: false }
             ]
         },
         {
-            name: "ESPECTADOR", ruleLabel: "Categorización (ISA)",
-            ruleNote: "Las subentidades heredan la PK de la superentidad como FK.",
+            name: "ESPECTADOR", sourceType: "isa",
+            note: "Subentidad (ISA) — hereda PK de USUARIO como PK+FK",
             fields: [
-                { name: "Id_usuario", isPK: true,  isFK: true,  fkTo: "USUARIO" },
-                { name: "Ciudad",     isPK: false, isFK: false }
+                { name: "Id_usuario", isPK: true,  isFK: true, fkTo: "USUARIO" },
+                { name: "Ciudad",     isPK: false }
             ]
         },
         {
-            name: "Teléfono", ruleLabel: "Attr. multivaluado",
-            ruleNote: "El atributo multivaluado genera una tabla separada con FK a la entidad original.",
+            name: "Teléfono", sourceType: "multivalued",
+            note: "Atributo multivaluado de ESPECTADOR → tabla separada con PK compuesta",
             fields: [
-                { name: "Id_usuario", isPK: true, isFK: true,  fkTo: "ESPECTADOR" },
+                { name: "Id_usuario", isPK: true, isFK: true, fkTo: "ESPECTADOR" },
                 { name: "Teléfono",   isPK: true, isFK: false }
             ]
+        }
+    ],
+    relations: [
+        {
+            name: "publica",
+            cardHint: "USUARIO 1:N CONTENIDO (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en la tabla del lado N",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "CONTENIDO",
+                reason: "Todo contenido es publicado por un usuario (totalidad) → FK Id_usuario en CONTENIDO",
+                fkFields: [
+                    { name: "Id_usuario", isFK: true, fkTo: "USUARIO" }
+                ]
+            }
         }
     ]
 },
 
 // ── Ejercicio 5: Plataforma Streaming ────────────────────────────────────
 {
-    derivation: [
-        { element: "SOCIO",            icon: "📋", rule: "Entidad → tabla (compuesto expandido)",  note: "Nombre_completo → Primer_nom + Primer_ape" },
-        { element: "PELÍCULA",         icon: "📋", rule: "Entidad → tabla",                        note: "Tabla con PK: Cod_pelicula" },
-        { element: "ARCHIVADOR",       icon: "📋", rule: "Entidad → tabla",                        note: "Tabla con PK: Nro_arch" },
-        { element: "Directores_fav.",  icon: "📋", rule: "Atrib. multivaluado → tabla",            note: "Tabla separada con FK → SOCIO" },
-        { element: "Actores",          icon: "📋", rule: "Atrib. multivaluado → tabla",            note: "Tabla separada con FK → PELÍCULA" },
-        { element: "alquila (N:N)",    icon: "🔀", rule: "N:N → tabla intermedia",                 note: "Tabla: alquila con PK compuesta" },
-        { element: "guarda (N:1)",     icon: "🔗", rule: "N:1 con totalidad → FK",                 note: "Cada película está en un archivador → FK Nro_arch en PELÍCULA" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "SOCIO", ruleLabel: "Entidad (compuesto expandido)",
-            ruleNote: "Nombre_completo se expande en subatributos. Los atributos compuestos no se representan en el M-R.",
+            name: "SOCIO", sourceType: "entity",
+            note: "Entidad fuerte — Nombre_completo expandido en subatributos",
             fields: [
-                { name: "Cod_socio",  isPK: true,  isFK: false },
-                { name: "Primer_nom", isPK: false, isFK: false },
-                { name: "Primer_ape", isPK: false, isFK: false }
+                { name: "Cod_socio",  isPK: true  },
+                { name: "Primer_nom", isPK: false },
+                { name: "Primer_ape", isPK: false }
             ]
         },
         {
-            name: "PELÍCULA", ruleLabel: "Entidad + FK de guarda",
-            ruleNote: "N:1 con totalidad del lado N → FK Nro_arch incorporado en PELÍCULA.",
+            name: "PELÍCULA", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'guarda'",
             fields: [
-                { name: "Cod_pelicula", isPK: true,  isFK: false },
-                { name: "Titulo",       isPK: false, isFK: false },
-                { name: "Año",          isPK: false, isFK: false },
-                { name: "Nro_arch",     isPK: false, isFK: true,  fkTo: "ARCHIVADOR" }
+                { name: "Cod_pelicula", isPK: true  },
+                { name: "Titulo",       isPK: false },
+                { name: "Año",          isPK: false }
             ]
         },
         {
-            name: "ARCHIVADOR", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "ARCHIVADOR", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Nro_arch", isPK: true,  isFK: false },
-                { name: "Ubicacion", isPK: false, isFK: false }
+                { name: "Nro_arch",  isPK: true  },
+                { name: "Ubicacion", isPK: false }
             ]
         },
         {
-            name: "Directores_favoritos", ruleLabel: "Attr. multivaluado",
-            ruleNote: "Atributo multivaluado → tabla separada con FK al SOCIO.",
+            name: "Directores_favoritos", sourceType: "multivalued",
+            note: "Atributo multivaluado de SOCIO → tabla separada",
             fields: [
                 { name: "Cod_socio",            isPK: true, isFK: true,  fkTo: "SOCIO" },
                 { name: "Directores_favoritos",  isPK: true, isFK: false }
             ]
         },
         {
-            name: "Actores", ruleLabel: "Attr. multivaluado",
-            ruleNote: "Atributo multivaluado → tabla separada con FK a PELÍCULA.",
+            name: "Actores", sourceType: "multivalued",
+            note: "Atributo multivaluado de PELÍCULA → tabla separada",
             fields: [
                 { name: "Cod_pelicula", isPK: true, isFK: true,  fkTo: "PELÍCULA" },
                 { name: "Actores",      isPK: true, isFK: false }
             ]
+        }
+    ],
+    relations: [
+        {
+            name: "alquila",
+            cardHint: "SOCIO N:N PELÍCULA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "alquila",
+            tableNote: "PK compuesta: Cod_socio + Cod_pelicula. Incluye fechas de la relación.",
+            tableFields: [
+                { name: "Cod_socio",     isPK: true,  isFK: true,  fkTo: "SOCIO"    },
+                { name: "Cod_pelicula",  isPK: true,  isFK: true,  fkTo: "PELÍCULA"  },
+                { name: "Fecha_alq",     isPK: false, isFK: false },
+                { name: "Fech_devuelto", isPK: false, isFK: false }
+            ]
         },
         {
-            name: "alquila", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta de las claves de ambas entidades.",
-            fields: [
-                { name: "Cod_socio",    isPK: true,  isFK: true,  fkTo: "SOCIO" },
-                { name: "Cod_pelicula", isPK: true,  isFK: true,  fkTo: "PELÍCULA" },
-                { name: "Fecha_alq",    isPK: false, isFK: false },
-                { name: "Fech_devuelto",isPK: false, isFK: false }
-            ]
+            name: "guarda",
+            cardHint: "PELÍCULA N:1 ARCHIVADOR (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en la tabla del lado N",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "PELÍCULA",
+                reason: "Toda película está en un archivador (totalidad) → FK Nro_arch en PELÍCULA",
+                fkFields: [
+                    { name: "Nro_arch", isFK: true, fkTo: "ARCHIVADOR" }
+                ]
+            }
         }
     ]
 },
 
 // ── Ejercicio 6: Sistema Hospitalario ────────────────────────────────────
 {
-    derivation: [
-        { element: "PACIENTE",       icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Cédula" },
-        { element: "MÉDICO",         icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Matrícula" },
-        { element: "CONSULTA",       icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Número" },
-        { element: "realiza (1:N)",  icon: "🔗", rule: "N:1 con totalidad → FK",   note: "Cada consulta pertenece a un paciente → FK Cédula en CONSULTA" },
-        { element: "atiende (1:N)",  icon: "🔗", rule: "N:1 con totalidad → FK",   note: "Cada consulta es atendida por un médico → FK Matrícula en CONSULTA" }
+    entityTables: [
+        {
+            name: "PACIENTE", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Cédula",    isPK: true  },
+                { name: "Nombre",    isPK: false },
+                { name: "Teléfono",  isPK: false }
+            ]
+        },
+        {
+            name: "MÉDICO", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Matrícula",    isPK: true  },
+                { name: "Nombre",       isPK: false },
+                { name: "Especialidad", isPK: false }
+            ]
+        },
+        {
+            name: "CONSULTA", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FKs de las relaciones 'realiza' y 'atiende'",
+            fields: [
+                { name: "Número",      isPK: true  },
+                { name: "Fecha",       isPK: false },
+                { name: "Diagnóstico", isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "PACIENTE", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Cédula",    isPK: true,  isFK: false },
-                { name: "Nombre",    isPK: false, isFK: false },
-                { name: "Teléfono", isPK: false, isFK: false }
-            ]
+            name: "realiza",
+            cardHint: "PACIENTE 1:N CONSULTA (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en CONSULTA",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "CONSULTA",
+                reason: "Toda consulta la realiza un paciente (totalidad) → FK Cédula en CONSULTA",
+                fkFields: [
+                    { name: "Cédula", isFK: true, fkTo: "PACIENTE" }
+                ]
+            }
         },
         {
-            name: "MÉDICO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Matrícula",   isPK: true,  isFK: false },
-                { name: "Nombre",      isPK: false, isFK: false },
-                { name: "Especialidad",isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "CONSULTA", ruleLabel: "Entidad + FKs de relaciones",
-            ruleNote: "Las relaciones 1:N con totalidad del lado N incorporan FK en la tabla del lado N.",
-            fields: [
-                { name: "Número",     isPK: true,  isFK: false },
-                { name: "Fecha",      isPK: false, isFK: false },
-                { name: "Diagnóstico",isPK: false, isFK: false },
-                { name: "Cédula",     isPK: false, isFK: true,  fkTo: "PACIENTE" },
-                { name: "Matrícula",  isPK: false, isFK: true,  fkTo: "MÉDICO" }
-            ]
+            name: "atiende",
+            cardHint: "MÉDICO 1:N CONSULTA (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en CONSULTA",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "CONSULTA",
+                reason: "Toda consulta es atendida por un médico (totalidad) → FK Matrícula en CONSULTA",
+                fkFields: [
+                    { name: "Matrícula", isFK: true, fkTo: "MÉDICO" }
+                ]
+            }
         }
     ]
 },
 
-// ── Ejercicio 7: Institución educativa ───────────────────────────────────
+// ── Ejercicio 7: Institución Educativa ───────────────────────────────────
 {
-    derivation: [
-        { element: "MATERIA",          icon: "📋", rule: "Entidad → tabla",            note: "Tabla con PK: Código" },
-        { element: "ALUMNO",           icon: "📋", rule: "Entidad → tabla (expandida)", note: "Dirección compuesto → Calle, Nro, Esquina. Edad derivado → excluido." },
-        { element: "Teléfonos (mv.)",  icon: "📋", rule: "Atrib. multivaluado → tabla", note: "Tabla separada con FK → ALUMNO" },
-        { element: "cursa (N:N)",      icon: "🔀", rule: "N:N → tabla intermedia",      note: "Nota es atributo propio de la relación" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "MATERIA", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "MATERIA", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Código",    isPK: true,  isFK: false },
-                { name: "NombreMat", isPK: false, isFK: false },
-                { name: "Año",       isPK: false, isFK: false }
+                { name: "Código",    isPK: true  },
+                { name: "NombreMat", isPK: false },
+                { name: "Año",       isPK: false }
             ]
         },
         {
-            name: "ALUMNO", ruleLabel: "Entidad (compuesto expandido, derivado excluido)",
-            ruleNote: "Dirección se expande en sus subatributos. Edad (derivado) no se incluye en el M-R.",
+            name: "ALUMNO", sourceType: "entity",
+            note: "Dirección expandida en subatributos. Edad (derivado) excluido.",
             fields: [
-                { name: "Cédula",   isPK: true,  isFK: false },
-                { name: "Nombre",   isPK: false, isFK: false },
-                { name: "Calle",    isPK: false, isFK: false },
-                { name: "Nro",      isPK: false, isFK: false },
-                { name: "Esquina",  isPK: false, isFK: false },
-                { name: "Fecha_nac",isPK: false, isFK: false }
+                { name: "Cédula",    isPK: true  },
+                { name: "Nombre",    isPK: false },
+                { name: "Calle",     isPK: false },
+                { name: "Nro",       isPK: false },
+                { name: "Esquina",   isPK: false },
+                { name: "Fecha_nac", isPK: false }
             ]
         },
         {
-            name: "Teléfonos", ruleLabel: "Attr. multivaluado",
-            ruleNote: "Atributo multivaluado → tabla separada. PK compuesta: (Cédula + Teléfonos).",
+            name: "Teléfonos", sourceType: "multivalued",
+            note: "Atributo multivaluado de ALUMNO → tabla separada con PK compuesta",
             fields: [
                 { name: "Cédula",    isPK: true, isFK: true,  fkTo: "ALUMNO" },
                 { name: "Teléfonos", isPK: true, isFK: false }
             ]
-        },
+        }
+    ],
+    relations: [
         {
-            name: "cursa", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia. Nota es un atributo propio de la relación.",
-            fields: [
+            name: "cursa",
+            cardHint: "ALUMNO N:N MATERIA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "cursa",
+            tableNote: "PK compuesta: Código + Cédula. Nota es atributo propio de la relación.",
+            tableFields: [
                 { name: "Código", isPK: true,  isFK: true,  fkTo: "MATERIA" },
-                { name: "Cédula", isPK: true,  isFK: true,  fkTo: "ALUMNO" },
+                { name: "Cédula", isPK: true,  isFK: true,  fkTo: "ALUMNO"  },
                 { name: "Nota",   isPK: false, isFK: false }
             ]
         }
@@ -363,124 +406,124 @@ const tablesData = [
 
 // ── Ejercicio 8: Colegio ──────────────────────────────────────────────────
 {
-    derivation: [
-        { element: "PROFESOR",       icon: "📋", rule: "Entidad → tabla (derivado excluido)", note: "Grado (derivado) no se incluye en el M-R" },
-        { element: "ASIGNATURA",     icon: "📋", rule: "Entidad → tabla",                     note: "Tabla con PK: Código" },
-        { element: "ALUMNO",         icon: "📋", rule: "Entidad (compuesto + derivado)",       note: "NombreCom → Nom+Ape1+Ape2; Edad excluido; Antecedentes es multivaluado" },
-        { element: "LIBRO",          icon: "📋", rule: "Entidad → tabla",                     note: "Tabla con PK: CódigoL" },
-        { element: "Antecedentes",   icon: "📋", rule: "Atrib. multivaluado → tabla",         note: "Tabla separada con FK → ALUMNO" },
-        { element: "dicta (N:N)",    icon: "🔀", rule: "N:N → tabla intermedia",              note: "Tabla: dicta" },
-        { element: "cursa (N:N)",    icon: "🔀", rule: "N:N → tabla intermedia",              note: "Tabla: cursa" },
-        { element: "publica (1:N)",  icon: "🔗", rule: "N:1 con totalidad → FK",              note: "Cada libro es publicado por un profesor → FK CédulaP en LIBRO" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "PROFESOR", ruleLabel: "Entidad (derivado excluido)",
-            ruleNote: "Grado es derivado → no se incluye en el modelo relacional.",
+            name: "PROFESOR", sourceType: "entity",
+            note: "Grado (derivado) excluido",
             fields: [
-                { name: "CédulaP",    isPK: true,  isFK: false },
-                { name: "Nombre",     isPK: false, isFK: false },
-                { name: "TeléfonoP",  isPK: false, isFK: false },
-                { name: "FechaNac",   isPK: false, isFK: false },
-                { name: "AñoIngreso", isPK: false, isFK: false }
+                { name: "CédulaP",    isPK: true  },
+                { name: "Nombre",     isPK: false },
+                { name: "TeléfonoP",  isPK: false },
+                { name: "FechaNac",   isPK: false },
+                { name: "AñoIngreso", isPK: false }
             ]
         },
         {
-            name: "ASIGNATURA", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "ASIGNATURA", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Código",      isPK: true,  isFK: false },
-                { name: "NombreAsisg", isPK: false, isFK: false }
+                { name: "Código",      isPK: true  },
+                { name: "NombreAsisg", isPK: false }
             ]
         },
         {
-            name: "ALUMNO", ruleLabel: "Entidad (compuesto + derivados excluidos)",
-            ruleNote: "NombreCom se expande en Nom, Ape1, Ape2. Edad (derivado) se excluye.",
+            name: "ALUMNO", sourceType: "entity",
+            note: "NombreCom expandido en Nom+Ape1+Ape2. Edad (derivado) excluido.",
             fields: [
-                { name: "CédulaA",  isPK: true,  isFK: false },
-                { name: "Nom",      isPK: false, isFK: false },
-                { name: "Ape1",     isPK: false, isFK: false },
-                { name: "Ape2",     isPK: false, isFK: false },
-                { name: "Teléfono", isPK: false, isFK: false },
-                { name: "FechaNac", isPK: false, isFK: false }
+                { name: "CédulaA",  isPK: true  },
+                { name: "Nom",      isPK: false },
+                { name: "Ape1",     isPK: false },
+                { name: "Ape2",     isPK: false },
+                { name: "Teléfono", isPK: false },
+                { name: "FechaNac", isPK: false }
             ]
         },
         {
-            name: "LIBRO", ruleLabel: "Entidad + FK de publica",
-            ruleNote: "N:1 con totalidad del lado N → FK CédulaP en LIBRO.",
+            name: "LIBRO", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'publica'",
             fields: [
-                { name: "CódigoL",  isPK: true,  isFK: false },
-                { name: "Titulo",   isPK: false, isFK: false },
-                { name: "Tema",     isPK: false, isFK: false },
-                { name: "Fecha",    isPK: false, isFK: false },
-                { name: "CédulaP",  isPK: false, isFK: true,  fkTo: "PROFESOR" }
+                { name: "CódigoL", isPK: true  },
+                { name: "Titulo",  isPK: false },
+                { name: "Tema",    isPK: false },
+                { name: "Fecha",   isPK: false }
             ]
         },
         {
-            name: "Antecedentes", ruleLabel: "Attr. multivaluado",
-            ruleNote: "Atributo multivaluado → tabla separada con FK al ALUMNO.",
+            name: "Antecedentes", sourceType: "multivalued",
+            note: "Atributo multivaluado de ALUMNO → tabla separada",
             fields: [
                 { name: "CédulaA",      isPK: true, isFK: true,  fkTo: "ALUMNO" },
                 { name: "Antecedentes", isPK: true, isFK: false }
             ]
-        },
+        }
+    ],
+    relations: [
         {
-            name: "dicta", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
-                { name: "CédulaP", isPK: true, isFK: true, fkTo: "PROFESOR" },
+            name: "dicta",
+            cardHint: "PROFESOR N:N ASIGNATURA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "dicta",
+            tableNote: "PK compuesta: CédulaP + Código.",
+            tableFields: [
+                { name: "CédulaP", isPK: true, isFK: true, fkTo: "PROFESOR"   },
                 { name: "Código",  isPK: true, isFK: true, fkTo: "ASIGNATURA" }
             ]
         },
         {
-            name: "cursa", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
-                { name: "CédulaA", isPK: true, isFK: true, fkTo: "ALUMNO" },
+            name: "cursa",
+            cardHint: "ALUMNO N:N ASIGNATURA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "cursa",
+            tableNote: "PK compuesta: CédulaA + Código.",
+            tableFields: [
+                { name: "CédulaA", isPK: true, isFK: true, fkTo: "ALUMNO"     },
                 { name: "Código",  isPK: true, isFK: true, fkTo: "ASIGNATURA" }
             ]
+        },
+        {
+            name: "publica",
+            cardHint: "PROFESOR 1:N LIBRO (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en LIBRO",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "LIBRO",
+                reason: "Cada libro es publicado por un profesor (totalidad) → FK CédulaP en LIBRO",
+                fkFields: [
+                    { name: "CédulaP", isFK: true, fkTo: "PROFESOR" }
+                ]
+            }
         }
     ]
 },
 
 // ── Ejercicio 9: Película ─────────────────────────────────────────────────
 {
-    derivation: [
-        { element: "CLIENTE",        icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: CédulaC" },
-        { element: "EJEMPLAR",       icon: "📋", rule: "Entidad débil → tabla",   note: "PK compuesta: Número + Título (FK → PELICULA)" },
-        { element: "PELICULA",       icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: Título" },
-        { element: "DIRECTOR",       icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: CédulaD" },
-        { element: "ACTOR",          icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: CédulaA" },
-        { element: "tiene (1:N)",    icon: "🔗", rule: "Entidad débil → FK en entidad débil", note: "FK Título en EJEMPLAR (relación de identificación)" },
-        { element: "dirige (N:1)",   icon: "🔗", rule: "N:1 con totalidad → FK",  note: "Cada película tiene un director → FK CédulaD en PELICULA" },
-        { element: "alquila (N:N)",  icon: "🔀", rule: "N:N → tabla intermedia",  note: "Tabla: alquila con atributos de la relación" },
-        { element: "participa (N:N)",icon: "🔀", rule: "N:N → tabla intermedia",  note: "Tabla: participa" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "CLIENTE", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "CLIENTE", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "CédulaC",  isPK: true,  isFK: false },
-                { name: "NombreC",  isPK: false, isFK: false },
-                { name: "Dirección",isPK: false, isFK: false },
-                { name: "Teléfono", isPK: false, isFK: false }
+                { name: "CédulaC",   isPK: true  },
+                { name: "NombreC",   isPK: false },
+                { name: "Dirección", isPK: false },
+                { name: "Teléfono",  isPK: false }
             ]
         },
         {
-            name: "PELICULA", ruleLabel: "Entidad + FK de dirige",
-            ruleNote: "Cada película tiene un director (totalidad del lado N) → FK CédulaD en PELICULA.",
+            name: "PELICULA", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'dirige'",
             fields: [
-                { name: "Título",       isPK: true,  isFK: false },
-                { name: "Productora",   isPK: false, isFK: false },
-                { name: "Fecha",        isPK: false, isFK: false },
-                { name: "NacionalidadP",isPK: false, isFK: false },
-                { name: "CédulaD",      isPK: false, isFK: true,  fkTo: "DIRECTOR" }
+                { name: "Título",        isPK: true  },
+                { name: "Productora",    isPK: false },
+                { name: "Fecha",         isPK: false },
+                { name: "NacionalidadP", isPK: false }
             ]
         },
         {
-            name: "EJEMPLAR", ruleLabel: "Entidad débil",
-            ruleNote: "Entidad débil: PK compuesta incluye la clave de la entidad dominante.",
+            name: "EJEMPLAR", sourceType: "weak",
+            note: "Entidad débil de PELICULA — PK compuesta incluye FK a entidad dominante",
             fields: [
                 { name: "Número", isPK: true,  isFK: false },
                 { name: "Título", isPK: true,  isFK: true,  fkTo: "PELICULA" },
@@ -488,40 +531,63 @@ const tablesData = [
             ]
         },
         {
-            name: "DIRECTOR", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "DIRECTOR", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "CédulaD",     isPK: true,  isFK: false },
-                { name: "NombreD",     isPK: false, isFK: false },
-                { name: "NacionalidadD",isPK: false, isFK: false }
+                { name: "CédulaD",      isPK: true  },
+                { name: "NombreD",      isPK: false },
+                { name: "NacionalidadD",isPK: false }
             ]
         },
         {
-            name: "ACTOR", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "ACTOR", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "CédulaA",      isPK: true,  isFK: false },
-                { name: "Principal",    isPK: false, isFK: false },
-                { name: "Sexo",         isPK: false, isFK: false },
-                { name: "NacionalidadA",isPK: false, isFK: false },
-                { name: "NombreA",      isPK: false, isFK: false }
+                { name: "CédulaA",       isPK: true  },
+                { name: "Principal",     isPK: false },
+                { name: "Sexo",          isPK: false },
+                { name: "NacionalidadA", isPK: false },
+                { name: "NombreA",       isPK: false }
+            ]
+        }
+    ],
+    relations: [
+        {
+            name: "dirige",
+            cardHint: "PELÍCULA N:1 DIRECTOR (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en PELICULA",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "PELICULA",
+                reason: "Toda película tiene un director (totalidad) → FK CédulaD en PELICULA",
+                fkFields: [
+                    { name: "CédulaD", isFK: true, fkTo: "DIRECTOR" }
+                ]
+            }
+        },
+        {
+            name: "alquila",
+            cardHint: "CLIENTE N:N EJEMPLAR",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "alquila",
+            tableNote: "PK compuesta: CédulaC + Número. Incluye fechas de la relación.",
+            tableFields: [
+                { name: "CédulaC",         isPK: true,  isFK: true,  fkTo: "CLIENTE"  },
+                { name: "Número",           isPK: true,  isFK: true,  fkTo: "EJEMPLAR" },
+                { name: "FechaComienzo",    isPK: false, isFK: false },
+                { name: "FechaDevolución",  isPK: false, isFK: false }
             ]
         },
         {
-            name: "alquila", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia. Atributos propios de la relación incluidos.",
-            fields: [
-                { name: "CédulaC",       isPK: true,  isFK: true,  fkTo: "CLIENTE" },
-                { name: "Número",        isPK: true,  isFK: true,  fkTo: "EJEMPLAR" },
-                { name: "FechaComienzo", isPK: false, isFK: false },
-                { name: "FechaDevolución",isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "participa", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
-                { name: "CédulaA", isPK: true, isFK: true, fkTo: "ACTOR" },
+            name: "participa",
+            cardHint: "ACTOR N:N PELICULA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "participa",
+            tableNote: "PK compuesta: CédulaA + Título.",
+            tableFields: [
+                { name: "CédulaA", isPK: true, isFK: true, fkTo: "ACTOR"    },
                 { name: "Título",  isPK: true, isFK: true, fkTo: "PELICULA" }
             ]
         }
@@ -530,51 +596,55 @@ const tablesData = [
 
 // ── Ejercicio 10: Fútbol ──────────────────────────────────────────────────
 {
-    derivation: [
-        { element: "CLUB",           icon: "📋", rule: "Entidad → tabla",             note: "Tabla con PK: Nombre" },
-        { element: "JUGADOR",        icon: "📋", rule: "Entidad → tabla",             note: "Tabla con PK: Ced" },
-        { element: "juega_en (N:N)", icon: "🔀", rule: "N:N → tabla intermedia",      note: "Tabla: juega_en" },
-        { element: "juega_con (N:N autorreferencial)", icon: "🔀", rule: "N:N autorelación → tabla con roles", note: "Los roles distinguen locatario/visitante. Ambas FK referencian a CLUB." }
+    entityTables: [
+        {
+            name: "CLUB", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Nombre",        isPK: true  },
+                { name: "AñoFundación",  isPK: false },
+                { name: "Ubicación",     isPK: false },
+                { name: "Entrenador",    isPK: false },
+                { name: "Presidente",    isPK: false },
+                { name: "Estadio",       isPK: false }
+            ]
+        },
+        {
+            name: "JUGADOR", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Ced",          isPK: true  },
+                { name: "Nacionalidad", isPK: false },
+                { name: "Estatura",     isPK: false },
+                { name: "Apodo",        isPK: false },
+                { name: "Nombre",       isPK: false },
+                { name: "FechaNac",     isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "CLUB", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Nombre",       isPK: true,  isFK: false },
-                { name: "AñoFundación", isPK: false, isFK: false },
-                { name: "Ubicación",    isPK: false, isFK: false },
-                { name: "Entrenador",   isPK: false, isFK: false },
-                { name: "Presidente",   isPK: false, isFK: false },
-                { name: "Estadio",      isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "JUGADOR", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Ced",          isPK: true,  isFK: false },
-                { name: "Nacionalidad", isPK: false, isFK: false },
-                { name: "Estatura",     isPK: false, isFK: false },
-                { name: "Apodo",        isPK: false, isFK: false },
-                { name: "Nombre",       isPK: false, isFK: false },
-                { name: "FechaNac",     isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "juega_en", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
-                { name: "Nombre", isPK: true, isFK: true, fkTo: "CLUB" },
+            name: "juega_en",
+            cardHint: "JUGADOR N:N CLUB",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "juega_en",
+            tableNote: "PK compuesta: Nombre (FK→CLUB) + Ced (FK→JUGADOR).",
+            tableFields: [
+                { name: "Nombre", isPK: true, isFK: true, fkTo: "CLUB"    },
                 { name: "Ced",    isPK: true, isFK: true, fkTo: "JUGADOR" }
             ]
         },
         {
-            name: "juega_con", ruleLabel: "Autorelación N:N",
-            ruleNote: "Autorelación N:N: ambas FK referencian a la misma entidad. Los roles diferencian los campos.",
-            fields: [
-                { name: "Nombre_locatario", isPK: true,  isFK: true,  fkTo: "CLUB" },
-                { name: "Nombre_visitante", isPK: true,  isFK: true,  fkTo: "CLUB" },
+            name: "juega_con",
+            cardHint: "CLUB N:N CLUB (autorelación)",
+            ruleHint: "N:N autorelación → tabla con roles para distinguir cada extremo",
+            generatesTable: true,
+            tableName: "juega_con",
+            tableNote: "PK compuesta con roles: Nombre_locatario + Nombre_visitante (ambas FK→CLUB). Incluye atributos.",
+            tableFields: [
+                { name: "Nombre_locatario", isPK: true,  isFK: true,  fkTo: "CLUB", fkRefField: "Nombre" },
+                { name: "Nombre_visitante", isPK: true,  isFK: true,  fkTo: "CLUB", fkRefField: "Nombre" },
                 { name: "Fecha",            isPK: false, isFK: false },
                 { name: "Resultado",        isPK: false, isFK: false }
             ]
@@ -584,46 +654,57 @@ const tablesData = [
 
 // ── Ejercicio 11: Música ──────────────────────────────────────────────────
 {
-    derivation: [
-        { element: "ARTISTA",       icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: Nombre" },
-        { element: "ALBUM",         icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: TítuloA" },
-        { element: "TEMA",          icon: "📋", rule: "Entidad → tabla",         note: "Tabla con PK: TítuloT" },
-        { element: "contiene (1:N)",icon: "🔗", rule: "N:1 con totalidad → FK",  note: "Cada tema pertenece a un álbum → FK TítuloA en TEMA" },
-        { element: "compone (N:N)", icon: "🔀", rule: "N:N → tabla intermedia",  note: "Tabla: compone" }
+    entityTables: [
+        {
+            name: "ARTISTA", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "Nombre",       isPK: true  },
+                { name: "Nacionalidad", isPK: false },
+                { name: "Fotografía",   isPK: false }
+            ]
+        },
+        {
+            name: "ALBUM", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "TítuloA", isPK: true  },
+                { name: "Género",  isPK: false }
+            ]
+        },
+        {
+            name: "TEMA", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FK de la relación 'contiene'",
+            fields: [
+                { name: "TítuloT",  isPK: true  },
+                { name: "Duración", isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "ARTISTA", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "Nombre",       isPK: true,  isFK: false },
-                { name: "Nacionalidad", isPK: false, isFK: false },
-                { name: "Fotografía",   isPK: false, isFK: false }
-            ]
+            name: "contiene",
+            cardHint: "ALBUM 1:N TEMA (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en TEMA",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "TEMA",
+                reason: "Cada tema pertenece a un álbum (totalidad) → FK TítuloA en TEMA",
+                fkFields: [
+                    { name: "TítuloA", isFK: true, fkTo: "ALBUM" }
+                ]
+            }
         },
         {
-            name: "ALBUM", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "TítuloA", isPK: true,  isFK: false },
-                { name: "Género",  isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "TEMA", ruleLabel: "Entidad + FK de contiene",
-            ruleNote: "N:1 con totalidad del lado N → FK TítuloA en TEMA.",
-            fields: [
-                { name: "TítuloT",  isPK: true,  isFK: false },
-                { name: "Duración", isPK: false, isFK: false },
-                { name: "TítuloA",  isPK: false, isFK: true, fkTo: "ALBUM" }
-            ]
-        },
-        {
-            name: "compone", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
+            name: "compone",
+            cardHint: "ARTISTA N:N ALBUM",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "compone",
+            tableNote: "PK compuesta: Nombre (FK→ARTISTA) + TítuloA (FK→ALBUM).",
+            tableFields: [
                 { name: "Nombre",  isPK: true, isFK: true, fkTo: "ARTISTA" },
-                { name: "TítuloA", isPK: true, isFK: true, fkTo: "ALBUM" }
+                { name: "TítuloA", isPK: true, isFK: true, fkTo: "ALBUM"   }
             ]
         }
     ]
@@ -631,58 +712,57 @@ const tablesData = [
 
 // ── Ejercicio 12: Biblioteca2 ─────────────────────────────────────────────
 {
-    derivation: [
-        { element: "SOCIO",          icon: "📋", rule: "Entidad → tabla (compuesto expandido)", note: "NomCompleto → Nom + Ape1 + Ape2" },
-        { element: "LIBRO",          icon: "📋", rule: "Entidad → tabla",                       note: "Tabla con PK: Código" },
-        { element: "Autor (mv.)",    icon: "📋", rule: "Atrib. multivaluado → tabla",           note: "Tabla separada con FK → LIBRO" },
-        { element: "EJEMPLAR",       icon: "📋", rule: "Entidad débil → tabla",                 note: "PK compuesta: Número + Código (FK → LIBRO)" },
-        { element: "prestar (N:N)",  icon: "🔀", rule: "N:N → tabla intermedia",                note: "Tabla con atributos de la relación" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "SOCIO", ruleLabel: "Entidad (compuesto expandido)",
-            ruleNote: "NomCompleto se expande en sus subatributos: Nom, Ape1, Ape2.",
+            name: "SOCIO", sourceType: "entity",
+            note: "NomCompleto expandido en Nom+Ape1+Ape2",
             fields: [
-                { name: "CI",        isPK: true,  isFK: false },
-                { name: "Celular",   isPK: false, isFK: false },
-                { name: "Nom",       isPK: false, isFK: false },
-                { name: "Ape1",      isPK: false, isFK: false },
-                { name: "Ape2",      isPK: false, isFK: false },
-                { name: "Dirección", isPK: false, isFK: false }
+                { name: "CI",        isPK: true  },
+                { name: "Celular",   isPK: false },
+                { name: "Nom",       isPK: false },
+                { name: "Ape1",      isPK: false },
+                { name: "Ape2",      isPK: false },
+                { name: "Dirección", isPK: false }
             ]
         },
         {
-            name: "LIBRO", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "LIBRO", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Código", isPK: true,  isFK: false },
-                { name: "Titulo", isPK: false, isFK: false },
-                { name: "Año",    isPK: false, isFK: false }
+                { name: "Código", isPK: true  },
+                { name: "Titulo", isPK: false },
+                { name: "Año",    isPK: false }
             ]
         },
         {
-            name: "Autor", ruleLabel: "Attr. multivaluado",
-            ruleNote: "Atributo multivaluado → tabla separada. PK compuesta: (Código + Autor).",
+            name: "Autor", sourceType: "multivalued",
+            note: "Atributo multivaluado de LIBRO → tabla separada con PK compuesta",
             fields: [
                 { name: "Código", isPK: true, isFK: true,  fkTo: "LIBRO" },
                 { name: "Autor",  isPK: true, isFK: false }
             ]
         },
         {
-            name: "EJEMPLAR", ruleLabel: "Entidad débil",
-            ruleNote: "Entidad débil: PK compuesta incluye la clave de la entidad dominante (LIBRO).",
+            name: "EJEMPLAR", sourceType: "weak",
+            note: "Entidad débil de LIBRO — PK compuesta incluye FK a LIBRO",
             fields: [
-                { name: "Número", isPK: true,  isFK: false },
-                { name: "Código", isPK: true,  isFK: true,  fkTo: "LIBRO" }
+                { name: "Número", isPK: true, isFK: false },
+                { name: "Código", isPK: true, isFK: true,  fkTo: "LIBRO" }
             ]
-        },
+        }
+    ],
+    relations: [
         {
-            name: "prestar", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia. PK referencia a SOCIO y al EJEMPLAR (que a su vez referencia a LIBRO).",
-            fields: [
-                { name: "CI",     isPK: true,  isFK: true,  fkTo: "SOCIO" },
+            name: "prestar",
+            cardHint: "SOCIO N:N EJEMPLAR",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "prestar",
+            tableNote: "PK compuesta: CI + Número + Código. Los tres forman la identidad del préstamo.",
+            tableFields: [
+                { name: "CI",     isPK: true,  isFK: true,  fkTo: "SOCIO"    },
                 { name: "Número", isPK: true,  isFK: true,  fkTo: "EJEMPLAR" },
-                { name: "Código", isPK: true,  isFK: true,  fkTo: "LIBRO" },
+                { name: "Código", isPK: true,  isFK: true,  fkTo: "LIBRO"    },
                 { name: "FechaI", isPK: false, isFK: false },
                 { name: "FechaF", isPK: false, isFK: false },
                 { name: "FechaD", isPK: false, isFK: false }
@@ -693,54 +773,57 @@ const tablesData = [
 
 // ── Ejercicio 13: Almacén de Piezas ──────────────────────────────────────
 {
-    derivation: [
-        { element: "PIEZA",               icon: "📋", rule: "Entidad → tabla",              note: "Tabla con PK: ID_Pieza" },
-        { element: "ALMACÉN",             icon: "📋", rule: "Entidad → tabla",              note: "Tabla con PK: Nro" },
-        { element: "ESTANTERÍA",          icon: "📋", rule: "Entidad débil → tabla",        note: "PK compuesta: ID_Est + Nro (FK → ALMACÉN)" },
-        { element: "vende (N:N)",         icon: "🔀", rule: "N:N → tabla intermedia",       note: "Tabla: vende" },
-        { element: "compuesta_por (N:N)", icon: "🔀", rule: "N:N autorelación → tabla",    note: "Ambas FK referencian PIEZA con roles distintos" }
-    ],
-    tables: [
+    entityTables: [
         {
-            name: "PIEZA", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "PIEZA", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "ID_Pieza",    isPK: true,  isFK: false },
-                { name: "DescripciónP",isPK: false, isFK: false },
-                { name: "Precio",      isPK: false, isFK: false }
+                { name: "ID_Pieza",     isPK: true  },
+                { name: "DescripciónP", isPK: false },
+                { name: "Precio",       isPK: false }
             ]
         },
         {
-            name: "ALMACÉN", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
+            name: "ALMACÉN", sourceType: "entity",
+            note: "Entidad fuerte",
             fields: [
-                { name: "Nro",         isPK: true,  isFK: false },
-                { name: "DescripciónA",isPK: false, isFK: false },
-                { name: "Dirección",   isPK: false, isFK: false }
+                { name: "Nro",          isPK: true  },
+                { name: "DescripciónA", isPK: false },
+                { name: "Dirección",    isPK: false }
             ]
         },
         {
-            name: "ESTANTERÍA", ruleLabel: "Entidad débil",
-            ruleNote: "Entidad débil: su existencia depende del almacén al que pertenece.",
+            name: "ESTANTERÍA", sourceType: "weak",
+            note: "Entidad débil de ALMACÉN — PK compuesta incluye FK a ALMACÉN",
             fields: [
                 { name: "ID_Est", isPK: true, isFK: false },
-                { name: "Nro",    isPK: true, isFK: true, fkTo: "ALMACÉN" }
+                { name: "Nro",    isPK: true, isFK: true,  fkTo: "ALMACÉN" }
             ]
-        },
+        }
+    ],
+    relations: [
         {
-            name: "vende", ruleLabel: "Rel. N:N",
-            ruleNote: "N:N → tabla intermedia con PK compuesta.",
-            fields: [
-                { name: "ID_Pieza", isPK: true, isFK: true, fkTo: "PIEZA" },
+            name: "vende",
+            cardHint: "ALMACÉN N:N PIEZA",
+            ruleHint: "N:N → siempre genera tabla intermedia",
+            generatesTable: true,
+            tableName: "vende",
+            tableNote: "PK compuesta: ID_Pieza (FK→PIEZA) + Nro (FK→ALMACÉN).",
+            tableFields: [
+                { name: "ID_Pieza", isPK: true, isFK: true, fkTo: "PIEZA"   },
                 { name: "Nro",      isPK: true, isFK: true, fkTo: "ALMACÉN" }
             ]
         },
         {
-            name: "compuesta_por", ruleLabel: "Autorelación N:N",
-            ruleNote: "Autorelación N:N: ambas FK referencian a PIEZA pero con roles distintos (componente / compuesto).",
-            fields: [
-                { name: "ID_Pieza_componente", isPK: true, isFK: true, fkTo: "PIEZA" },
-                { name: "ID_Pieza_compuesto",  isPK: true, isFK: true, fkTo: "PIEZA" }
+            name: "compuesta_por",
+            cardHint: "PIEZA N:N PIEZA (autorelación)",
+            ruleHint: "N:N autorelación → tabla con roles para distinguir componente y compuesto",
+            generatesTable: true,
+            tableName: "compuesta_por",
+            tableNote: "Ambas FK referencian PIEZA con roles distintos (componente / compuesto).",
+            tableFields: [
+                { name: "ID_Pieza_componente", isPK: true, isFK: true, fkTo: "PIEZA", fkRefField: "ID_Pieza" },
+                { name: "ID_Pieza_compuesto",  isPK: true, isFK: true, fkTo: "PIEZA", fkRefField: "ID_Pieza" }
             ]
         }
     ]
@@ -748,40 +831,59 @@ const tablesData = [
 
 // ── Ejercicio 14: Instituto ───────────────────────────────────────────────
 {
-    derivation: [
-        { element: "DOCENTE",         icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: CI_Doc" },
-        { element: "DIRECTOR",        icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: CI_Dir" },
-        { element: "CURSO",           icon: "📋", rule: "Entidad → tabla",          note: "Tabla con PK: Código" },
-        { element: "dicta (N:1)",     icon: "🔗", rule: "N:1 con totalidad → FK",   note: "Cada curso es dictado por un docente → FK CI_Doc en CURSO" },
-        { element: "supervisa (agr.)",icon: "🔗", rule: "Agregación N:1 totalidad → FK", note: "El director supervisa el dictado de cursos → FK CI_Dir en CURSO (la agregación se trata como entidad)" }
+    entityTables: [
+        {
+            name: "DOCENTE", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "CI_Doc",      isPK: true  },
+                { name: "Nom_Docente", isPK: false }
+            ]
+        },
+        {
+            name: "DIRECTOR", sourceType: "entity",
+            note: "Entidad fuerte",
+            fields: [
+                { name: "CI_Dir",       isPK: true  },
+                { name: "Nom_Director", isPK: false },
+                { name: "Teléfono",     isPK: false }
+            ]
+        },
+        {
+            name: "CURSO", sourceType: "entity",
+            note: "Entidad fuerte — recibirá FKs de 'dicta' y 'supervisa'",
+            fields: [
+                { name: "Código",    isPK: true  },
+                { name: "Nom_Curso", isPK: false }
+            ]
+        }
     ],
-    tables: [
+    relations: [
         {
-            name: "DOCENTE", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "CI_Doc",     isPK: true,  isFK: false },
-                { name: "Nom_Docente",isPK: false, isFK: false }
-            ]
+            name: "dicta",
+            cardHint: "CURSO N:1 DOCENTE (con totalidad, agregación)",
+            ruleHint: "Agregación con totalidad → la FK se incorpora en la tabla del lado N",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "CURSO",
+                reason: "Todo curso es dictado por un docente (totalidad) → FK CI_Doc en CURSO",
+                fkFields: [
+                    { name: "CI_Doc", isFK: true, fkTo: "DOCENTE" }
+                ]
+            }
         },
         {
-            name: "DIRECTOR", ruleLabel: "Entidad",
-            ruleNote: "Cada entidad se transforma en una tabla.",
-            fields: [
-                { name: "CI_Dir",      isPK: true,  isFK: false },
-                { name: "Nom_Director",isPK: false, isFK: false },
-                { name: "Teléfono",    isPK: false, isFK: false }
-            ]
-        },
-        {
-            name: "CURSO", ruleLabel: "Entidad + FKs de dicta y supervisa",
-            ruleNote: "N:1 con totalidad (dicta) → FK CI_Doc. Agregación N:1 (supervisa) → FK CI_Dir. Ambas se incorporan en CURSO.",
-            fields: [
-                { name: "Código",    isPK: true,  isFK: false },
-                { name: "Nom_Curso", isPK: false, isFK: false },
-                { name: "CI_Doc",    isPK: false, isFK: true,  fkTo: "DOCENTE" },
-                { name: "CI_Dir",    isPK: false, isFK: true,  fkTo: "DIRECTOR" }
-            ]
+            name: "supervisa",
+            cardHint: "CURSO N:1 DIRECTOR (con totalidad)",
+            ruleHint: "Con totalidad del lado N → FK en CURSO",
+            generatesTable: false,
+            fkPlacement: {
+                targetTable: "CURSO",
+                reason: "Todo curso es supervisado por un director (totalidad) → FK CI_Dir en CURSO",
+                fkFields: [
+                    { name: "CI_Dir", isFK: true, fkTo: "DIRECTOR" }
+                ]
+            }
         }
     ]
 }

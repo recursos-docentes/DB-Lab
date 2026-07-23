@@ -1,878 +1,917 @@
-// tables.js — Pestaña "Pasaje a Tablas" v3 — Flujo guiado con selección de reglas
-// Diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude — CC BY-SA 4.0
+// tables.js — Lógica interactiva "Pasaje a tablas" para DB-Lab v3
+// renderTablesPanel(exerciseIdx) es llamado desde analysis.js cuando se entra al tab
+// Licencia CC BY-SA 4.0 — Diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude
 
-// ── Reglas del Modelo Relacional (mostradas todas al alumno) ─────────────────
+// ── Reglas relacionales (5 opciones que el estudiante debe elegir) ────────────
 const REL_RULES = [
-    { id:'nn',        text:'N:N → tabla intermedia con PK compuesta (FKs de ambas entidades)',       generatesTable:true  },
-    { id:'1n_total',  text:'1:N con totalidad del lado N → FK en tabla del lado N, sin nueva tabla', generatesTable:false },
-    { id:'1n_sintot', text:'1:N sin totalidad → nueva tabla (PK = clave del lado N)',                generatesTable:true  },
-    { id:'auto_nn',   text:'Autorelación N:N → tabla intermedia con roles distintos para cada FK',   generatesTable:true  },
-    { id:'agg_total', text:'Agregación con totalidad → FK en la tabla del lado N de la agregación',  generatesTable:false },
+    {
+        id: 'nn',
+        text: 'N:N → tabla intermedia con PK compuesta (FKs de ambas entidades)',
+        generatesTable: true,
+        icon: '⊗'
+    },
+    {
+        id: '1n_total',
+        text: '1:N con totalidad del lado N → FK en la tabla del lado N (sin nueva tabla)',
+        generatesTable: false,
+        icon: '→'
+    },
+    {
+        id: '1n_sintot',
+        text: '1:N sin totalidad → nueva tabla (PK = clave del lado N)',
+        generatesTable: true,
+        icon: '⊕'
+    },
+    {
+        id: 'auto_nn',
+        text: 'Autorelación N:N → tabla intermedia con dos roles distintos para la misma entidad',
+        generatesTable: true,
+        icon: '↺'
+    },
+    {
+        id: 'agg_total',
+        text: 'Agregación con totalidad → FK en la tabla del lado N de la agregación',
+        generatesTable: false,
+        icon: '◈'
+    }
 ];
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ESTADO GLOBAL
-// ══════════════════════════════════════════════════════════════════════════════
+// ── Estado de la sesión de tablas ─────────────────────────────────────────────
+let _tabExIdx    = -1;   // índice del ejercicio activo
+let _tabData     = null; // tablesData[exerciseIdx]
+let _tabPhase    = 0;    // 0=entidades 1=relaciones 2=completo
+let _tabRelIdx   = 0;    // índice de relación actual (fase 1)
+let _tabRelPhase = 0;    // 0=selección regla, 1=completar tabla/FK
+let _tabEntSlots = {};   // clave "ti_fi" → valor ingresado
+let _tabRelSlots = {};   // clave "ri_fi" → valor ingresado
+let _tabFKAdd    = {};   // {tableName: [{name,fkTo}]} FKs acumuladas de relaciones sin tabla
+let _tabRelDone  = [];   // booleano por relación: ¿fue completada correctamente?
 
-let tabPhase        = 'entities';
-let tabExIdx        = 0;
+// ── Punto de entrada principal ────────────────────────────────────────────────
+function renderTablesPanel(exerciseIdx) {
+    const container = document.getElementById('stage-tables');
+    if (!container) return;
 
-// — Fase entidades —
-let tabEntWB        = [];
-let tabEntSlots     = {};
-let tabEntSelWB     = null;
-let tabEntAttempts  = 0;
-let tabEntRevealed  = false;
-
-// — Fase relaciones —
-let tabRelIdx       = 0;
-let tabRuleAttempts = 0;
-let tabRelWB        = [];
-let tabRelSlots     = {};
-let tabRelSelWB     = null;
-let tabRelAttempts  = 0;
-let tabRelRevealed  = false;
-let tabFKAttempts   = 0;
-
-// — FK acumuladas de relaciones que NO generan tabla —
-let tabFKAdditions  = {};
-
-// — Imagen MER —
-let tabMerImageUrl  = null;
-
-// ══════════════════════════════════════════════════════════════════════════════
-// PUNTO DE ENTRADA
-// ══════════════════════════════════════════════════════════════════════════════
-
-function renderTablesPanel(exIdx) {
-    const data  = (typeof tablesData !== 'undefined') ? tablesData[exIdx] : null;
-    const stage = document.getElementById('stage-tables');
-    if (!stage) return;
-
-    if (!data) {
-        stage.innerHTML = `<div class="flex flex-col items-center justify-center gap-4 p-10 text-center">
-          <span style="font-size:3rem">📊</span>
-          <h2 class="text-xl font-extrabold text-white">Pasaje a Tablas</h2>
-          <p class="text-slate-400 text-sm max-w-xs">Este ejercicio no tiene datos de pasaje a tablas disponibles.</p>
-        </div>`;
-        return;
-    }
-
-    tabPhase       = 'entities';
-    tabExIdx       = exIdx;
-    tabEntWB       = [];
-    tabEntSlots    = {};
-    tabEntSelWB    = null;
-    tabEntAttempts = 0;
-    tabEntRevealed = false;
-    tabRelIdx      = 0;
-    tabRuleAttempts = 0;
-    tabFKAdditions = {};
-
-    data.entityTables.forEach((tbl, ti) => {
-        tbl.fields.forEach((fld, fi) => {
-            tabEntWB.push({ word: fld.name, used: false });
-            tabEntSlots[`${ti}_${fi}`] = null;
-        });
-    });
-    _tabShuffle(tabEntWB);
-
-    stage.innerHTML = _buildShellHTML(data, exIdx);
-    _renderEntityPhase(data);
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// SHELL HTML
-// ══════════════════════════════════════════════════════════════════════════════
-
-function _buildShellHTML(data, exIdx) {
-    const title = (typeof exercises !== 'undefined' && exercises[exIdx])
-        ? exercises[exIdx].title : 'Pasaje a Tablas';
-    return `
-<div class="flex flex-col gap-0 w-full max-w-[1600px] mx-auto pb-10" id="tab-root">
-
-  <div class="flex items-center justify-between flex-wrap gap-2 px-4 py-3 bg-slate-900/70 border-b border-slate-800 sticky top-0 z-10">
-    <div>
-      <h2 class="text-sm font-extrabold text-white">${title} — Pasaje a Tablas</h2>
-      <p id="tab-phase-label" class="text-[10px] text-slate-500 mt-0.5">Fase 1: Entidades</p>
-    </div>
-    <div class="flex gap-2 flex-wrap">
-      <label class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition cursor-pointer" title="Subir imagen PNG/JPG del MER">
-        🖼️ Imagen MER
-        <input type="file" accept="image/png,image/jpeg,image/gif,image/webp,.png,.jpg,.jpeg,.gif" class="hidden" onchange="handleMerImage(this)">
-      </label>
-      <button onclick="exportTablesProgress()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition" title="Guardar progreso como JSON">💾 Guardar JSON</button>
-      <label class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition cursor-pointer" title="Cargar progreso desde archivo JSON">
-        📂 Cargar JSON
-        <input type="file" accept=".json,application/json" class="hidden" onchange="importTablesProgress(this)">
-      </label>
-      <button onclick="renderTablesPanel(tabExIdx)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-semibold rounded-lg transition" title="Reiniciar todo">🔄 Reiniciar</button>
-    </div>
-  </div>
-
-  <div id="tab-img-wrap" class="hidden px-4 pt-3">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-2 flex items-start gap-2">
-      <img id="tab-mer-img" src="" alt="MER" class="max-h-64 rounded-lg object-contain flex-1 w-0">
-      <button onclick="document.getElementById('tab-img-wrap').classList.add('hidden')"
-              class="text-slate-500 hover:text-white text-xs leading-none mt-0.5 flex-shrink-0">✕</button>
-    </div>
-  </div>
-
-  <div id="tab-phase-content" class="px-4 pt-4"></div>
-  <div id="tab-feedback" class="hidden mx-4 mt-3 rounded-xl border p-3 text-sm"></div>
-</div>`;
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// FASE 1: ENTIDADES
-// ══════════════════════════════════════════════════════════════════════════════
-
-function _renderEntityPhase(data) {
-    document.getElementById('tab-phase-label').textContent = 'Fase 1 de 2: Entidades → Tablas';
-    document.getElementById('tab-feedback')?.classList.add('hidden');
-
-    const grid = data.entityTables.map((tbl, ti) => {
-        const srcLabel = { entity:'Entidad', weak:'Entidad débil', isa:'ISA', multivalued:'Multivaluado' }[tbl.sourceType] || 'Entidad';
-        const pkCount  = tbl.fields.filter(f => f.isPK).length;
-        const rows = tbl.fields.map((fld, fi) => {
-            const icon = fld.isPK ? '🔑' : fld.isFK ? '🔗' : '·';
-            const hint = fld.isPK && fld.isFK ? 'PK·FK' : fld.isPK ? 'PK' : fld.isFK ? 'FK' : '';
-            return `<div class="flex items-center gap-1.5 px-3 py-1.5 border-b border-slate-800/60 cursor-pointer hover:bg-slate-800/40" onclick="clickEntSlot(${ti},${fi})">
-              <span class="text-xs w-4 text-center">${icon}</span>
-              <span id="eslot-${ti}-${fi}" class="font-mono text-xs flex-1 text-slate-600 italic">▢</span>
-              <span class="text-[9px] text-slate-600 font-mono">${hint}</span>
+    if (!window.tablesData || !window.tablesData[exerciseIdx]) {
+        container.innerHTML = `
+            <div class="flex items-center justify-center flex-1 p-8">
+                <div class="text-center">
+                    <span class="text-5xl block mb-4">📊</span>
+                    <p class="text-slate-400 text-sm">No hay datos de pasaje a tablas para este ejercicio.</p>
+                </div>
             </div>`;
-        }).join('');
-        return `<div class="bg-slate-900/80 border border-slate-700 rounded-xl overflow-hidden">
-  <div class="px-3 py-2 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between gap-2">
-    <span class="font-mono font-bold text-white text-sm">${tbl.name}</span>
-    <span class="text-[9px] font-bold text-indigo-300 bg-indigo-900/40 border border-indigo-700/40 px-1.5 py-0.5 rounded-full">${srcLabel}</span>
-  </div>
-  <p class="text-[9px] text-slate-500 px-3 pt-1.5 pb-0.5 leading-tight">${tbl.note}</p>
-  <div class="border-t border-slate-800 mt-1">
-    <div class="grid grid-cols-[20px_1fr_auto] text-[9px] font-bold text-slate-700 uppercase tracking-wide px-3 py-1 bg-slate-800/40">
-      <span></span><span>Campo</span><span>Tipo</span>
-    </div>${rows}
-  </div>
-</div>`;
-    }).join('');
-
-    document.getElementById('tab-phase-content').innerHTML = `
-<div class="flex flex-col gap-3">
-  <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Banco de campos</p>
-    <div id="tab-ent-wb" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
-  </div>
-  <p class="text-xs text-slate-500">Seleccionar un campo y hacer clic en el slot. 🔑 PK va siempre primero; el resto en cualquier orden.</p>
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">${grid}</div>
-  <div class="flex gap-2 pt-1">
-    <button onclick="validateEntities()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition">✔ Verificar entidades</button>
-  </div>
-</div>`;
-
-    _refreshEntWB();
-}
-
-function _refreshEntWB() {
-    const el = document.getElementById('tab-ent-wb');
-    if (!el) return;
-    if (tabEntWB.every(w => w.used)) {
-        el.innerHTML = '<span class="text-slate-500 text-xs italic">Todos los campos asignados.</span>';
         return;
     }
-    el.innerHTML = tabEntWB.map((item, idx) => {
-        if (item.used) return `<span class="px-2 py-0.5 rounded-md text-xs text-slate-700 line-through">${item.word}</span>`;
-        const sel = tabEntSelWB === idx;
-        return `<button onclick="selectEntWord(${idx})" class="px-2.5 py-0.5 rounded-md text-xs font-semibold border transition
-            ${sel ? 'bg-yellow-400 text-slate-900 border-yellow-300 ring-2 ring-yellow-300'
-                  : 'bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600'}">${item.word}</button>`;
-    }).join('');
+
+    _tabExIdx    = exerciseIdx;
+    _tabData     = window.tablesData[exerciseIdx];
+    _tabPhase    = 0;
+    _tabRelIdx   = 0;
+    _tabRelPhase = 0;
+    _tabEntSlots = {};
+    _tabRelSlots = {};
+    _tabFKAdd    = {};
+    _tabRelDone  = _tabData.relations.map(() => false);
+
+    _renderTablesShell(container);
+    _renderPhase();
 }
 
-function selectEntWord(idx) {
-    if (tabEntRevealed || tabEntWB[idx]?.used) return;
-    tabEntSelWB = (tabEntSelWB === idx) ? null : idx;
-    _refreshEntWB();
-    _refreshEntSlots();
+// ── Shell permanente (barra superior + área de contenido) ─────────────────────
+function _renderTablesShell(container) {
+    container.innerHTML = `
+    <div class="flex flex-col flex-1 w-full max-w-[1400px] mx-auto p-4 gap-4" style="min-height:640px;">
+
+        <!-- Barra superior -->
+        <div class="no-print flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-2xl px-5 py-3">
+            <span class="text-indigo-300 font-extrabold text-sm">📊 Pasaje a tablas</span>
+            <span id="tab-ex-title" class="text-slate-400 text-xs">— ${_tabData.title}</span>
+            <div class="ml-auto flex items-center gap-2">
+                <!-- Imagen de referencia MER -->
+                <button onclick="_tabToggleMerPanel()" id="btn-show-mer"
+                    class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-semibold transition flex items-center gap-1.5">
+                    🖼️ Ver MER
+                </button>
+                <!-- Guardar / cargar sesión -->
+                <button onclick="_tabSaveJSON()" title="Guardar progreso"
+                    class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-semibold transition">
+                    💾 Guardar
+                </button>
+                <label title="Cargar progreso guardado"
+                    class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-semibold transition cursor-pointer">
+                    📂 Cargar
+                    <input type="file" accept=".json" class="hidden" onchange="_tabLoadJSON(event)">
+                </label>
+                <!-- Exportar PDF -->
+                <button onclick="_tabExportPDF()" title="Exportar como PDF"
+                    class="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 border border-indigo-600 rounded-lg text-xs text-white font-semibold transition flex items-center gap-1.5">
+                    📄 PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de imagen MER de referencia (colapsable) -->
+        <div id="tab-mer-panel" class="hidden bg-slate-900 border border-amber-700/40 rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-amber-300 text-xs font-bold">🖼️ Imagen MER de referencia</span>
+                <button onclick="_tabToggleMerPanel()" class="text-slate-500 hover:text-slate-300 text-sm">✕</button>
+            </div>
+            <img id="tab-mer-img" src="" alt="MER de referencia"
+                class="max-w-full rounded-xl border border-slate-700" style="max-height:400px;">
+        </div>
+
+        <!-- Indicador de fases -->
+        <div class="no-print flex items-center gap-2">
+            ${['Entidades', 'Relaciones', 'Esquema completo'].map((ph, i) => `
+                <div id="tab-phase-${i}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition
+                    ${i === 0 ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-500'}">
+                    <span>${i + 1}</span><span>${ph}</span>
+                </div>
+                ${i < 2 ? '<span class="text-slate-600 text-xs">→</span>' : ''}
+            `).join('')}
+        </div>
+
+        <!-- Contenido principal de la fase -->
+        <div id="tab-phase-content" class="flex-1 flex flex-col gap-4"></div>
+
+    </div>`;
+
+    // Sincronizar botón "Ver MER" si hay imagen de referencia
+    _tabSyncMerButton();
 }
 
-function clickEntSlot(ti, fi) {
-    if (tabEntRevealed) return;
-    const key    = `${ti}_${fi}`;
-    const placed = tabEntSlots[key];
-    if (placed) {
-        const wbi = tabEntWB.findIndex(w => w.word === placed && w.used);
-        if (wbi !== -1) tabEntWB[wbi].used = false;
-        tabEntSlots[key] = null;
-        tabEntSelWB = null;
-        _refreshEntWB(); _refreshEntSlots();
-        return;
+// ── Sincronizar botón MER con imagen global ───────────────────────────────────
+function _tabSyncMerButton() {
+    const btn = document.getElementById('btn-show-mer');
+    if (!btn) return;
+    const url = window.merRefImageUrl || '';
+    btn.classList.toggle('hidden', !url);
+}
+
+function _tabToggleMerPanel() {
+    const panel = document.getElementById('tab-mer-panel');
+    const img   = document.getElementById('tab-mer-img');
+    if (!panel || !img) return;
+    const url = window.merRefImageUrl || '';
+    if (!url) return;
+    img.src = url;
+    panel.classList.toggle('hidden');
+}
+
+// ── Despachar fase actual ─────────────────────────────────────────────────────
+function _renderPhase() {
+    // Actualizar indicadores de fase
+    for (let i = 0; i < 3; i++) {
+        const el = document.getElementById(`tab-phase-${i}`);
+        if (!el) continue;
+        const active = i === _tabPhase;
+        const done   = i < _tabPhase;
+        el.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition
+            ${active ? 'bg-indigo-600 text-white' : done ? 'bg-emerald-900/60 text-emerald-300' : 'bg-slate-800 text-slate-500'}`;
     }
-    if (tabEntSelWB === null) return;
-    tabEntWB[tabEntSelWB].used = true;
-    tabEntSlots[key] = tabEntWB[tabEntSelWB].word;
-    tabEntSelWB = null;
-    _refreshEntWB(); _refreshEntSlots();
+
+    const content = document.getElementById('tab-phase-content');
+    if (!content) return;
+    content.innerHTML = '';
+
+    if (_tabPhase === 0) _renderPhaseEntities(content);
+    else if (_tabPhase === 1) _renderPhaseRelations(content);
+    else _renderPhaseComplete(content);
 }
 
-function _refreshEntSlots() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    data.entityTables.forEach((tbl, ti) => {
-        tbl.fields.forEach((fld, fi) => {
-            const el   = document.getElementById(`eslot-${ti}-${fi}`);
-            if (!el) return;
-            const word = tabEntSlots[`${ti}_${fi}`];
-            const canDrop = tabEntSelWB !== null && !word && !tabEntRevealed;
-            if (word) { el.textContent = word; el.className = 'font-mono text-xs flex-1 text-yellow-300 font-bold'; }
-            else { el.textContent = canDrop ? '← aquí' : '▢'; el.className = `font-mono text-xs flex-1 ${canDrop ? 'text-indigo-400 italic' : 'text-slate-600 italic'}`; }
+// ─────────────────────────────────────────────────────────────────────────────
+// FASE 0 — Entidades
+// ─────────────────────────────────────────────────────────────────────────────
+function _renderPhaseEntities(container) {
+    const data = _tabData;
+
+    // Construir banco de palabras (todos los campos de todas las entidades)
+    const allFields = [];
+    data.entityTables.forEach(tbl => {
+        tbl.fields.forEach(f => {
+            allFields.push(f.name);
         });
+    });
+    // Mezclar
+    const shuffled = [...allFields].sort(() => Math.random() - 0.5);
+
+    container.innerHTML = `
+        <div class="bg-amber-950/30 border border-amber-700/40 rounded-2xl p-4 text-xs text-amber-200 leading-relaxed">
+            <strong>Fase 1 — Entidades:</strong> Completar la notación relacional de cada entidad.
+            Hacer clic en una palabra del banco y luego en el casillero donde corresponde.
+            <br><span class="text-amber-300/70">Notación: <code>TABLA(<u>PK</u>, campo1, campo2)</code> — los campos PK van subrayados y primero.</span>
+        </div>
+
+        <!-- Banco de palabras -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Banco de palabras</p>
+            <div id="tab-word-bank" class="flex flex-wrap gap-2">
+                ${shuffled.map(w => `
+                    <button onclick="_tabSelectWord('${w}', this)"
+                        class="tab-word px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition active:scale-95">
+                        ${_esc(w)}
+                    </button>`).join('')}
+            </div>
+        </div>
+
+        <!-- Tablas de entidades -->
+        <div class="grid gap-4 ${data.entityTables.length > 2 ? 'md:grid-cols-2' : 'md:grid-cols-' + data.entityTables.length}">
+            ${data.entityTables.map((tbl, ti) => _renderEntityTableUI(tbl, ti)).join('')}
+        </div>
+
+        <!-- Botón validar -->
+        <div class="flex gap-3">
+            <button onclick="_tabValidateEntities()"
+                class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-sm transition active:scale-[0.98] shadow-lg">
+                📝 Validar entidades
+            </button>
+        </div>
+        <div id="tab-ent-feedback" class="hidden p-4 rounded-2xl text-sm font-bold border"></div>
+    `;
+
+    _tabSelectedWord = null;
+}
+
+function _renderEntityTableUI(tbl, ti) {
+    const pkCount = tbl.fields.filter(f => f.isPK).length;
+    return `
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+            <div class="text-center">
+                <span class="text-indigo-300 font-extrabold text-sm">${_esc(tbl.name)}</span>
+                ${tbl.note ? `<p class="text-slate-500 text-[10px] mt-1 leading-relaxed">${_esc(tbl.note)}</p>` : ''}
+            </div>
+            <div class="flex flex-wrap gap-1.5 justify-center">
+                ${tbl.fields.map((f, fi) => {
+                    const zoneLabel = fi === 0 ? `<span class="text-[9px] text-pink-400 font-bold block mb-0.5">PK</span>` :
+                                      fi === pkCount ? `<span class="text-[9px] text-slate-500 font-bold block mb-0.5">atributos</span>` : '';
+                    return `
+                        <div class="flex flex-col items-center">
+                            ${fi === 0 ? `<span class="text-[9px] text-pink-400 font-bold block mb-0.5">PK ▼</span>` :
+                              fi === pkCount && pkCount > 0 ? `<span class="text-[9px] text-slate-500 font-bold block mb-0.5">otros ▼</span>` : '<span class="text-[9px] block mb-0.5"> </span>'}
+                            <button id="tab-slot-${ti}-${fi}" onclick="_tabFillSlot(${ti}, ${fi})"
+                                class="tab-slot min-w-[80px] px-2 py-1.5 rounded-lg border-2 border-dashed border-slate-600 text-xs text-slate-500 hover:border-indigo-500 transition font-mono"
+                                data-ti="${ti}" data-fi="${fi}">
+                                ?
+                            </button>
+                        </div>`;
+                }).join('')}
+            </div>
+        </div>`;
+}
+
+let _tabSelectedWord = null;
+
+function _tabSelectWord(word, btn) {
+    // Deseleccionar anterior
+    document.querySelectorAll('.tab-word').forEach(b => {
+        b.className = 'tab-word px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition active:scale-95';
+    });
+    if (_tabSelectedWord === word) { _tabSelectedWord = null; return; }
+    _tabSelectedWord = word;
+    btn.className = 'tab-word px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 border border-amber-500 text-white transition active:scale-95';
+}
+
+function _tabFillSlot(ti, fi) {
+    if (!_tabSelectedWord) return;
+    const btn = document.getElementById(`tab-slot-${ti}-${fi}`);
+    if (!btn) return;
+    _tabEntSlots[`${ti}_${fi}`] = _tabSelectedWord;
+    btn.textContent = _tabSelectedWord;
+    btn.className = 'tab-slot min-w-[80px] px-2 py-1.5 rounded-lg border-2 border-amber-500 bg-amber-900/30 text-xs text-amber-200 font-bold font-mono transition cursor-pointer';
+    // Quitar palabra del banco
+    const bankBtns = document.querySelectorAll('#tab-word-bank .tab-word');
+    bankBtns.forEach(b => {
+        if (b.textContent.trim() === _tabSelectedWord) b.remove();
+    });
+    _tabSelectedWord = null;
+    document.querySelectorAll('.tab-word').forEach(b => {
+        b.className = 'tab-word px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition active:scale-95';
     });
 }
 
-function validateEntities() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    const total  = Object.keys(tabEntSlots).length;
-    const filled = Object.values(tabEntSlots).filter(v => v !== null).length;
-    if (filled < total) { _showTabFeedback('warning', `⚠️ Quedan ${total - filled} campo(s) sin asignar.`); return; }
+function _tabValidateEntities() {
+    const data = _tabData;
+    let allOk  = true;
+    let errors = 0;
 
-    let hits = 0;
-    // Validación por zonas: PK primero (cualquier orden entre PKs), resto en cualquier orden
     data.entityTables.forEach((tbl, ti) => {
         const pkSet    = new Set(tbl.fields.filter(f => f.isPK).map(f => f.name));
         const nonPkSet = new Set(tbl.fields.filter(f => !f.isPK).map(f => f.name));
         const pkZone   = tbl.fields.filter(f => f.isPK).length;
+
         tbl.fields.forEach((fld, fi) => {
-            const w  = tabEntSlots[`${ti}_${fi}`];
-            const ok = w !== null && (fi < pkZone ? pkSet.has(w) : nonPkSet.has(w));
-            if (ok) hits++;
-            const el = document.getElementById(`eslot-${ti}-${fi}`);
-            if (el && w) el.className = `font-mono text-xs flex-1 font-bold ${ok ? 'text-green-300' : 'text-red-300'}`;
+            const btn = document.getElementById(`tab-slot-${ti}-${fi}`);
+            if (!btn) return;
+            const w   = _tabEntSlots[`${ti}_${fi}`];
+            // Zona PK: índices 0..pkZone-1; resto: no-PK
+            const ok  = w !== undefined && (fi < pkZone ? pkSet.has(w) : nonPkSet.has(w));
+            if (ok) {
+                btn.className = 'tab-slot min-w-[80px] px-2 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-900/30 text-xs text-emerald-200 font-bold font-mono transition';
+            } else {
+                btn.className = 'tab-slot min-w-[80px] px-2 py-1.5 rounded-lg border-2 border-rose-500 bg-rose-900/30 text-xs text-rose-300 font-bold font-mono transition';
+                allOk = false;
+                errors++;
+            }
         });
     });
 
-    tabEntAttempts++;
-    const pct = Math.round(hits / total * 100);
-    if (hits === total) {
-        _showTabFeedback('success', `🎉 ¡Perfecto! Todas las tablas de entidades están correctas.
-          <button onclick="proceedToRelations()" class="ml-3 px-3 py-1 bg-green-700 hover:bg-green-600 text-white font-bold rounded-lg text-xs transition">Continuar → Relaciones</button>`);
+    const fb = document.getElementById('tab-ent-feedback');
+    if (!fb) return;
+    fb.classList.remove('hidden');
+
+    if (allOk) {
+        fb.className = 'p-4 rounded-2xl text-sm font-bold border bg-emerald-900/40 border-emerald-700 text-emerald-300';
+        fb.innerHTML = '✅ ¡Correcto! Todas las entidades están bien completadas. Avanzar a la siguiente fase.';
+        // Avanzar
+        setTimeout(() => {
+            _tabPhase = 1;
+            _tabRelIdx = 0;
+            _tabRelPhase = 0;
+            _renderPhase();
+        }, 1200);
     } else {
-        let html = `<span class="font-bold">${hits}/${total} correctos (${pct}%).</span> 🔑 PK en slots iniciales; el resto en cualquier orden.`;
-        if (tabEntAttempts >= 2) html += ` <button onclick="revealEntAnswers()" class="ml-2 px-2 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-lg text-xs">💡 Ver respuestas</button>`;
-        html += ` <button onclick="proceedToRelations()" class="ml-2 px-2 py-0.5 bg-indigo-700 text-indigo-100 font-semibold rounded-lg text-xs">Continuar igual →</button>`;
-        _showTabFeedback('error', html);
+        fb.className = 'p-4 rounded-2xl text-sm font-bold border bg-rose-900/40 border-rose-700 text-rose-300';
+        fb.innerHTML = `❌ Hay ${errors} campo(s) incorrectos. Los casilleros marcados en rojo no corresponden a la zona correcta (PK o atributo). Revisar y reintentar.`;
     }
 }
 
-function revealEntAnswers() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    tabEntRevealed = true;
-    data.entityTables.forEach((tbl, ti) => {
-        tbl.fields.forEach((fld, fi) => {
-            tabEntSlots[`${ti}_${fi}`] = fld.name;
-            const el = document.getElementById(`eslot-${ti}-${fi}`);
-            if (el) { el.textContent = fld.name; el.className = 'font-mono text-xs flex-1 text-green-300 font-bold'; }
-        });
-    });
-    tabEntWB.forEach(w => w.used = true);
-    _refreshEntWB();
-    _showTabFeedback('info', '✓ Respuestas reveladas. <button onclick="proceedToRelations()" class="ml-2 px-2 py-0.5 bg-indigo-700 text-indigo-100 font-semibold rounded-lg text-xs">Continuar →</button>');
+// ─────────────────────────────────────────────────────────────────────────────
+// FASE 1 — Relaciones
+// ─────────────────────────────────────────────────────────────────────────────
+function _renderPhaseRelations(container) {
+    const data = _tabData;
+
+    if (_tabRelIdx >= data.relations.length) {
+        // Todas las relaciones completadas → avanzar a fase completa
+        _tabPhase = 2;
+        _renderPhase();
+        return;
+    }
+
+    const rel     = data.relations[_tabRelIdx];
+    const total   = data.relations.length;
+    const current = _tabRelIdx + 1;
+
+    container.innerHTML = `
+        <div class="bg-amber-950/30 border border-amber-700/40 rounded-2xl p-4 text-xs text-amber-200 leading-relaxed">
+            <strong>Fase 2 — Relaciones:</strong> Relación <strong>${current} de ${total}</strong>.
+            Seleccionar la regla de pasaje que corresponde a la relación <strong class="text-white">"${_esc(rel.name)}"</strong>.
+        </div>
+
+        <!-- Tarjeta de la relación -->
+        <div class="bg-slate-900 border border-indigo-800/50 rounded-2xl p-5 flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🔗</span>
+                <div>
+                    <p class="text-white font-extrabold text-lg">"${_esc(rel.name)}"</p>
+                    <p class="text-slate-400 text-xs">${_esc(rel.cardHint)}</p>
+                </div>
+            </div>
+
+            ${_tabRelPhase === 0 ? _renderRuleSelector(rel) : _renderRelSubUI(rel)}
+        </div>
+
+        <div id="tab-rel-feedback" class="hidden p-4 rounded-2xl text-sm font-bold border"></div>
+    `;
 }
 
-function proceedToRelations() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    data.entityTables.forEach((tbl, ti) => {
-        tbl.fields.forEach((fld, fi) => {
-            if (!tabEntSlots[`${ti}_${fi}`]) tabEntSlots[`${ti}_${fi}`] = fld.name;
-        });
-    });
-    tabPhase = 'relations'; tabRelIdx = 0; tabRuleAttempts = 0; tabFKAdditions = {};
-    document.getElementById('tab-feedback')?.classList.add('hidden');
-    _renderRelationPhase(tablesData[tabExIdx]);
+function _renderRuleSelector(rel) {
+    return `
+        <div class="border-t border-slate-800 pt-3">
+            <p class="text-xs text-slate-400 font-bold mb-3">Seleccionar la regla de pasaje que aplica:</p>
+            <div class="flex flex-col gap-2">
+                ${REL_RULES.map(rule => `
+                    <button onclick="_tabSelectRule('${rule.id}')"
+                        class="w-full text-left px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-indigo-500 transition text-xs text-slate-300 flex items-start gap-3 group">
+                        <span class="text-lg flex-shrink-0 group-hover:scale-110 transition">${rule.icon}</span>
+                        <span>${_esc(rule.text)}</span>
+                    </button>`).join('')}
+            </div>
+        </div>`;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// FASE 2: RELACIONES
-// ══════════════════════════════════════════════════════════════════════════════
-
-function _renderRelationPhase(data) {
-    const rel   = data.relations[tabRelIdx];
-    const total = data.relations.length;
-    document.getElementById('tab-phase-label').textContent = `Fase 2 de 2: Relaciones (${tabRelIdx + 1}/${total})`;
-    document.getElementById('tab-feedback')?.classList.add('hidden');
-
-    tabRuleAttempts = 0; tabRelWB = []; tabRelSlots = {}; tabRelSelWB = null;
-    tabRelAttempts = 0; tabRelRevealed = false; tabFKAttempts = 0;
-
-    const rulesHTML = REL_RULES.map(rule => `
-      <button onclick="selectRelRule('${rule.id}')" id="rule-btn-${rule.id}"
-        class="text-left px-3 py-2 rounded-lg text-xs border transition bg-slate-700/60 border-slate-600 text-slate-300 hover:bg-indigo-900/50 hover:border-indigo-500 hover:text-indigo-200">
-        ${rule.text}
-      </button>`).join('');
-
-    document.getElementById('tab-phase-content').innerHTML = `
-<div class="flex flex-col gap-3">
-  <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 flex flex-col gap-3">
-    <div class="flex items-center gap-3 flex-wrap">
-      <span class="text-2xl font-mono font-black text-white">${rel.name}</span>
-      <span class="text-xs text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full font-mono">${rel.cardHint}</span>
-    </div>
-    <div>
-      <p class="text-xs font-bold text-slate-300 mb-2">Reglas del modelo relacional — ¿cuál aplica a esta relación?</p>
-      <div class="flex flex-col gap-1.5" id="tab-rule-btns">${rulesHTML}</div>
-    </div>
-    <div id="tab-rel-sub"></div>
-  </div>
-  <div id="tab-rel-progress" class="text-[10px] text-slate-600"></div>
-</div>`;
-
-    _updateRelProgress(data);
-}
-
-function _updateRelProgress(data) {
-    const el = document.getElementById('tab-rel-progress');
-    if (!el || tabRelIdx === 0) return;
-    el.innerHTML = '<span class="text-slate-700">Procesadas: </span>'
-        + data.relations.slice(0, tabRelIdx).map(r => `<span class="mr-2">✓ ${r.name}</span>`).join('');
-}
-
-function selectRelRule(ruleId) {
-    const data = tablesData[tabExIdx];
-    const rel  = data.relations[tabRelIdx];
-
-    document.querySelectorAll('#tab-rule-btns button').forEach(b => { b.disabled = true; });
-    const clicked = document.getElementById(`rule-btn-${ruleId}`);
+function _tabSelectRule(ruleId) {
+    const rel = _tabData.relations[_tabRelIdx];
+    const fb  = document.getElementById('tab-rel-feedback');
 
     if (ruleId === rel.ruleId) {
-        if (clicked) clicked.style.cssText = 'background:rgba(22,101,52,.6);border-color:#16a34a;color:#bbf7d0';
-        const rule = REL_RULES.find(r => r.id === ruleId);
-        if (rule?.generatesTable) _renderRelTableFill(data, rel);
-        else                       _renderFKPlacement(data, rel);
+        // Correcto
+        if (fb) {
+            fb.classList.remove('hidden');
+            fb.className = 'p-3 rounded-2xl text-xs font-bold border bg-emerald-900/40 border-emerald-700 text-emerald-300';
+            fb.innerHTML = `✅ ¡Correcto! ${rel.ruleHint || ''}`;
+        }
+        _tabRelPhase = 1;
+        // Re-renderizar con el sub-UI
+        setTimeout(() => _renderPhase(), 700);
     } else {
-        tabRuleAttempts++;
-        if (clicked) clicked.style.cssText = 'background:rgba(127,29,29,.6);border-color:#dc2626;color:#fca5a5;opacity:.7';
-        const correctRule = REL_RULES.find(r => r.id === rel.ruleId);
-        const hint = tabRuleAttempts >= 2
-            ? ` La regla correcta es: <strong>${correctRule?.text || rel.ruleId}</strong>.`
-            : ' Revisar la cardinalidad y las condiciones de la relación.';
-        _showTabFeedback('error', `✗ Regla incorrecta.${hint}`);
-        setTimeout(() => {
-            document.querySelectorAll('#tab-rule-btns button').forEach(b => {
-                if (!b.style.cssText.includes('127,29,29') && !b.style.cssText.includes('22,101,52')) b.disabled = false;
-            });
-        }, 1400);
+        // Incorrecto
+        const chosen = REL_RULES.find(r => r.id === ruleId);
+        if (fb) {
+            fb.classList.remove('hidden');
+            fb.className = 'p-3 rounded-2xl text-xs font-bold border bg-rose-900/40 border-rose-700 text-rose-300';
+            fb.innerHTML = `❌ No es esa regla. Elegiste: "${chosen?.text}". Pensar en la cardinalidad y si hay totalidad en el MER. Reintentar.`;
+        }
     }
 }
 
-// ── Sub-UI: llenar tabla de relación ──────────────────────────────────────────
+function _renderRelSubUI(rel) {
+    const rule = REL_RULES.find(r => r.id === rel.ruleId);
+    if (!rule) return '';
 
-function _renderRelTableFill(data, rel) {
-    document.getElementById('tab-feedback')?.classList.add('hidden');
-    tabRelWB = []; tabRelSlots = {};
-    rel.tableFields.forEach((fld, fi) => { tabRelWB.push({ word: fld.name, used: false }); tabRelSlots[fi] = null; });
-    _tabShuffle(tabRelWB);
+    if (rel.generatesTable) {
+        return _renderRelTableFill(rel, rule);
+    } else {
+        return _renderFKPlacement(rel, rule);
+    }
+}
 
-    const rows = rel.tableFields.map((fld, fi) => {
-        const icon = fld.isPK ? '🔑' : fld.isFK ? '🔗' : '·';
-        const hint = fld.isPK && fld.isFK ? 'PK·FK' : fld.isPK ? 'PK' : fld.isFK ? 'FK' : '';
-        return `<div class="flex items-center gap-1.5 px-3 py-1.5 border-b border-slate-800/60 cursor-pointer hover:bg-slate-800/40" onclick="clickRelSlot(${fi})">
-          <span class="text-xs w-4 text-center">${icon}</span>
-          <span id="rslot-${fi}" class="font-mono text-xs flex-1 text-slate-600 italic">▢</span>
-          <span class="text-[9px] text-slate-600 font-mono">${hint}</span>
+function _renderRelTableFill(rel, rule) {
+    const allFields = rel.tableFields.map(f => f.name);
+    const shuffled  = [...allFields].sort(() => Math.random() - 0.5);
+    const ri        = _tabRelIdx;
+
+    return `
+        <div class="border-t border-slate-800 pt-3 flex flex-col gap-3">
+            <div class="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-3 text-xs text-emerald-300">
+                ✅ Regla correcta: <strong>${_esc(rule.text)}</strong><br>
+                <span class="text-slate-400">${rel.tableNote || ''}</span>
+            </div>
+
+            <p class="text-xs text-slate-400 font-bold">Completar la tabla que genera esta relación:</p>
+
+            <!-- Banco palabras -->
+            <div class="flex flex-wrap gap-1.5">
+                ${shuffled.map(w => `
+                    <button onclick="_tabRelSelectWord('${w}', this)"
+                        class="tab-rel-word px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition">
+                        ${_esc(w)}
+                    </button>`).join('')}
+            </div>
+
+            <!-- Tabla a completar -->
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
+                <p class="text-center text-indigo-300 font-extrabold text-sm mb-3">${_esc(rel.tableName)}</p>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    ${rel.tableFields.map((f, fi) => `
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="text-[9px] ${f.isPK ? 'text-pink-400' : 'text-slate-500'} font-bold">${f.isPK ? 'PK' : '  '}</span>
+                            <button id="tab-rel-slot-${ri}-${fi}" onclick="_tabRelFillSlot(${ri}, ${fi})"
+                                class="tab-rel-slot min-w-[90px] px-2 py-1.5 rounded-lg border-2 border-dashed border-slate-600 text-xs text-slate-500 hover:border-amber-500 transition font-mono">
+                                ?
+                            </button>
+                        </div>`).join('')}
+                </div>
+            </div>
+
+            <button onclick="_tabValidateRelTable(${ri})"
+                class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition active:scale-95">
+                ✔ Validar tabla
+            </button>
         </div>`;
-    }).join('');
-
-    document.getElementById('tab-rel-sub').innerHTML = `
-<div class="flex flex-col gap-2 pt-2 border-t border-slate-700/40 mt-1">
-  <p class="text-xs text-green-400 font-bold">✓ Correcto — esta relación genera tabla. Completar los campos:</p>
-  <p class="text-[10px] text-slate-500">${rel.tableNote}</p>
-  <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-2">
-    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Banco de campos</p>
-    <div id="tab-rel-wb" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
-  </div>
-  <div class="bg-slate-950/60 border border-slate-700 rounded-xl overflow-hidden">
-    <div class="px-3 py-2 bg-slate-800/80 border-b border-slate-700 flex items-center gap-2">
-      <span class="font-mono font-bold text-white text-sm">${rel.tableName}</span>
-      <span class="text-[9px] text-emerald-300 bg-emerald-900/30 border border-emerald-700/40 px-1.5 py-0.5 rounded-full font-bold">Tabla nueva</span>
-    </div>
-    <div class="border-t border-slate-800">
-      <div class="grid grid-cols-[20px_1fr_auto] text-[9px] font-bold text-slate-700 uppercase tracking-wide px-3 py-1 bg-slate-800/40">
-        <span></span><span>Campo</span><span>Tipo</span>
-      </div>${rows}
-    </div>
-  </div>
-  <p class="text-[10px] text-slate-600">🔑 PK en los primeros slots; el resto en cualquier orden.</p>
-  <button onclick="validateRelTable()" class="self-start px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition">✔ Verificar tabla</button>
-</div>`;
-    _refreshRelWB();
 }
 
-function _refreshRelWB() {
-    const el = document.getElementById('tab-rel-wb');
-    if (!el) return;
-    if (tabRelWB.every(w => w.used)) { el.innerHTML = '<span class="text-slate-500 text-xs italic">Todos los campos asignados.</span>'; return; }
-    el.innerHTML = tabRelWB.map((item, idx) => {
-        if (item.used) return `<span class="px-2 py-0.5 rounded-md text-xs text-slate-700 line-through">${item.word}</span>`;
-        const sel = tabRelSelWB === idx;
-        return `<button onclick="selectRelWord(${idx})" class="px-2.5 py-0.5 rounded-md text-xs font-semibold border transition
-            ${sel ? 'bg-yellow-400 text-slate-900 border-yellow-300 ring-2 ring-yellow-300'
-                  : 'bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600'}">${item.word}</button>`;
-    }).join('');
-}
-
-function selectRelWord(idx) {
-    if (tabRelRevealed || tabRelWB[idx]?.used) return;
-    tabRelSelWB = (tabRelSelWB === idx) ? null : idx;
-    _refreshRelWB(); _refreshRelSlots();
-}
-
-function clickRelSlot(fi) {
-    if (tabRelRevealed) return;
-    const placed = tabRelSlots[fi];
-    if (placed) {
-        const wbi = tabRelWB.findIndex(w => w.word === placed && w.used);
-        if (wbi !== -1) tabRelWB[wbi].used = false;
-        tabRelSlots[fi] = null; tabRelSelWB = null;
-        _refreshRelWB(); _refreshRelSlots(); return;
-    }
-    if (tabRelSelWB === null) return;
-    tabRelWB[tabRelSelWB].used = true;
-    tabRelSlots[fi] = tabRelWB[tabRelSelWB].word;
-    tabRelSelWB = null;
-    _refreshRelWB(); _refreshRelSlots();
-}
-
-function _refreshRelSlots() {
-    const rel = tablesData[tabExIdx].relations[tabRelIdx];
-    rel.tableFields.forEach((fld, fi) => {
-        const el = document.getElementById(`rslot-${fi}`);
-        if (!el) return;
-        const word = tabRelSlots[fi];
-        const canDrop = tabRelSelWB !== null && !word;
-        if (word) { el.textContent = word; el.className = 'font-mono text-xs flex-1 text-yellow-300 font-bold'; }
-        else { el.textContent = canDrop ? '← aquí' : '▢'; el.className = `font-mono text-xs flex-1 ${canDrop ? 'text-indigo-400 italic' : 'text-slate-600 italic'}`; }
-    });
-}
-
-function validateRelTable() {
-    const data = tablesData[tabExIdx];
-    const rel  = data.relations[tabRelIdx];
-    const total  = rel.tableFields.length;
-    const filled = Object.values(tabRelSlots).filter(v => v !== null).length;
-    if (filled < total) { _showTabFeedback('warning', `⚠️ Quedan ${total - filled} campo(s) sin asignar.`); return; }
-
-    const pkSet    = new Set(rel.tableFields.filter(f => f.isPK).map(f => f.name));
-    const nonPkSet = new Set(rel.tableFields.filter(f => !f.isPK).map(f => f.name));
-    const pkZone   = rel.tableFields.filter(f => f.isPK).length;
-    let hits = 0;
-    rel.tableFields.forEach((fld, fi) => {
-        const w  = tabRelSlots[fi];
-        const ok = w !== null && (fi < pkZone ? pkSet.has(w) : nonPkSet.has(w));
-        if (ok) hits++;
-        const el = document.getElementById(`rslot-${fi}`);
-        if (el) el.className = `font-mono text-xs flex-1 font-bold ${ok ? 'text-green-300' : 'text-red-300'}`;
-    });
-
-    tabRelAttempts++;
-    const pct = Math.round(hits / total * 100);
-    if (hits === total) {
-        _showTabFeedback('success', `🎉 ¡Correcto! Tabla "${rel.tableName}" completada.
-          <button onclick="advanceRelation()" class="ml-2 px-3 py-0.5 bg-green-700 hover:bg-green-600 text-white font-bold rounded-lg text-xs">Siguiente →</button>`);
-    } else {
-        let html = `<span class="font-bold">${hits}/${total} correctos (${pct}%).</span> PK en primeros slots; resto en cualquier orden.`;
-        if (tabRelAttempts >= 2) html += ` <button onclick="revealRelTable()" class="ml-2 px-2 py-0.5 bg-slate-700 text-slate-200 font-semibold rounded-lg text-xs">💡 Ver respuestas</button>`;
-        html += ` <button onclick="advanceRelation()" class="ml-2 px-2 py-0.5 bg-indigo-700 text-indigo-100 font-semibold rounded-lg text-xs">Continuar →</button>`;
-        _showTabFeedback('error', html);
-    }
-}
-
-function revealRelTable() {
-    const rel = tablesData[tabExIdx].relations[tabRelIdx];
-    tabRelRevealed = true;
-    rel.tableFields.forEach((fld, fi) => {
-        tabRelSlots[fi] = fld.name;
-        tabRelWB.forEach(w => { if (w.word === fld.name) w.used = true; });
-        const el = document.getElementById(`rslot-${fi}`);
-        if (el) { el.textContent = fld.name; el.className = 'font-mono text-xs flex-1 text-green-300 font-bold'; }
-    });
-    _refreshRelWB();
-    _showTabFeedback('info', `✓ Respuestas reveladas.
-      <button onclick="advanceRelation()" class="ml-2 px-3 py-0.5 bg-indigo-700 text-indigo-100 font-bold rounded-lg text-xs">Siguiente →</button>`);
-}
-
-// ── Sub-UI: elegir dónde va la FK ─────────────────────────────────────────────
-
-function _renderFKPlacement(data, rel) {
-    document.getElementById('tab-feedback')?.classList.add('hidden');
+function _renderFKPlacement(rel, rule) {
     const fp = rel.fkPlacement;
-    const tableNames = data.entityTables.map(t => t.name);
+    return `
+        <div class="border-t border-slate-800 pt-3 flex flex-col gap-3">
+            <div class="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-3 text-xs text-emerald-300">
+                ✅ Regla correcta: <strong>${_esc(rule.text)}</strong>
+            </div>
 
-    document.getElementById('tab-rel-sub').innerHTML = `
-<div class="flex flex-col gap-2 pt-2 border-t border-slate-700/40 mt-1">
-  <p class="text-xs text-green-400 font-bold">✓ Correcto — esta relación no genera tabla. ¿En qué tabla se agrega la clave foránea?</p>
-  <div class="flex flex-wrap gap-2" id="tab-fk-btns">
-    ${tableNames.map(name => `<button onclick="chooseFKTarget('${name}')"
-        class="px-4 py-2 rounded-xl text-sm font-bold border transition bg-slate-700 border-slate-600 text-slate-200 hover:bg-indigo-900/40 hover:border-indigo-500 hover:text-indigo-200">
-        ${name}</button>`).join('')}
-  </div>
-</div>`;
-}
+            <div class="bg-indigo-950/40 border border-indigo-800/40 rounded-xl p-4 text-xs">
+                <p class="text-indigo-300 font-bold mb-2">¿En qué tabla se agrega la FK?</p>
+                <p class="text-white font-extrabold text-base mb-1">Tabla: <span class="text-indigo-300">${_esc(fp.targetTable)}</span></p>
+                <p class="text-slate-400">${_esc(fp.reason)}</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    ${fp.fkFields.map(f => `
+                        <span class="px-2.5 py-1 bg-blue-900/50 border border-blue-700/50 rounded-lg text-blue-300 font-bold text-xs">
+                            + ${_esc(f.name)} <span class="text-blue-400/60 text-[10px]">FK→${_esc(f.fkTo)}</span>
+                        </span>`).join('')}
+                </div>
+            </div>
 
-function chooseFKTarget(tableName) {
-    const data = tablesData[tabExIdx];
-    const rel  = data.relations[tabRelIdx];
-    const fp   = rel.fkPlacement;
-    const ok   = tableName === fp.targetTable;
-
-    document.querySelectorAll('#tab-fk-btns button').forEach(b => { b.disabled = true; });
-    const clickedBtn = [...document.querySelectorAll('#tab-fk-btns button')].find(b => b.textContent.trim() === tableName);
-
-    if (ok) {
-        if (clickedBtn) clickedBtn.style.cssText = 'background:rgba(22,101,52,.6);border-color:#16a34a;color:#bbf7d0';
-        if (!tabFKAdditions[fp.targetTable]) tabFKAdditions[fp.targetTable] = [];
-        fp.fkFields.forEach(f => tabFKAdditions[fp.targetTable].push(f));
-        const fkList = fp.fkFields.map(f => `<code class="text-yellow-300 font-bold">${f.name}</code> FK → ${f.fkTo}`).join(', ');
-        _showTabFeedback('success', `✓ Correcto. Se agrega ${fkList} a <strong>${fp.targetTable}</strong>. ${fp.reason}
-          <button onclick="advanceRelation()" class="ml-2 px-3 py-0.5 bg-green-700 hover:bg-green-600 text-white font-bold rounded-lg text-xs">Siguiente →</button>`);
-    } else {
-        tabFKAttempts++;
-        if (clickedBtn) clickedBtn.style.cssText = 'background:rgba(127,29,29,.6);border-color:#dc2626;color:#fca5a5;opacity:.6';
-        let hint = 'Revisar: ¿cuál es la tabla del lado N de la relación?';
-        if (tabFKAttempts >= 2) {
-            hint = `La respuesta correcta es <strong>${fp.targetTable}</strong>. ${fp.reason}`;
-            if (!tabFKAdditions[fp.targetTable]) tabFKAdditions[fp.targetTable] = [];
-            fp.fkFields.forEach(f => tabFKAdditions[fp.targetTable].push(f));
-        }
-        _showTabFeedback('error', `✗ Incorrecto. ${hint}
-          ${tabFKAttempts >= 2 ? `<button onclick="advanceRelation()" class="ml-2 px-2 py-0.5 bg-indigo-700 text-indigo-100 font-semibold rounded-lg text-xs">Continuar →</button>` : ''}`);
-        if (tabFKAttempts < 2) {
-            document.querySelectorAll('#tab-fk-btns button').forEach(b => {
-                if (!b.style.cssText.includes('127,29,29')) b.disabled = false;
-            });
-        }
-    }
-}
-
-function advanceRelation() {
-    const data = tablesData[tabExIdx];
-    const rel  = data.relations[tabRelIdx];
-    if (!rel.generatesTable && rel.fkPlacement && !tabFKAdditions[rel.fkPlacement.targetTable]) {
-        tabFKAdditions[rel.fkPlacement.targetTable] = [...rel.fkPlacement.fkFields];
-    }
-    tabRelIdx++;
-    if (tabRelIdx >= data.relations.length) { tabPhase = 'complete'; _renderCompletePhase(data); }
-    else                                     { _renderRelationPhase(data); }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// FASE 3: ESQUEMA COMPLETO
-// ══════════════════════════════════════════════════════════════════════════════
-
-function _renderCompletePhase(data) {
-    document.getElementById('tab-phase-label').textContent = '✓ Modelo relacional completo';
-    document.getElementById('tab-feedback')?.classList.add('hidden');
-
-    const allTables  = _buildFinalTables(data);
-    const fkExpected = _buildAllFKConstraints(allTables);
-
-    const tableBlocks = allTables.map(tbl => {
-        const fieldStr = tbl.fields.map(f => {
-            let n = f.name;
-            if (f.isPK && f.isFK) n = `<u><span class="text-indigo-300">${n}</span></u>`;
-            else if (f.isPK)       n = `<u>${n}</u>`;
-            else if (f.isFK)       n = `<span class="text-indigo-300">${n}</span>`;
-            return n;
-        }).join(', ');
-        const color = tbl.isRelation          ? 'text-emerald-300 border-emerald-800/40'
-            : tbl.sourceType === 'weak'        ? 'text-amber-300 border-amber-800/40'
-            : tbl.sourceType === 'isa'         ? 'text-sky-300 border-sky-800/40'
-            : tbl.sourceType === 'multivalued' ? 'text-purple-300 border-purple-800/40'
-            :                                    'text-white border-slate-700';
-        return `<div class="font-mono text-sm px-3 py-1.5 rounded-lg border bg-slate-900/60 ${color}">
-          <span class="font-extrabold">${tbl.name}</span>(<span class="text-slate-300">${fieldStr}</span>)
+            <!-- Acumular FK para la fase completa -->
+            <button onclick="_tabConfirmFKPlacement(${_tabRelIdx})"
+                class="py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition active:scale-95">
+                ✔ Confirmar — agregar FK a ${_esc(fp.targetTable)}
+            </button>
         </div>`;
-    }).join('');
-
-    const fkInputsHTML = fkExpected.length > 0
-        ? fkExpected.map((_, i) => `
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-600 w-5 text-right shrink-0">${i+1}.</span>
-            <input id="fk-input-${i}" type="text" placeholder="TABLA.campo FK TABLA2.campo"
-                   class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-indigo-500 transition"
-                   spellcheck="false" autocomplete="off">
-          </div>`).join('')
-        : '<p class="text-xs text-slate-600 italic">Este ejercicio no tiene restricciones de integridad referencial.</p>';
-
-    document.getElementById('tab-phase-content').innerHTML = `
-<div class="flex flex-col gap-4">
-  <div class="flex items-center gap-3">
-    <span class="text-2xl">🎉</span>
-    <div>
-      <h3 class="text-base font-extrabold text-white">Modelo Relacional Completo</h3>
-      <p class="text-xs text-slate-500">PK: subrayada · FK: azul · PK+FK: ambos.</p>
-    </div>
-  </div>
-
-  <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 flex flex-col gap-1.5">
-    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Esquema</p>
-    ${tableBlocks}
-  </div>
-
-  <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 flex flex-col gap-3">
-    <div>
-      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Restricciones de integridad referencial</p>
-      <p class="text-xs text-slate-500 mt-0.5">Escribir cada restricción en formato: <code class="text-slate-300 bg-slate-800 px-1 rounded">TABLA.campo FK TABLA2.campo</code></p>
-    </div>
-    <div class="flex flex-col gap-2" id="fk-inputs-wrap">${fkInputsHTML}</div>
-    ${fkExpected.length > 0 ? `
-    <div class="flex gap-2 flex-wrap mt-1">
-      <button onclick="validateFKConstraints()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition">✔ Verificar restricciones</button>
-      <button onclick="revealFKConstraints()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">💡 Ver respuestas</button>
-      <button onclick="exportPDF()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">📄 Exportar PDF</button>
-    </div>
-    <div id="fk-val-result"></div>` : `
-    <button onclick="exportPDF()" class="self-start px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">📄 Exportar PDF</button>`}
-  </div>
-</div>`;
 }
 
-function validateFKConstraints() {
-    const data      = tablesData[tabExIdx];
-    const allTables = _buildFinalTables(data);
-    const expected  = _buildAllFKConstraints(allTables);
-    const normExp   = expected.map(_normFK);
-    const used      = new Array(expected.length).fill(false);
-    let correct     = 0;
+let _tabRelSelectedWord = null;
 
-    for (let i = 0; i < expected.length; i++) {
-        const input = document.getElementById(`fk-input-${i}`);
-        if (!input) continue;
-        const val = _normFK(input.value);
-        if (!val) { input.style.cssText = ''; continue; }
-        const matchIdx = normExp.findIndex((e, j) => !used[j] && e === val);
-        if (matchIdx !== -1) {
-            used[matchIdx] = true; correct++;
-            input.style.cssText = 'border-color:#22c55e;color:#86efac';
+function _tabRelSelectWord(word, btn) {
+    document.querySelectorAll('.tab-rel-word').forEach(b => {
+        b.className = 'tab-rel-word px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition';
+    });
+    if (_tabRelSelectedWord === word) { _tabRelSelectedWord = null; return; }
+    _tabRelSelectedWord = word;
+    btn.className = 'tab-rel-word px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-600 border border-amber-500 text-white transition';
+}
+
+function _tabRelFillSlot(ri, fi) {
+    if (!_tabRelSelectedWord) return;
+    const btn = document.getElementById(`tab-rel-slot-${ri}-${fi}`);
+    if (!btn) return;
+    if (!_tabRelSlots[ri]) _tabRelSlots[ri] = {};
+    _tabRelSlots[ri][fi] = _tabRelSelectedWord;
+    btn.textContent = _tabRelSelectedWord;
+    btn.className = 'tab-rel-slot min-w-[90px] px-2 py-1.5 rounded-lg border-2 border-amber-500 bg-amber-900/30 text-xs text-amber-200 font-bold font-mono transition cursor-pointer';
+    // Quitar del banco
+    document.querySelectorAll('.tab-rel-word').forEach(b => {
+        if (b.textContent.trim() === _tabRelSelectedWord) b.remove();
+    });
+    _tabRelSelectedWord = null;
+    document.querySelectorAll('.tab-rel-word').forEach(b => {
+        b.className = 'tab-rel-word px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-800/40 border border-amber-700/40 text-amber-200 hover:bg-amber-700/50 transition';
+    });
+}
+
+function _tabValidateRelTable(ri) {
+    const rel     = _tabData.relations[ri];
+    const slots   = _tabRelSlots[ri] || {};
+    const pkFields  = rel.tableFields.filter(f => f.isPK).map(f => f.name);
+    const nonPk     = rel.tableFields.filter(f => !f.isPK).map(f => f.name);
+    const pkZone    = pkFields.length;
+    let   errors    = 0;
+
+    rel.tableFields.forEach((f, fi) => {
+        const btn = document.getElementById(`tab-rel-slot-${ri}-${fi}`);
+        if (!btn) return;
+        const w   = slots[fi];
+        const ok  = fi < pkZone
+            ? (new Set(pkFields)).has(w)
+            : (new Set(nonPk)).has(w);
+        if (ok) {
+            btn.className = 'tab-rel-slot min-w-[90px] px-2 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-900/30 text-xs text-emerald-200 font-bold font-mono';
         } else {
-            input.style.cssText = 'border-color:#ef4444;color:#fca5a5';
+            btn.className = 'tab-rel-slot min-w-[90px] px-2 py-1.5 rounded-lg border-2 border-rose-500 bg-rose-900/30 text-xs text-rose-300 font-bold font-mono';
+            errors++;
         }
-    }
+    });
 
-    const result = document.getElementById('fk-val-result');
-    if (!result) return;
-    const n = expected.length;
-    if (correct === n) {
-        result.innerHTML = `<p class="text-green-400 text-xs font-bold mt-1">🎉 ¡Todas las restricciones son correctas! <button onclick="exportPDF()" class="ml-2 px-2 py-0.5 bg-slate-700 text-slate-200 font-semibold rounded-lg text-xs">📄 Exportar PDF</button></p>`;
+    const fb = document.getElementById('tab-rel-feedback');
+    if (!fb) return;
+    fb.classList.remove('hidden');
+
+    if (errors === 0) {
+        _tabRelDone[ri] = true;
+        fb.className = 'p-3 rounded-2xl text-xs font-bold border bg-emerald-900/40 border-emerald-700 text-emerald-300';
+        fb.innerHTML = '✅ Tabla correcta. Avanzar a la siguiente relación.';
+        setTimeout(() => _tabNextRelation(), 1000);
     } else {
-        const missing = expected.filter((_, j) => !used[j]).map(c => `<code class="text-yellow-300">${c}</code>`);
-        result.innerHTML = `<p class="text-yellow-300 text-xs font-semibold mt-1">${correct}/${n} correctas.${missing.length ? ` Faltan o son incorrectas: ${missing.join(', ')}` : ''}</p>`;
+        fb.className = 'p-3 rounded-2xl text-xs font-bold border bg-rose-900/40 border-rose-700 text-rose-300';
+        fb.innerHTML = `❌ Hay ${errors} campo(s) incorrectos en la zona equivocada. Los PK van primero.`;
     }
 }
 
-function revealFKConstraints() {
-    const data      = tablesData[tabExIdx];
-    const allTables = _buildFinalTables(data);
-    const expected  = _buildAllFKConstraints(allTables);
-    expected.forEach((c, i) => {
-        const input = document.getElementById(`fk-input-${i}`);
-        if (input) { input.value = c; input.style.cssText = 'border-color:#22c55e;color:#86efac'; }
+function _tabConfirmFKPlacement(ri) {
+    const rel = _tabData.relations[ri];
+    const fp  = rel.fkPlacement;
+    // Acumular FK en _tabFKAdd
+    if (!_tabFKAdd[fp.targetTable]) _tabFKAdd[fp.targetTable] = [];
+    fp.fkFields.forEach(f => {
+        _tabFKAdd[fp.targetTable].push(f);
     });
-    const result = document.getElementById('fk-val-result');
-    if (result) result.innerHTML = `<p class="text-slate-400 text-xs mt-1">✓ Respuestas reveladas. <button onclick="exportPDF()" class="ml-2 px-2 py-0.5 bg-slate-700 text-slate-200 font-semibold rounded-lg text-xs">📄 Exportar PDF</button></p>`;
+    _tabRelDone[ri] = true;
+    const fb = document.getElementById('tab-rel-feedback');
+    if (fb) {
+        fb.classList.remove('hidden');
+        fb.className = 'p-3 rounded-2xl text-xs font-bold border bg-emerald-900/40 border-emerald-700 text-emerald-300';
+        fb.innerHTML = `✅ FK registrada en ${_esc(fp.targetTable)}. Avanzar.`;
+    }
+    setTimeout(() => _tabNextRelation(), 900);
 }
 
-function exportPDF() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    const allTables = _buildFinalTables(data);
-    const fkList    = _buildAllFKConstraints(allTables);
-    const title     = (typeof exercises !== 'undefined' && exercises[tabExIdx]?.title)
-        ? exercises[tabExIdx].title : `Ejercicio ${tabExIdx + 1}`;
-
-    const tableRows = allTables.map(tbl => {
-        const fields = tbl.fields.map(f => {
-            if (f.isPK && f.isFK) return `<u><i>${f.name}</i></u>`;
-            if (f.isPK)  return `<u>${f.name}</u>`;
-            if (f.isFK)  return `<i>${f.name}</i>`;
-            return f.name;
-        }).join(', ');
-        return `<div style="margin:5px 0;font-family:'Courier New',monospace;font-size:13px"><b>${tbl.name}</b>(${fields})</div>`;
-    }).join('');
-
-    const fkRows = fkList.length
-        ? fkList.map(c => `<div style="margin:3px 0;font-family:'Courier New',monospace;font-size:12px;color:#222">${c}</div>`).join('')
-        : '<div style="color:#888;font-style:italic;font-size:11px">Sin restricciones de integridad referencial.</div>';
-
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>Pasaje a Tablas — ${title}</title>
-<style>body{font-family:Arial,sans-serif;padding:24px;color:#111;max-width:900px;margin:0 auto}
-h1{font-size:18px;margin:0 0 4px}
-p.sub{font-size:11px;color:#666;margin:0 0 16px}
-h2{font-size:12px;font-weight:bold;color:#444;border-bottom:1px solid #ddd;padding-bottom:3px;margin:18px 0 8px}
-.footer{margin-top:30px;font-size:9px;color:#aaa}
-@media print{body{padding:10px}}</style></head><body>
-<h1>Modelo Relacional — ${title}</h1>
-<p class="sub">PK: <u>subrayado</u> &nbsp;|&nbsp; FK: <i>cursiva</i> &nbsp;|&nbsp; PK+FK: <u><i>ambos</i></u></p>
-<h2>Esquema</h2>${tableRows}
-<h2>Restricciones de integridad referencial</h2>${fkRows}
-<div class="footer">Diseñada por Prof. Elizabeth Izquierdo con asistencia de Claude — CC BY-SA 4.0</div>
-</body></html>`;
-
-    const w = window.open('', '_blank');
-    if (w) { w.document.write(html); w.document.close(); setTimeout(() => w.print(), 300); }
-    else   { alert('El navegador bloqueó la ventana emergente. Permitir popups para esta función.'); }
+function _tabNextRelation() {
+    _tabRelIdx++;
+    _tabRelPhase = 0;
+    if (_tabRelIdx >= _tabData.relations.length) {
+        _tabPhase = 2;
+    }
+    _renderPhase();
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CONSTRUCCIÓN DEL ESQUEMA FINAL
-// ══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// FASE 2 — Esquema completo
+// ─────────────────────────────────────────────────────────────────────────────
+function _renderPhaseComplete(container) {
+    const data  = _tabData;
 
-function _buildFinalTables(data) {
-    const result = [];
+    // Construir esquema final con FKs acumuladas
+    const allTables = _buildFinalSchema(data);
+    // Construir restricciones FK esperadas
+    const expectedConstraints = _buildExpectedConstraints(data);
+
+    container.innerHTML = `
+        <div class="bg-emerald-950/30 border border-emerald-700/40 rounded-2xl p-4 text-xs text-emerald-200 leading-relaxed">
+            <strong>Fase 3 — Esquema completo:</strong> Visualizar el modelo relacional resultante.
+            Escribir las restricciones de clave foránea (FK) en la caja de texto.
+            <br>Formato: <code class="text-white">TABLA.campo FK TABLA2.campo</code> — una por línea.
+        </div>
+
+        <!-- Esquema completo (solo lectura, para verificar) -->
+        <div id="tab-schema-display" class="flex flex-col gap-3">
+            ${allTables.map(t => _renderFinalTableCard(t)).join('')}
+        </div>
+
+        <!-- FK Constraints input -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col gap-3">
+            <p class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                Restricciones de integridad referencial (FK)
+            </p>
+            <p class="text-xs text-slate-500">
+                Escribir una restricción por línea. Ejemplo: <code class="text-slate-300">PEDIDO.Id_cliente FK CLIENTE.Id_cliente</code>
+            </p>
+            <textarea id="tab-fk-input" rows="8"
+                class="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-xs text-slate-200 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+                placeholder="Escribir las restricciones FK aquí...&#10;TABLA1.campo FK TABLA2.campo"></textarea>
+            <button onclick="_tabValidateFKConstraints()"
+                class="py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition active:scale-95">
+                ✔ Validar restricciones FK
+            </button>
+            <div id="tab-fk-feedback" class="hidden"></div>
+        </div>
+
+        <!-- Botón exportar -->
+        <div class="flex gap-3">
+            <button onclick="_tabExportPDF()"
+                class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-2">
+                📄 Exportar PDF
+            </button>
+        </div>
+    `;
+}
+
+function _buildFinalSchema(data) {
+    const tables = [];
+
+    // Tablas de entidades + FKs acumuladas de relaciones 1:N
     data.entityTables.forEach(tbl => {
-        const extraFKs = tabFKAdditions[tbl.name] || [];
-        result.push({ name: tbl.name, sourceType: tbl.sourceType, isRelation: false, fields: [...tbl.fields, ...extraFKs] });
-    });
-    data.relations.forEach(rel => {
-        if (!rel.generatesTable) return;
-        result.push({ name: rel.tableName, sourceType: 'relation', isRelation: true, fields: rel.tableFields || [] });
-    });
-    return result;
-}
-
-function _buildAllFKConstraints(allTables) {
-    const constraints = [];
-    allTables.forEach(tbl => {
-        tbl.fields.forEach(f => {
-            if (!f.isFK || !f.fkTo) return;
-            const refField = f.fkRefField || _findPKField(f.fkTo, allTables, f.name);
-            constraints.push(`${tbl.name}.${f.name} FK ${f.fkTo}.${refField}`);
+        const extraFKs = _tabFKAdd[tbl.name] || [];
+        tables.push({
+            name:   tbl.name,
+            fields: [...tbl.fields, ...extraFKs.map(f => ({ ...f, isFK: true }))],
+            isRelation: false,
+            note: tbl.note || ''
         });
     });
+
+    // Tablas de relaciones que generan tabla
+    data.relations.forEach(rel => {
+        if (rel.generatesTable) {
+            tables.push({
+                name:   rel.tableName,
+                fields: rel.tableFields,
+                isRelation: true,
+                note: rel.tableNote || ''
+            });
+        }
+    });
+
+    return tables;
+}
+
+function _buildExpectedConstraints(data) {
+    const constraints = [];
+
+    // FKs de tablas de entidades (definidas en entityTables)
+    data.entityTables.forEach(tbl => {
+        tbl.fields.forEach(f => {
+            if (f.isFK && f.fkTo) {
+                // Encontrar campo PK de la tabla referenciada
+                const refTbl = data.entityTables.find(t => t.name === f.fkTo);
+                const refPK  = refTbl?.fields.find(rf => rf.isPK);
+                const refField = f.fkRefField || (refPK ? refPK.name : f.name);
+                constraints.push(`${tbl.name}.${f.name} FK ${f.fkTo}.${refField}`);
+            }
+        });
+    });
+
+    // FKs acumuladas de relaciones 1:N sin tabla
+    data.relations.forEach(rel => {
+        if (!rel.generatesTable && rel.fkPlacement) {
+            rel.fkPlacement.fkFields.forEach(f => {
+                const refTbl  = data.entityTables.find(t => t.name === f.fkTo);
+                const refPK   = refTbl?.fields.find(rf => rf.isPK);
+                const refField = refPK ? refPK.name : f.name;
+                constraints.push(`${rel.fkPlacement.targetTable}.${f.name} FK ${f.fkTo}.${refField}`);
+            });
+        }
+    });
+
+    // FKs de tablas de relación que generan tabla
+    data.relations.forEach(rel => {
+        if (rel.generatesTable) {
+            rel.tableFields.forEach(f => {
+                if (f.isFK && f.fkTo) {
+                    const refTbl  = data.entityTables.find(t => t.name === f.fkTo);
+                    const refPK   = refTbl?.fields.find(rf => rf.isPK);
+                    const refField = f.fkRefField || (refPK ? refPK.name : f.name);
+                    constraints.push(`${rel.tableName}.${f.name} FK ${f.fkTo}.${refField}`);
+                }
+            });
+        }
+    });
+
     return constraints;
 }
 
-function _findPKField(parentName, allTables, fallback) {
-    const parent = allTables.find(t => t.name === parentName);
-    if (!parent) return fallback;
-    const exact = parent.fields.find(f => f.isPK && f.name === fallback);
-    if (exact) return exact.name;
-    const first = parent.fields.find(f => f.isPK);
-    return first ? first.name : fallback;
-}
+function _renderFinalTableCard(t) {
+    const pkFields  = t.fields.filter(f => f.isPK);
+    const nonPkFlds = t.fields.filter(f => !f.isPK);
 
-function _normFK(s) {
-    return (s || '').trim().replace(/\s+/g, ' ').toUpperCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '');
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// IMAGEN MER
-// ══════════════════════════════════════════════════════════════════════════════
-
-function handleMerImage(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        tabMerImageUrl = e.target.result;
-        const wrap = document.getElementById('tab-img-wrap');
-        const img  = document.getElementById('tab-mer-img');
-        if (wrap && img) { img.src = tabMerImageUrl; wrap.classList.remove('hidden'); }
+    const renderField = (f) => {
+        let cls = 'font-mono text-xs ';
+        if (f.isPK)    cls += 'underline font-bold text-pink-300';
+        else if (f.isFK) cls += 'text-blue-300 font-semibold';
+        else             cls += 'text-slate-300';
+        const fkBadge = f.isFK ? ` <span class="text-[10px] text-blue-400/70 font-normal">FK→${_esc(f.fkTo)}</span>` : '';
+        return `<span class="${cls}">${_esc(f.name)}</span>${fkBadge}`;
     };
-    reader.readAsDataURL(file);
-    input.value = '';
+
+    const allFields = [...t.fields];
+
+    return `
+        <div class="bg-slate-900 border ${t.isRelation ? 'border-violet-800/50' : 'border-slate-700'} rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">${t.isRelation ? '⊗' : '▤'}</span>
+                <span class="font-extrabold text-white text-sm">${_esc(t.name)}</span>
+                ${t.isRelation ? '<span class="text-[10px] text-violet-400 font-bold uppercase tracking-wide">tabla de relación</span>' : ''}
+            </div>
+            <div class="font-mono text-xs bg-slate-800/60 rounded-xl p-3 leading-relaxed">
+                <span class="text-white font-bold">${_esc(t.name)}</span><span class="text-slate-400">(</span>${allFields.map(f => renderField(f)).join('<span class="text-slate-500">, </span>')}<span class="text-slate-400">)</span>
+            </div>
+            ${t.note ? `<p class="text-[10px] text-slate-500 mt-2">${_esc(t.note)}</p>` : ''}
+        </div>`;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// EXPORTAR / IMPORTAR JSON
-// ══════════════════════════════════════════════════════════════════════════════
+function _tabValidateFKConstraints() {
+    const data        = _tabData;
+    const expected    = _buildExpectedConstraints(data);
+    const rawInput    = (document.getElementById('tab-fk-input')?.value || '');
+    const lines       = rawInput.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const normalize   = s => s.toUpperCase().trim()
+                              .normalize('NFD').replace(/[̀-ͯ]/g, '')
+                              .replace(/\s+/g, ' ');
 
-function exportTablesProgress() {
-    const data = tablesData[tabExIdx];
-    if (!data) return;
-    const payload = {
-        version: 3, ejercicio: tabExIdx + 1, phase: tabPhase,
-        entitySlots: tabEntSlots, fkAdditions: tabFKAdditions,
-        relIdx: tabRelIdx, relSlots: tabRelSlots
+    const expectedNorm = expected.map(normalize);
+    const inputNorm    = lines.map(normalize);
+
+    // Encontrar cuáles coinciden y cuáles faltan o son incorrectas
+    const matched   = new Set();
+    const unmatched = [];
+
+    inputNorm.forEach((line, i) => {
+        const idx = expectedNorm.findIndex((e, ei) => e === line && !matched.has(ei));
+        if (idx !== -1) {
+            matched.add(idx);
+        } else {
+            unmatched.push(lines[i]);
+        }
+    });
+
+    const missing = expected.filter((_, i) => !matched.has(i));
+
+    const fb = document.getElementById('tab-fk-feedback');
+    if (!fb) return;
+    fb.classList.remove('hidden');
+
+    if (missing.length === 0 && unmatched.length === 0) {
+        fb.className = 'p-4 rounded-2xl text-xs font-bold border bg-emerald-900/40 border-emerald-700 text-emerald-300';
+        fb.innerHTML = `✅ ¡Perfecto! Las ${expected.length} restricciones FK son correctas.`;
+    } else {
+        fb.className = 'p-4 rounded-2xl text-xs font-bold border bg-amber-900/40 border-amber-700 text-amber-200';
+        let html = '';
+        if (matched.size > 0) {
+            html += `<p class="text-emerald-300 mb-2">✅ ${matched.size} restricción(es) correcta(s).</p>`;
+        }
+        if (unmatched.length > 0) {
+            html += `<p class="text-rose-300 mb-1">❌ No reconocidas (${unmatched.length}):</p>`;
+            unmatched.forEach(u => {
+                html += `<p class="font-mono bg-rose-900/30 px-2 py-0.5 rounded mb-0.5">${_esc(u)}</p>`;
+            });
+        }
+        if (missing.length > 0) {
+            html += `<p class="text-amber-300 mt-2 mb-1">⚠ Faltan (${missing.length}):</p>`;
+            missing.forEach(m => {
+                html += `<p class="font-mono bg-amber-900/30 px-2 py-0.5 rounded mb-0.5 text-slate-300">${_esc(m)}</p>`;
+            });
+        }
+        fb.innerHTML = html;
+    }
+}
+
+// ── PDF Export (iframe — evita bloqueo de popup) ──────────────────────────────
+function _tabExportPDF() {
+    const data   = _tabData;
+    const schema = _buildFinalSchema(data);
+    const constr = _buildExpectedConstraints(data);
+
+    const fieldStr = (f) => {
+        let s = f.name;
+        if (f.isPK) s = `<u><strong>${s}</strong></u>`;
+        if (f.isFK) s = `<span style="color:#3b82f6">${s}</span>`;
+        return s;
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
+
+    const tablesHTML = schema.map(t => `
+        <div style="margin-bottom:16px;break-inside:avoid;">
+            <div style="font-family:monospace;font-size:12px;line-height:1.6;
+                        border:1px solid #e5e7eb;border-radius:8px;padding:12px;
+                        background:${t.isRelation ? '#f5f3ff' : '#f9fafb'};">
+                <strong>${t.name}</strong>(${t.fields.map(fieldStr).join(', ')})
+            </div>
+            ${t.note ? `<p style="font-size:10px;color:#6b7280;margin:4px 0 0 4px;">${t.note}</p>` : ''}
+        </div>`).join('');
+
+    const constrHTML = constr.map(c => `
+        <p style="font-family:monospace;font-size:11px;margin:2px 0;color:#374151;">${c}</p>`).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>Pasaje a Tablas — ${data.title}</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #1f2937; margin: 20px 30px; }
+  h1   { font-size: 18px; margin-bottom: 4px; }
+  h2   { font-size: 13px; color: #4b5563; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin: 16px 0 8px; }
+  .meta { font-size: 11px; color: #6b7280; margin-bottom: 16px; }
+  @media print { body { margin: 10mm 15mm; } }
+</style>
+</head><body>
+<h1>Pasaje a Tablas</h1>
+<p class="meta">Ejercicio: ${data.title} &nbsp;|&nbsp; DB-Lab — Prof. Elizabeth Izquierdo | CC BY-SA 4.0</p>
+<h2>Modelo Relacional</h2>
+${tablesHTML}
+<h2>Restricciones de integridad referencial (FK)</h2>
+${constrHTML}
+</body></html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;right:200%;bottom:200%;width:0;height:0;border:0;';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(html);
+    iframe.contentDocument.close();
+    setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => document.body.removeChild(iframe), 600);
+    }, 350);
+}
+
+// ── Guardar / cargar estado ───────────────────────────────────────────────────
+function _tabSaveJSON() {
+    const state = {
+        version: 3,
+        exerciseIdx: _tabExIdx,
+        phase:       _tabPhase,
+        relIdx:      _tabRelIdx,
+        relPhase:    _tabRelPhase,
+        entSlots:    _tabEntSlots,
+        relSlots:    _tabRelSlots,
+        fkAdd:       _tabFKAdd,
+        relDone:     _tabRelDone
+    };
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const a    = document.createElement('a');
-    const exTitle = (typeof exercises !== 'undefined' && exercises[tabExIdx]?.title)
-        ? exercises[tabExIdx].title.replace(/\s+/g, '_') : `ejercicio_${tabExIdx + 1}`;
-    a.href = url; a.download = `pasaje_tablas_${exTitle}.json`; a.click();
-    URL.revokeObjectURL(url);
+    a.href     = URL.createObjectURL(blob);
+    a.download = `tablas_ex${_tabExIdx}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
 }
 
-function importTablesProgress(input) {
-    const file = input.files[0];
+function _tabLoadJSON(evt) {
+    const file = evt.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = (e) => {
         try {
-            const p = JSON.parse(e.target.result);
-            if (!p.ejercicio) { alert('Archivo JSON no reconocido.'); return; }
-            const exIdx = p.ejercicio - 1;
-            if (exIdx !== tabExIdx) {
-                if (!confirm(`El progreso es del ejercicio ${p.ejercicio} y el actual es el ${tabExIdx + 1}. ¿Cargar de todas formas?`)) return;
-            }
-            tabEntSlots    = p.entitySlots  || {};
-            tabFKAdditions = p.fkAdditions  || {};
-            tabRelIdx      = p.relIdx       || 0;
-            tabRelSlots    = p.relSlots     || {};
-            tabPhase       = p.phase        || 'entities';
-            const data = tablesData[tabExIdx];
-            if (!data) return;
-            if (tabPhase === 'complete')       { _renderCompletePhase(data); }
-            else if (tabPhase === 'relations') { _renderRelationPhase(data); }
-            else {
-                _renderEntityPhase(data);
-                data.entityTables.forEach((tbl, ti) => {
-                    tbl.fields.forEach((fld, fi) => {
-                        const w = tabEntSlots[`${ti}_${fi}`];
-                        if (w) {
-                            const wbi = tabEntWB.findIndex(wb => wb.word === w && !wb.used);
-                            if (wbi !== -1) tabEntWB[wbi].used = true;
-                            const el = document.getElementById(`eslot-${ti}-${fi}`);
-                            if (el) { el.textContent = w; el.className = 'font-mono text-xs flex-1 text-yellow-300 font-bold'; }
-                        }
-                    });
-                });
-                _refreshEntWB();
-            }
-            _showTabFeedback('success', `✓ Progreso del ejercicio ${p.ejercicio} cargado.`);
-        } catch (err) { alert('Error al leer el archivo JSON: ' + err.message); }
+            const s = JSON.parse(e.target.result);
+            if (s.version !== 3) { alert('El archivo no es compatible con esta versión.'); return; }
+            _tabExIdx    = s.exerciseIdx;
+            _tabPhase    = s.phase;
+            _tabRelIdx   = s.relIdx;
+            _tabRelPhase = s.relPhase;
+            _tabEntSlots = s.entSlots || {};
+            _tabRelSlots = s.relSlots || {};
+            _tabFKAdd    = s.fkAdd    || {};
+            _tabRelDone  = s.relDone  || [];
+            _tabData     = window.tablesData[_tabExIdx];
+            _renderPhase();
+        } catch { alert('No se pudo cargar el archivo.'); }
     };
     reader.readAsText(file);
-    input.value = '';
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// UTILIDADES
-// ══════════════════════════════════════════════════════════════════════════════
-
-function _showTabFeedback(type, html) {
-    const fb = document.getElementById('tab-feedback');
-    if (!fb) return;
-    const styles = {
-        success: 'bg-green-950/60 border-green-700/50 text-green-200',
-        error:   'bg-red-950/60 border-red-700/50 text-red-200',
-        warning: 'bg-yellow-950/60 border-yellow-700/50 text-yellow-200',
-        info:    'bg-slate-800/80 border-slate-600/50 text-slate-200'
-    };
-    fb.className = `rounded-xl border p-3 text-sm ${styles[type] || styles.info}`;
-    fb.innerHTML = html;
-    fb.classList.remove('hidden');
-    fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function _tabShuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
+// ── Utilidades ────────────────────────────────────────────────────────────────
+function _esc(s) {
+    if (!s) return '';
+    return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
 }

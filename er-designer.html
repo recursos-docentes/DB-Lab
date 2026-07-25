@@ -48,13 +48,6 @@
             <button id="tab-tables" disabled class="stage-tab">📊 Pasaje a tablas 🔒</button>
 
             <div class="ml-auto flex items-center gap-2">
-                <!-- Subir imagen MER de referencia (visible en Diseño y Pasaje) -->
-                <label id="mer-upload-label" title="Subir imagen MER como referencia"
-                    class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 font-semibold transition cursor-pointer flex items-center gap-1.5">
-                    🖼️ Imagen ref.
-                    <input type="file" id="mer-ref-input" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp"
-                        class="hidden" onchange="handleMerRefImage(event)">
-                </label>
                 <button onclick="showTutorial()" title="¿Cómo usar la herramienta?"
                     class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-indigo-500 transition text-sm font-bold">?</button>
                 <button onclick="toggleAccessibility()" id="contrast-btn" title="Alto contraste"
@@ -183,22 +176,6 @@
                 </div>
             </div>
 
-            <!-- Banco de elementos -->
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-md flex flex-col gap-3">
-                <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
-                    <h3 class="text-emerald-400 font-bold text-sm uppercase tracking-wider">
-                        ✂️ Banco de Elementos
-                    </h3>
-                </div>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Seleccionar un elemento y luego hacer clic en el hueco del diagrama.
-                </p>
-                <div id="word-bank" class="flex flex-wrap gap-2 pt-1"></div>
-                <div id="selection-status"
-                    class="text-xs font-extrabold text-yellow-400 min-h-[1.25rem] mt-1">
-                </div>
-            </div>
-
             <!-- Botones de acción -->
             <div class="flex flex-col gap-2">
                 <button onclick="checkAnswers()"
@@ -210,9 +187,9 @@
                     🖼️ Guardar como PNG
                 </button>
 
-                <!-- Subir imagen MER de referencia (disponible desde Diseño) -->
-                <label class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl transition text-xs flex items-center justify-center gap-2 cursor-pointer border border-slate-600">
-                    📎 Subir MER de referencia
+                <!-- Subir imagen MER → desbloquea Pasaje a Tablas -->
+                <label id="mer-upload-btn" class="w-full py-3 bg-amber-800/40 hover:bg-amber-700/50 text-amber-200 font-semibold rounded-xl transition text-xs flex items-center justify-center gap-2 cursor-pointer border border-amber-700/40">
+                    <span id="mer-upload-text">🖼️ Subir MER → habilita Pasaje a Tablas</span>
                     <input type="file" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp"
                         class="hidden" onchange="handleMerRefImage(event)">
                 </label>
@@ -220,7 +197,7 @@
                 <!-- Panel imagen MER de referencia (colapsable) -->
                 <div id="mer-ref-panel-diagram" class="hidden bg-slate-900 border border-amber-700/30 rounded-xl p-3">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-amber-300 text-xs font-bold">🖼️ MER de referencia</span>
+                        <span class="text-amber-300 text-xs font-bold">🖼️ MER cargado — Pasaje a Tablas desbloqueado ✓</span>
                         <button onclick="toggleMerRefPanelDiagram()" class="text-slate-500 hover:text-slate-300 text-sm">✕</button>
                     </div>
                     <img id="mer-ref-img-diagram" src="" alt="MER de referencia"
@@ -341,6 +318,16 @@
             <div id="feedback-alert"
                 class="no-print hidden mt-4 p-4 rounded-2xl text-center font-bold text-sm border">
             </div>
+
+            <!-- ── Banco de Elementos (debajo del diagrama) ── -->
+            <div class="no-print mt-4 p-4 bg-slate-800 rounded-xl border border-slate-700 flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-emerald-400 font-bold text-xs uppercase tracking-wider">✂️ Banco de Elementos</h3>
+                    <span class="text-xs text-slate-500">— Seleccionar un elemento y hacer clic en el hueco del diagrama.</span>
+                </div>
+                <div id="word-bank" class="flex flex-wrap gap-2 pt-1"></div>
+                <div id="selection-status" class="text-xs font-extrabold text-yellow-400 min-h-[1.25rem]"></div>
+            </div>
         </section>
     </main>
 
@@ -376,12 +363,24 @@
                     panelD.classList.remove('hidden');
                 }
 
+                // ── Desbloquear pestaña Pasaje a Tablas ──
+                const tabTables = document.getElementById('tab-tables');
+                if (tabTables) {
+                    tabTables.disabled = false;
+                    tabTables.textContent = '📊 Pasaje a tablas';
+                }
+
+                // Actualizar botón de carga para mostrar estado
+                const uploadBtn = document.getElementById('mer-upload-btn');
+                const uploadTxt = document.getElementById('mer-upload-text');
+                if (uploadBtn) {
+                    uploadBtn.classList.remove('bg-amber-800/40','border-amber-700/40','text-amber-200');
+                    uploadBtn.classList.add('bg-emerald-800/40','border-emerald-700/40','text-emerald-200');
+                }
+                if (uploadTxt) uploadTxt.textContent = '✓ MER cargado — cambiar imagen';
+
                 // Mostrar botón en el tab Pasaje a tablas (si ya está cargado)
                 if (typeof _tabSyncMerButton === 'function') _tabSyncMerButton();
-
-                // Mostrar label de imagen en nav (sólo en stages relevantes)
-                const lbl = document.getElementById('mer-upload-label');
-                if (lbl) lbl.classList.remove('hidden');
             };
             reader.readAsDataURL(file);
         }
@@ -389,15 +388,6 @@
         function toggleMerRefPanelDiagram() {
             const panel = document.getElementById('mer-ref-panel-diagram');
             if (panel) panel.classList.toggle('hidden');
-        }
-
-        // Mostrar/ocultar botón imagen en la nav según stage
-        function _syncMerNavBtn(stage) {
-            const lbl = document.getElementById('mer-upload-label');
-            if (!lbl) return;
-            // Visible en Diseño y Pasaje a Tablas (no en Analizar)
-            const show = (stage === 'diagram' || stage === 'tables') && !!window.merRefImageUrl;
-            lbl.classList.toggle('hidden', !show);
         }
     </script>
 

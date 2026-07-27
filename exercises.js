@@ -130,10 +130,12 @@ const exercises = [
             { id: "e2",   type: "entity",      correctValue: "CONTENIDO",         x: 72,  y: 42,  w: 120, h: 55 },
             { id: "e3",   type: "entity",      correctValue: "CREADOR",           x: 16,  y: 76,  w: 110, h: 55 },
             { id: "e4",   type: "entity",      correctValue: "ESPECTADOR",        x: 42,  y: 76,  w: 120, h: 55 },
-            { id: "r1",   type: "relation",    correctValue: "publica",           x: 50,  y: 42,  w: 90,  h: 90 },
+            { id: "r_1",  type: "relation",    correctValue: "publica",           x: 50,  y: 42,  w: 90,  h: 90,  totalityRight: true },
             { id: "isa1", type: "isa",                                            x: 28,  y: 59,  w: 70,  h: 56 },
             { id: "c1",   type: "cardinality", correctValue: "1",                 x: 39,  y: 42,  w: 32,  h: 32 },
             { id: "c2",   type: "cardinality", correctValue: "N",                 x: 61,  y: 42,  w: 32,  h: 32 },
+            { id: "t_1_left",  type: "totalidad", correctValue: "N", x: 39, y: 32, w: 28, h: 24 },
+            { id: "t_1_right", type: "totalidad", correctValue: "S", x: 61, y: 32, w: 28, h: 24 },
             { id: "a_e1_1", type: "attribute", isKey: true,  correctValue: "Id_usuario",     x: 16,  y: 18,  w: 95,  h: 42 },
             { id: "a_e1_2", type: "attribute", isKey: false, correctValue: "Email",           x: 28,  y: 18,  w: 85,  h: 42 },
             { id: "a_e1_3", type: "attribute", isKey: false, correctValue: "Año_ingreso",    x: 40,  y: 18,  w: 95,  h: 42 },
@@ -146,7 +148,7 @@ const exercises = [
         ],
         connections: [
             { from: "a_e1_1", to: "e1" }, { from: "a_e1_2", to: "e1" }, { from: "a_e1_3", to: "e1" },
-            { from: "e1", to: "r1" }, { from: "r1", to: "e2" },
+            { from: "e1", to: "r_1" }, { from: "r_1", to: "e2" },
             { from: "a_e2_1", to: "e2" }, { from: "a_e2_2", to: "e2" }, { from: "a_e2_3", to: "e2" },
             { from: "e1",   to: "isa1" },
             { from: "isa1", to: "e3"   },
@@ -177,12 +179,14 @@ const exercises = [
             { id: "e_arc", type: "entity",   correctValue: "ARCHIVADOR", x: 85, y: 45, w: 115, h: 52 },
             // ── Relaciones ──
             { id: "r_alq", type: "relation", correctValue: "alquila",    x: 30, y: 45, w: 80,  h: 80 },
-            { id: "r_gua", type: "relation", correctValue: "guarda",     x: 67, y: 45, w: 75,  h: 75 },
+            { id: "r_gua", type: "relation", correctValue: "guarda",     x: 67, y: 45, w: 75,  h: 75, totalityLeft: true },
             // ── Cardinalidades ──
             { id: "c1",    type: "cardinality", correctValue: "N",  x: 18, y: 45, w: 30, h: 30 },
             { id: "c2",    type: "cardinality", correctValue: "N",  x: 42, y: 45, w: 30, h: 30 },
             { id: "c3",    type: "cardinality", correctValue: "N",  x: 58, y: 45, w: 30, h: 30 },
             { id: "c4",    type: "cardinality", correctValue: "1",  x: 77, y: 45, w: 30, h: 30 },
+            { id: "t_gua_left",  type: "totalidad", correctValue: "S", x: 58, y: 33, w: 28, h: 24 },
+            { id: "t_gua_right", type: "totalidad", correctValue: "N", x: 77, y: 33, w: 28, h: 24 },
             // ── Atributos SOCIO ──
             { id: "a_s1",  type: "attribute", isKey: true,         correctValue: "Cod_socio",           x: 7,  y: 23, w: 92,  h: 40 },
             { id: "a_s2",  type: "attribute", isKey: false,        correctValue: "Nombre_completo",     x: 10, y: 60, w: 112, h: 40 },
@@ -245,8 +249,8 @@ const exercises = [
             { id: "e_pac", type: "entity",      correctValue: "PACIENTE",    x: 15,   y: 50,   w: 120, h: 55 },
             { id: "e_med", type: "entity",      correctValue: "MÉDICO",      x: 50,   y: 50,   w: 120, h: 55 },
             { id: "e_con", type: "entity",      correctValue: "CONSULTA",    x: 85,   y: 50,   w: 120, h: 55 },
-            { id: "r_rea", type: "relation",    correctValue: "realiza",     x: 32,   y: 50,   w: 80,  h: 80 },
-            { id: "r_ate", type: "relation",    correctValue: "atiende",     x: 68,   y: 50,   w: 80,  h: 80 },
+            { id: "r_rea", type: "relation",    correctValue: "realiza",     x: 32,   y: 50,   w: 80,  h: 80,  totalityRight: true },
+            { id: "r_ate", type: "relation",    correctValue: "atiende",     x: 68,   y: 50,   w: 80,  h: 80,  totalityRight: true },
             { id: "a_p1", type: "attribute", isKey: true,  correctValue: "Cédula",       x: 5,  y: 22, w: 85,  h: 42 },
             { id: "a_p2", type: "attribute", isKey: false, correctValue: "Nombre",      x: 15, y: 22, w: 85,  h: 42 },
             { id: "a_p3", type: "attribute", isKey: false, correctValue: "Teléfono",    x: 25, y: 22, w: 90,  h: 42 },
@@ -259,7 +263,11 @@ const exercises = [
             { id: "c_p", type: "cardinality", correctValue: "N", x: 24,   y: 50, w: 32, h: 32 },
             { id: "c_m", type: "cardinality", correctValue: "1", x: 41,   y: 50, w: 32, h: 32 },
             { id: "c_m2", type: "cardinality", correctValue: "N", x: 59,   y: 50, w: 32, h: 32 },
-            { id: "c_c", type: "cardinality", correctValue: "1", x: 76,   y: 50, w: 32, h: 32 }
+            { id: "c_c", type: "cardinality", correctValue: "1", x: 76,   y: 50, w: 32, h: 32 },
+            { id: "t_rea_left",  type: "totalidad", correctValue: "N", x: 24, y: 38, w: 28, h: 24 },
+            { id: "t_rea_right", type: "totalidad", correctValue: "S", x: 44, y: 38, w: 28, h: 24 },
+            { id: "t_ate_left",  type: "totalidad", correctValue: "N", x: 59, y: 38, w: 28, h: 24 },
+            { id: "t_ate_right", type: "totalidad", correctValue: "S", x: 76, y: 38, w: 28, h: 24 }
         ],
         connections: [
             { from: "a_p1", to: "e_pac" }, { from: "a_p2", to: "e_pac" }, { from: "a_p3", to: "e_pac" },
@@ -326,7 +334,7 @@ const exercises = [
 // ── Ejercicio 8: Colegio ──────────────────────────────────────────────────
    {
     title: "🏫 Colegio",
-    description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA pueden ser dictadas por muchos PROFESORES<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS.<br>• Un PROFESOR puede publicar muchos LIBROS y un LIBRO es solo publicado por un PROFESOR .<br>`,
+    description: `En un colegio privado, sucede lo siguiente:  <br>• De cada PROFESOR se guarda Nombre, TeléfonoP, FechaNac y AñoIngreso. El Grado se calcula automáticamente.<br>• De cada ASIGNATURA se guarda Código y su NombreAsisg.<br>• De cada ALUMNO se guarda CédulaA, NombreCom, Teléfono, FechaNac. Su Edad se calcula automáticamente. Además, se registran sus Antecedentes.<br>• De cada LIBRO se guarda CódigoL, Titulo, Tema y Fecha.<br>• Un PROFESOR puede dictar muchas ASIGNATURAS y una ASIGNATURA puede ser dictada por muchos PROFESORES; toda ASIGNATURA es dictada por al menos un PROFESOR.<br>• Un ALUMNO puede cursar muchas ASIGNATURAS y una ASIGNATURA puede ser cursada por muchos ALUMNOS; toda ASIGNATURA es cursada por al menos un ALUMNO.<br>• Un PROFESOR puede publicar muchos LIBROS y todo LIBRO es publicado por un único PROFESOR.<br>`,
     hint: "Recuerda que Colegio no es una entidad",
     wordBank: ["PROFESOR", "CédulaP", "Nombre", "TeléfonoP", "FechaNac", "AñoIngreso", "Grado", "ASIGNATURA", "Código", "NombreAsisg", "ALUMNO", "CédulaA", "NombreCom", "Nom", "Ape1", "Ape2", "Teléfono", "FechaNac", "Edad", "Antecedentes", "LIBRO", "CódigoL", "Titulo", "Tema", "Fecha", "dicta", "N", "N", "cursa", "N", "N", "publica", "1", "N"],
     nodes: [
@@ -338,20 +346,20 @@ const exercises = [
         { id: "a_4", type: "attribute", correctValue: "AñoIngreso", x: 10, y: 92, w: 92, h: 40 },
         { id: "a_5", type: "attribute", isDerived: true, correctValue: "Grado", x: 30, y: 92, w: 92, h: 40 },
         
-        { id: "e_1", type: "entity", correctValue: "ASIGNATURA", x: 55, y: 70, w: 110, h: 52 },
-        { id: "a_6", type: "attribute", isKey: true, correctValue: "Código", x: 55, y: 52, w: 92, h: 40 },
-        { id: "a_7", type: "attribute", correctValue: "NombreAsisg", x: 55, y: 92, w: 92, h: 40 },
+        { id: "e_1", type: "entity", correctValue: "ASIGNATURA", x: 53.5, y: 70, w: 110, h: 52 },
+        { id: "a_6", type: "attribute", isKey: true, correctValue: "Código", x: 53.5, y: 52, w: 92, h: 40 },
+        { id: "a_7", type: "attribute", correctValue: "NombreAsisg", x: 53.5, y: 92, w: 92, h: 40 },
         
-        { id: "e_2", type: "entity", correctValue: "ALUMNO", x: 90, y: 70, w: 110, h: 52 },
-        { id: "a_8", type: "attribute", isKey: true, correctValue: "CédulaA", x: 95, y: 52, w: 92, h: 40 },
-        { id: "a_9", type: "attribute", correctValue: "NombreCom", x: 85, y: 52, w: 92, h: 40 },
-        { id: "a_10", type: "attribute", correctValue: "Nom", x: 77, y: 36, w: 65, h: 28 },
-        { id: "a_11", type: "attribute", correctValue: "Ape1", x: 84, y: 36, w: 65, h: 28 },
-        { id: "a_12", type: "attribute", correctValue: "Ape2", x: 91, y: 36, w: 65, h: 28 },
-        { id: "a_13", type: "attribute", correctValue: "Teléfono", x: 75, y: 52, w: 92, h: 40 },
-        { id: "a_14", type: "attribute", correctValue: "FechaNac", x: 75, y: 92, w: 92, h: 40 },
-        { id: "a_15", type: "attribute", isDerived: true, correctValue: "Edad", x: 85, y: 92, w: 92, h: 40 },
-        { id: "a_16", type: "attribute", isMultivalued: true, correctValue: "Antecedentes", x: 95, y: 92, w: 92, h: 40 },
+        { id: "e_2", type: "entity", correctValue: "ALUMNO", x: 83, y: 70, w: 110, h: 52 },
+        { id: "a_8", type: "attribute", isKey: true, correctValue: "CédulaA", x: 88, y: 52, w: 92, h: 40 },
+        { id: "a_9", type: "attribute", correctValue: "NombreCom", x: 78, y: 52, w: 92, h: 40 },
+        { id: "a_10", type: "attribute", correctValue: "Nom", x: 70, y: 36, w: 65, h: 28 },
+        { id: "a_11", type: "attribute", correctValue: "Ape1", x: 77, y: 36, w: 65, h: 28 },
+        { id: "a_12", type: "attribute", correctValue: "Ape2", x: 84, y: 36, w: 65, h: 28 },
+        { id: "a_13", type: "attribute", correctValue: "Teléfono", x: 68, y: 52, w: 92, h: 40 },
+        { id: "a_14", type: "attribute", correctValue: "FechaNac", x: 68, y: 92, w: 92, h: 40 },
+        { id: "a_15", type: "attribute", isDerived: true, correctValue: "Edad", x: 78, y: 92, w: 92, h: 40 },
+        { id: "a_16", type: "attribute", isMultivalued: true, correctValue: "Antecedentes", x: 88, y: 92, w: 92, h: 40 },
         
         { id: "e_3", type: "entity", correctValue: "LIBRO", x: 20, y: 10, w: 110, h: 52 },
         { id: "a_17", type: "attribute", isKey: true, correctValue: "CódigoL", x: 32, y: 10, w: 92, h: 40 },
@@ -363,9 +371,9 @@ const exercises = [
         { id: "c_0_1", type: "cardinality", correctValue: "N", x: 29, y: 70, w: 30, h: 30 },
         { id: "c_0_n", type: "cardinality", correctValue: "N", x: 45, y: 70, w: 30, h: 30 },
         
-        { id: "r_1", type: "relation", correctValue: "cursa", x: 73, y: 70, w: 80, h: 80, totalityRight: true },
-        { id: "c_1_1", type: "cardinality", correctValue: "N", x: 65, y: 70, w: 30, h: 30 },
-        { id: "c_1_n", type: "cardinality", correctValue: "N", x: 80, y: 70, w: 30, h: 30 },
+        { id: "r_1", type: "relation", correctValue: "cursa", x: 66, y: 70, w: 80, h: 80, totalityRight: true },
+        { id: "c_1_1", type: "cardinality", correctValue: "N", x: 60.5, y: 70, w: 30, h: 30 },
+        { id: "c_1_n", type: "cardinality", correctValue: "N", x: 73, y: 70, w: 30, h: 30 },
         
         { id: "r_2", type: "relation", correctValue: "publica", x: 20, y: 40, w: 80, h: 80, totalityRight: true },
         { id: "c_2_1", type: "cardinality", correctValue: "1", x: 20, y: 57, w: 30, h: 30 },
@@ -374,8 +382,8 @@ const exercises = [
         { id: "t_0_left", type: "totalidad", correctValue: "N", x: 32, y: 65, w: 28, h: 24 },
         { id: "t_0_right", type: "totalidad", correctValue: "S", x: 42, y: 65, w: 28, h: 24 },
 
-        { id: "t_1_left", type: "totalidad", correctValue: "N", x: 69, y: 65, w: 28, h: 24 },
-        { id: "t_1_right", type: "totalidad", correctValue: "S", x: 77, y: 65, w: 28, h: 24 },
+        { id: "t_1_left", type: "totalidad", correctValue: "N", x: 62, y: 65, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "S", x: 70, y: 65, w: 28, h: 24 },
 
         { id: "t_2_left", type: "totalidad", correctValue: "N", x: 24, y: 49, w: 28, h: 24 },
         { id: "t_2_right", type: "totalidad", correctValue: "S", x: 24, y: 32, w: 28, h: 24 }
@@ -384,9 +392,9 @@ const exercises = [
         { from: "a_0", to: "e_0" },
         { from: "a_1", to: "e_0" },
         { from: "a_2", to: "e_0" },
-        { from: "a_3", to: "a_2" },
-        { from: "a_4", to: "a_2" },
-        { from: "a_5", to: "a_2" },
+        { from: "a_3", to: "e_0" },
+        { from: "a_4", to: "e_0" },
+        { from: "a_5", to: "e_0" },
         { from: "a_6", to: "e_1" },
         { from: "a_7", to: "e_1" },
         { from: "a_8", to: "e_2" },
@@ -609,9 +617,11 @@ const exercises = [
         { id: "r_0", type: "relation", correctValue: "compone", x: 35, y: 50, w: 80, h: 80 },
         { id: "c_0_1", type: "cardinality", correctValue: "N", x: 29, y: 50, w: 30, h: 30 },
         { id: "c_0_n", type: "cardinality", correctValue: "N", x: 41, y: 50, w: 30, h: 30 },
-        { id: "r_1", type: "relation", correctValue: "contiene", x: 65, y: 50, w: 80, h: 80 },
+        { id: "r_1", type: "relation", correctValue: "contiene", x: 65, y: 50, w: 80, h: 80, totalityLeft: true },
         { id: "c_1_1", type: "cardinality", correctValue: "N", x: 71, y: 50, w: 30, h: 30 },
-        { id: "c_1_n", type: "cardinality", correctValue: "1", x: 59, y: 50, w: 30, h: 30 }
+        { id: "c_1_n", type: "cardinality", correctValue: "1", x: 59, y: 50, w: 30, h: 30 },
+        { id: "t_1_left",  type: "totalidad", correctValue: "S", x: 71, y: 38, w: 28, h: 24 },
+        { id: "t_1_right", type: "totalidad", correctValue: "N", x: 59, y: 38, w: 28, h: 24 }
     ],
     connections: [
         { from: "a_0", to: "e_0" },
@@ -642,7 +652,7 @@ const exercises = [
     title: "📖 Biblioteca2",
     description: `Una biblioteca desea registrar el préstamo de ejemplares de libros a sus socios.<br><br>
         • De cada <strong>socio</strong> se guarda su CI, celular, nombre completo (compuesto por nombre, primer apellido y segundo apellido) y dirección.<br>
-        • De cada <strong>libro</strong> se guarda un código, título, año y autor; un libro puede tener más de un autor.<br>
+        • De cada <strong>libro</strong> se guarda un código, título, año y autores.<br>
         • Cada <strong>ejemplar</strong> tiene un número identificador y su existencia depende del libro al que pertenece.<br>
         • Un <strong>socio</strong> puede tomar prestados muchos ejemplares, y un mismo <strong>ejemplar</strong> puede ser prestado a muchos socios; de cada préstamo se registra la fecha de inicio, fecha de fin y fecha de devolución.<br>
         • Cada <strong>ejemplar</strong> pertenece a un único <strong>libro</strong>, pero un libro puede tener muchos ejemplares.`,
@@ -790,10 +800,12 @@ const exercises = [
         { id: "e_1", type: "entity",    correctValue: "DOCENTE",     x: 42, y: 45, w: 110, h: 52 },
         { id: "a_2", type: "attribute", isKey: true, correctValue: "CI_Doc",      x: 33, y: 28, w: 92, h: 40 },
         { id: "a_3", type: "attribute", correctValue: "Nom_Docente", x: 44, y: 28, w: 92, h: 40 },
-        // dicta
-        { id: "r_0",   type: "relation",    correctValue: "dicta", x: 27, y: 45, w: 80, h: 80 },
+        // dicta (agregación con totalidad: todo curso es dictado por un docente)
+        { id: "r_0",   type: "relation",    totalityLeft: true, correctValue: "dicta", x: 27, y: 45, w: 80, h: 80 },
         { id: "c_0_n", type: "cardinality", correctValue: "N",     x: 21, y: 45, w: 30, h: 30 },
         { id: "c_0_1", type: "cardinality", correctValue: "1",     x: 33, y: 45, w: 30, h: 30 },
+        { id: "t_0_left",  type: "totalidad", correctValue: "S", x: 21, y: 35, w: 28, h: 24 },
+        { id: "t_0_right", type: "totalidad", correctValue: "N", x: 33, y: 35, w: 28, h: 24 },
         // supervisa (ambos lados totalidad S — todos los cursos son supervisados)
         { id: "r_1",   type: "relation",    totalityLeft: true, totalityRight: true, correctValue: "supervisa", x: 65, y: 39, w: 80, h: 80 },
         { id: "c_1_n", type: "cardinality", correctValue: "N",         x: 59, y: 39, w: 30, h: 30 },

@@ -1,6 +1,6 @@
 // tablesData.js — Datos de "Pasaje a tablas" para DB-Lab
 // Cada ejercicio tiene: entityTables[], relations[]
-// ruleId: 'nn' | '1n_total' | '1n_sintot' | 'auto_nn' | 'agg_total'
+// ruleId: 'nn' | '1n_total' | '1n_sintot' | 'auto_nn' | 'agg_total' | 'multivaluado'
 // Licencia CC BY-SA 4.0 — Prof. Elizabeth Izquierdo con asistencia de Claude
 
 const tablesData = [
@@ -203,6 +203,19 @@ const tablesData = [
                     { name: "Id_usuario", isFK: true, fkTo: "USUARIO" }
                 ]
             }
+        },
+        {
+            name: "Teléfono (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "ESPECTADOR tiene Teléfono como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Teléfono",
+            tableNote: "PK compuesta: Id_usuario + Teléfono (una fila por cada teléfono del espectador).",
+            tableFields: [
+                { name: "Id_usuario", isPK: true, isFK: true, fkTo: "ESPECTADOR" },
+                { name: "Teléfono",   isPK: true }
+            ]
         }
     ]
 },
@@ -216,9 +229,9 @@ const tablesData = [
         {
             name: "SOCIO",
             fields: [
-                { name: "Cod_socio",       isPK: true  },
-                { name: "Nombre_completo", isPK: false },
-                { name: "Directores_fav",  isPK: false }
+                { name: "Cod_socio",  isPK: true  },
+                { name: "Primer_nom", isPK: false },
+                { name: "Primer_ape", isPK: false }
             ]
         },
         {
@@ -266,6 +279,32 @@ const tablesData = [
                     { name: "Nro_arch", isFK: true, fkTo: "ARCHIVADOR" }
                 ]
             }
+        },
+        {
+            name: "Directores_favoritos (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "SOCIO tiene Directores_favoritos como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Favorito",
+            tableNote: "PK compuesta: Cod_socio + Directores_favoritos (una fila por cada director favorito).",
+            tableFields: [
+                { name: "Cod_socio",           isPK: true, isFK: true, fkTo: "SOCIO" },
+                { name: "Directores_favoritos",isPK: true }
+            ]
+        },
+        {
+            name: "Actores (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "PELÍCULA tiene Actores como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Actor",
+            tableNote: "PK compuesta: Cod_pelicula + Actores (una fila por cada actor).",
+            tableFields: [
+                { name: "Cod_pelicula", isPK: true, isFK: true, fkTo: "PELÍCULA" },
+                { name: "Actores",      isPK: true }
+            ]
         }
     ]
 },
@@ -352,7 +391,9 @@ const tablesData = [
             fields: [
                 { name: "Cédula",    isPK: true  },
                 { name: "Nombre",    isPK: false },
-                { name: "Dirección", isPK: false },
+                { name: "Calle",     isPK: false },
+                { name: "Nro",       isPK: false },
+                { name: "Esquina",   isPK: false },
                 { name: "Fecha_nac", isPK: false }
             ]
         }
@@ -370,6 +411,19 @@ const tablesData = [
                 { name: "Cédula", isPK: true,  isFK: true, fkTo: "ALUMNO"  },
                 { name: "Código", isPK: true,  isFK: true, fkTo: "MATERIA" },
                 { name: "Nota",   isPK: false }
+            ]
+        },
+        {
+            name: "Teléfonos (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "ALUMNO tiene Teléfonos como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Teléfono",
+            tableNote: "PK compuesta: Cédula + Teléfonos (una fila por cada teléfono).",
+            tableFields: [
+                { name: "Cédula",    isPK: true, isFK: true, fkTo: "ALUMNO" },
+                { name: "Teléfonos", isPK: true }
             ]
         }
     ]
@@ -402,7 +456,9 @@ const tablesData = [
             name: "ALUMNO",
             fields: [
                 { name: "CédulaA",  isPK: true  },
-                { name: "NombreCom",isPK: false },
+                { name: "Nom",      isPK: false },
+                { name: "Ape1",     isPK: false },
+                { name: "Ape2",     isPK: false },
                 { name: "Teléfono", isPK: false },
                 { name: "FechaNac", isPK: false }
             ]
@@ -457,6 +513,19 @@ const tablesData = [
                     { name: "CédulaP", isFK: true, fkTo: "PROFESOR" }
                 ]
             }
+        },
+        {
+            name: "Antecedentes (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "ALUMNO tiene Antecedentes como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Antecedente",
+            tableNote: "PK compuesta: CédulaA + Antecedentes (una fila por cada antecedente).",
+            tableFields: [
+                { name: "CédulaA",      isPK: true, isFK: true, fkTo: "ALUMNO" },
+                { name: "Antecedentes", isPK: true }
+            ]
         }
     ]
 },
@@ -486,15 +555,6 @@ const tablesData = [
             ]
         },
         {
-            name: "EJEMPLAR",
-            note: "Entidad débil de PELICULA. Título es FK hacia PELICULA.",
-            fields: [
-                { name: "Título",  isPK: true,  isFK: true, fkTo: "PELICULA" },
-                { name: "Número",  isPK: true  },
-                { name: "Estado",  isPK: false }
-            ]
-        },
-        {
             name: "DIRECTOR",
             fields: [
                 { name: "CédulaD",    isPK: true  },
@@ -513,6 +573,19 @@ const tablesData = [
         }
     ],
     relations: [
+        {
+            name: "EJEMPLAR (entidad débil)",
+            ruleId: "entidad_debil",
+            cardHint: "EJEMPLAR es una entidad débil de PELICULA",
+            ruleHint: "Entidad débil → clave compuesta: FK de la entidad fuerte (Título) + clave parcial propia (Número).",
+            generatesTable: true,
+            tableName: "EJEMPLAR",
+            tableFields: [
+                { name: "Título", isPK: true,  isFK: true, fkTo: "PELICULA" },
+                { name: "Número", isPK: true  },
+                { name: "Estado", isPK: false }
+            ]
+        },
         {
             name: "dirige",
             ruleId: "1n_total",
@@ -684,10 +757,12 @@ const tablesData = [
         {
             name: "SOCIO",
             fields: [
-                { name: "CI",         isPK: true  },
-                { name: "Celular",    isPK: false },
-                { name: "NomCompleto",isPK: false },
-                { name: "Dirección",  isPK: false }
+                { name: "CI",      isPK: true  },
+                { name: "Celular", isPK: false },
+                { name: "Nom",     isPK: false },
+                { name: "Ape1",    isPK: false },
+                { name: "Ape2",    isPK: false },
+                { name: "Dirección", isPK: false }
             ]
         },
         {
@@ -697,17 +772,21 @@ const tablesData = [
                 { name: "Titulo", isPK: false },
                 { name: "Año",    isPK: false }
             ]
-        },
-        {
-            name: "EJEMPLAR",
-            note: "Entidad débil de LIBRO. La clave es compuesta: Código (FK→LIBRO) + Número.",
-            fields: [
-                { name: "Código", isPK: true, isFK: true, fkTo: "LIBRO" },
-                { name: "Número", isPK: true }
-            ]
         }
     ],
     relations: [
+        {
+            name: "EJEMPLAR (entidad débil)",
+            ruleId: "entidad_debil",
+            cardHint: "EJEMPLAR es una entidad débil de LIBRO",
+            ruleHint: "Entidad débil → clave compuesta: FK de la entidad fuerte (Código) + clave parcial propia (Número).",
+            generatesTable: true,
+            tableName: "EJEMPLAR",
+            tableFields: [
+                { name: "Código", isPK: true, isFK: true, fkTo: "LIBRO" },
+                { name: "Número", isPK: true }
+            ]
+        },
         {
             name: "prestar",
             ruleId: "nn",
@@ -720,6 +799,19 @@ const tablesData = [
                 { name: "CI",     isPK: true, isFK: true, fkTo: "SOCIO"    },
                 { name: "Código", isPK: true, isFK: true, fkTo: "LIBRO"    },
                 { name: "Número", isPK: true, isFK: true, fkTo: "EJEMPLAR" }
+            ]
+        },
+        {
+            name: "Autor (multivaluado)",
+            ruleId: "multivaluado",
+            cardHint: "LIBRO tiene Autor como atributo multivaluado",
+            ruleHint: "Un atributo multivaluado siempre se pasa a una tabla aparte con FK a la entidad dueña.",
+            generatesTable: true,
+            tableName: "Autor",
+            tableNote: "PK compuesta: Código + Autor (una fila por cada autor del libro).",
+            tableFields: [
+                { name: "Código", isPK: true, isFK: true, fkTo: "LIBRO" },
+                { name: "Autor",  isPK: true }
             ]
         }
     ]
@@ -746,17 +838,21 @@ const tablesData = [
                 { name: "DescripciónA",isPK: false },
                 { name: "Dirección",  isPK: false }
             ]
-        },
-        {
-            name: "ESTANTERÍA",
-            note: "Entidad débil de ALMACÉN. La clave es compuesta: Nro (FK→ALMACÉN) + ID_Est.",
-            fields: [
-                { name: "Nro",    isPK: true, isFK: true, fkTo: "ALMACÉN" },
-                { name: "ID_Est", isPK: true }
-            ]
         }
     ],
     relations: [
+        {
+            name: "ESTANTERÍA (entidad débil)",
+            ruleId: "entidad_debil",
+            cardHint: "ESTANTERÍA es una entidad débil de ALMACÉN",
+            ruleHint: "Entidad débil → clave compuesta: FK de la entidad fuerte (Nro) + clave parcial propia (ID_Est).",
+            generatesTable: true,
+            tableName: "ESTANTERÍA",
+            tableFields: [
+                { name: "Nro",    isPK: true, isFK: true, fkTo: "ALMACÉN" },
+                { name: "ID_Est", isPK: true }
+            ]
+        },
         {
             name: "vende",
             ruleId: "nn",
@@ -818,9 +914,9 @@ const tablesData = [
     relations: [
         {
             name: "dicta",
-            ruleId: "agg_total",
-            cardHint: "DOCENTE 1:N CURSO — agrega la relación (totalidad)",
-            ruleHint: "Agregación con totalidad: el lado N (CURSO) recibe la FK del lado 1 (DOCENTE).",
+            ruleId: "1n_total",
+            cardHint: "DOCENTE 1:N CURSO (con totalidad del lado N)",
+            ruleHint: "Totalidad del lado N (todo curso es dictado por un docente) → FK en CURSO.",
             generatesTable: false,
             fkPlacement: {
                 targetTable: "CURSO",
@@ -832,9 +928,9 @@ const tablesData = [
         },
         {
             name: "supervisa",
-            ruleId: "1n_total",
-            cardHint: "DIRECTOR supervisa el dictado de CURSO (totalidad)",
-            ruleHint: "Todo curso es supervisado por un director (totalidad) → FK en CURSO.",
+            ruleId: "agg_total",
+            cardHint: "DIRECTOR supervisa la agregación (DOCENTE dicta CURSO) — agregación con totalidad",
+            ruleHint: "Agregación con totalidad: el curso, parte de la agregación 'dicta', recibe la FK del DIRECTOR.",
             generatesTable: false,
             fkPlacement: {
                 targetTable: "CURSO",

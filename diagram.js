@@ -191,17 +191,22 @@ function drawCrispConnectors() {
             if (!relEl) return;
             const rel = center(relEl);
 
-            // Encontrar la entidad conectada más cercana al nodo de totalidad
-            let entityEl = null;
-            let minDist  = Infinity;
-            cur.connections.forEach(conn => {
-                const otherId = conn.from === relId ? conn.to : (conn.to === relId ? conn.from : null);
-                if (!otherId) return;
-                const otherNode = cur.nodes.find(nd => nd.id === otherId);
-                if (!['entity','aggregation'].includes(otherNode?.type)) return;
-                const dist = Math.hypot(otherNode.x - n.x, otherNode.y - n.y);
-                if (dist < minDist) { minDist = dist; entityEl = document.getElementById(otherId); }
-            });
+            // Encontrar la entidad correspondiente al lado (left/right) de este nodo de totalidad,
+            // usando la misma convención que renderTotalidadPanel: "left" = entidad → relación,
+            // "right" = relación → entidad. (Antes se usaba la entidad más cercana en distancia,
+            // lo cual se rompía si se reposicionaban los nodos del diagrama.)
+            const isLeftSide = match[2] === 'left';
+            let entityId = null;
+            if (isLeftSide) {
+                const conn = cur.connections.find(c => c.to === relId &&
+                    ['entity','aggregation'].includes(cur.nodes.find(nd => nd.id === c.from)?.type));
+                entityId = conn?.from;
+            } else {
+                const conn = cur.connections.find(c => c.from === relId &&
+                    ['entity','aggregation'].includes(cur.nodes.find(nd => nd.id === c.to)?.type));
+                entityId = conn?.to;
+            }
+            const entityEl = entityId ? document.getElementById(entityId) : null;
             if (!entityEl) return;
 
             const entity = center(entityEl);
@@ -524,8 +529,8 @@ function checkAnswers() {
             ? ['bg-emerald-950','text-emerald-300','border-emerald-700']
             : ['bg-amber-950',  'text-amber-300', 'border-amber-700'])
     );
-    // Desbloquear pestaña Pasaje a Tablas si puntaje ≥ 50%
-    if (!evalMode && pct >= 50) {
+    // Desbloquear pestaña Pasaje a Tablas si puntaje ≥ 50% (independiente del modo evaluación)
+    if (pct >= 50) {
         const tabTables = document.getElementById('tab-tables');
         if (tabTables && tabTables.disabled) {
             tabTables.disabled = false;

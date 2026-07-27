@@ -15,14 +15,10 @@
     <header class="no-print bg-slate-900 text-white py-4 px-6 shadow-xl border-b border-slate-800">
         <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-indigo-600/25 border border-indigo-500/40 flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
-                </div>
+                <a href="index.html" class="hover:opacity-80 transition flex-shrink-0">
+                    <img src="logo plataforma BD.png" alt="DB-Lab UTU" class="h-14">
+                </a>
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-tight leading-tight">E-R Constructor Pro</h1>
                     <p class="text-xs text-slate-400 font-medium">Modelado Entidad-Relación</p>
                 </div>
             </div>
@@ -43,9 +39,9 @@
         <div class="max-w-[1600px] mx-auto flex items-center gap-2">
             <button id="tab-analyze" onclick="setStage('analyze')" class="stage-tab active">📋 Analizar el problema</button>
             <svg class="w-4 h-4 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <button id="tab-diagram" onclick="setStage('diagram')" class="stage-tab" disabled>🔗 Diseño E-R</button>
+            <button id="tab-diagram" onclick="setStage('diagram')" class="stage-tab">🔗 Diseño E-R</button>
             <svg class="w-4 h-4 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <button id="tab-tables" disabled class="stage-tab">📊 Pasaje a tablas 🔒</button>
+            <button id="tab-tables" onclick="setStage('tables')" disabled class="stage-tab">📊 Pasaje a tablas 🔒</button>
 
             <div class="ml-auto flex items-center gap-2">
                 <button onclick="showTutorial()" title="¿Cómo usar la herramienta?"
@@ -94,7 +90,7 @@
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Términos a identificar</p>
                 <div class="flex items-start gap-2 bg-indigo-950/40 border border-indigo-800/40 rounded-xl px-3 py-2.5">
                     <span class="text-base flex-shrink-0">👆</span>
-                    <p class="text-xs text-indigo-200 leading-relaxed font-medium">Hacer clic en cada ficha naranja y clasificarla como <strong>Entidad</strong>, <strong>Atributo</strong> o <strong>Relación</strong>. Consultar el <button onclick="showGlossary()" class="underline hover:text-white transition">glosario</button> ante dudas.</p>
+                    <p class="text-xs text-indigo-200 leading-relaxed font-medium">Hacer clic en cada ficha y clasificarla como <strong>Entidad</strong>, <strong>Atributo</strong> o <strong>Relación</strong>. Consultar el <button onclick="showGlossary()" class="underline hover:text-white transition">glosario</button> ante dudas.</p>
                 </div>
                 <div id="terms-pool" class="flex flex-wrap gap-2 pt-1 min-h-[2rem]"></div>
             </div>
@@ -174,6 +170,17 @@
                 <div id="hint-box"
                     class="hidden text-xs bg-amber-950/40 text-amber-300 border border-amber-800/50 p-3 rounded-xl leading-relaxed">
                 </div>
+            </div>
+
+            <!-- Instrucciones de totalidad -->
+            <div id="totalidad-instructions" class="hidden bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-md flex flex-col gap-2">
+                <p class="text-[10px] font-extrabold text-violet-400 uppercase tracking-widest">📌 Totalidad (Participación)</p>
+                <p class="text-xs text-slate-300 leading-relaxed">Para cada relación, indicar si cada entidad tiene participación total o parcial:</p>
+                <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+                    <li><strong>S</strong> = participación total (todas las instancias participan)</li>
+                    <li><strong>N</strong> = participación parcial (algunas pueden no participar)</li>
+                </ul>
+                <p class="text-xs text-slate-400 italic mt-1">Usar el panel de abajo para marcar cada relación.</p>
             </div>
 
             <!-- Botones de acción -->
@@ -328,6 +335,14 @@
                 <div id="word-bank" class="flex flex-wrap gap-2 pt-1"></div>
                 <div id="selection-status" class="text-xs font-extrabold text-yellow-400 min-h-[1.25rem]"></div>
             </div>
+
+            <!-- ── Panel de Totalidad/Participación ── -->
+            <div id="totalidad-panel" class="no-print hidden mt-4 p-4 bg-violet-950/40 rounded-xl border border-violet-800/40 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-extrabold text-violet-400 uppercase tracking-wider">📌 Totalidad (Participación)</span>
+                </div>
+                <div id="totalidad-questions" class="space-y-2"></div>
+            </div>
         </section>
     </main>
 
@@ -463,8 +478,9 @@
                     <div class="tutorial-step hidden" data-step="1">
                         <p class="text-4xl mb-3">📋</p>
                         <h3 class="text-white font-extrabold text-xl mb-2">Etapa 1: Analizar</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Leer el enunciado del problema. A la derecha aparecen <strong class="text-amber-300">fichas naranja</strong> con los términos importantes.</p>
-                        <p class="text-slate-300 text-sm leading-relaxed">Hacer clic en cada ficha y clasificarla como <strong class="text-blue-300">Entidad</strong>, <strong class="text-emerald-300">Atributo</strong> o <strong class="text-red-300">Relación</strong>. Luego presionar <strong class="text-white">Validar clasificación</strong>.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Leer el enunciado del problema. A la derecha aparecen <strong class="text-white">fichas</strong> con los términos importantes.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-3">Hacer clic en cada ficha y clasificarla como <strong class="text-blue-300">Entidad</strong>, <strong class="text-emerald-300">Atributo</strong> o <strong class="text-red-300">Relación</strong>. Luego presionar <strong class="text-white">Validar clasificación</strong>.</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Se puede consultar el <button onclick="closeTutorial();showGlossary()" class="text-indigo-300 underline hover:text-white">📖 Glosario</button> ante dudas.</p>
                     </div>
                     <!-- Step 3 -->
                     <div class="tutorial-step hidden" data-step="2">
@@ -527,13 +543,13 @@
         </div>
     </div>
 
-    <!-- ── Scripts externos (cache bust t=3) ── -->
-    <script src="exercises.js?t=3"></script>
-    <script src="script.js?t=3"></script>
-    <script src="analysis.js?t=3"></script>
-    <script src="diagram.js?t=3"></script>
-    <script src="tablesData.js?t=3"></script>
-    <script src="tables.js?t=3"></script>
+    <!-- ── Scripts externos (cache bust t=4) ── -->
+    <script src="exercises.js?t=36"></script>
+    <script src="script.js?t=36"></script>
+    <script src="analysis.js?t=36"></script>
+    <script src="diagram.js?t=36"></script>
+    <script src="tablesData.js?t=36"></script>
+    <script src="tables.js?t=36"></script>
 
 </body>
 </html>

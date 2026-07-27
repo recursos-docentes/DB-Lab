@@ -233,6 +233,7 @@ Si `enabled: true` y `concept` tiene una sección activa, el botón aparece auto
 | `autorelacion` | Autorelación |
 | `generalizacion` | Generalización/Categorización (ISA) |
 | `entidad_debil` | Entidades débiles |
+| `agregacion` | Agregación |
 
 ---
 

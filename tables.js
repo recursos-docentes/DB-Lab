@@ -1125,6 +1125,11 @@ function _tabExportPDF() {
     const constrHTML = constr.map(c => `
         <p style="font-family:monospace;font-size:11px;margin:2px 0;color:#374151;">${c}</p>`).join('');
 
+    const enunciadoHTML = exercises[_tabExIdx]?.description
+        ? `<h2>Enunciado</h2>
+           <div class="enunciado">${exercises[_tabExIdx].description}</div>`
+        : '';
+
     const merImageHTML = window.merRefImageUrl
         ? `<h2>Modelo E-R de referencia</h2>
            <img src="${window.merRefImageUrl}" style="max-width:100%;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:12px;">`
@@ -1159,12 +1164,14 @@ function _tabExportPDF() {
   h1   { font-size: 18px; margin-bottom: 4px; }
   h2   { font-size: 13px; color: #4b5563; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; margin: 16px 0 8px; }
   .meta { font-size: 11px; color: #6b7280; margin-bottom: 16px; }
+  .enunciado { font-size: 12px; line-height: 1.6; color: #374151; margin-bottom: 12px; }
   @media print { body { margin: 10mm 15mm; } img { break-inside: avoid; } }
 </style>
 </head><body>
 <h1>Pasaje a Tablas</h1>
 <p class="meta">Ejercicio: ${data.title} &nbsp;|&nbsp; DB-Lab — Prof. Elizabeth Izquierdo | CC BY-SA 4.0</p>
 ${attemptsHTML}
+${enunciadoHTML}
 ${merImageHTML}
 <h2>Modelo Relacional</h2>
 ${tablesHTML}
